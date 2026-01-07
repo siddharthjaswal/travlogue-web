@@ -48,7 +48,16 @@ export const authService = {
 
     // Get current user
     getCurrentUser: async () => {
-        const response = await api.get<User>('/users/me');
-        return response.data;
+        const response = await api.get<any>('/users/me');
+        const data = response.data;
+
+        // Map backend response to frontend User interface
+        const user: User = {
+            id: data.id,
+            email: data.email,
+            name: data.first_name ? `${data.first_name} ${data.last_name || ''}`.trim() : data.username,
+            picture: data.profile_photo_url,
+        };
+        return user;
     }
 };

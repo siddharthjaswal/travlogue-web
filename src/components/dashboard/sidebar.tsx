@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ModeToggle } from '@/components/mode-toggle';
 
 const sidebarItems = [
     { icon: LayoutDashboard, label: 'Overview', href: '/dashboard' },
@@ -29,14 +31,18 @@ const sidebarItems = [
 
 export function Sidebar() {
     const pathname = usePathname();
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const [collapsed, setCollapsed] = useState(false);
+
+    // Get First Name safely
+    const firstName = user?.name ? user.name.split(' ')[0] : 'User';
 
     return (
         <motion.div
             animate={{ width: collapsed ? 80 : 250 }}
             className="hidden md:flex flex-col h-screen border-r border-border bg-card z-20"
         >
+            {/* Header */}
             <div className="h-16 flex items-center justify-between px-4 border-b border-border/50">
                 {!collapsed && (
                     <span className="text-xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent truncate">
@@ -56,6 +62,7 @@ export function Sidebar() {
                 </Button>
             </div>
 
+            {/* Navigation Body */}
             <div className="flex-1 py-6 flex flex-col gap-2 px-3">
                 {/* Create Trip Action */}
                 <div className="mb-6">
@@ -87,15 +94,36 @@ export function Sidebar() {
                 </nav>
             </div>
 
+            {/* Profile Footer */}
             <div className="p-4 border-t border-border/50">
-                <Button
-                    variant="ghost"
-                    className={cn("w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10", collapsed ? "justify-center px-2" : "")}
-                    onClick={() => logout()}
-                >
-                    <LogOut className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
-                    {!collapsed && "Sign Out"}
-                </Button>
+                <div className={cn("flex items-center gap-3 mb-6", collapsed ? "justify-center" : "")}>
+                    <Avatar className={cn("transition-transform hover:scale-105 border-2 border-primary/10", collapsed ? "h-8 w-8" : "h-10 w-10")}>
+                        <AvatarImage src={user?.picture} alt={user?.name || 'User'} />
+                        <AvatarFallback>{firstName[0]}</AvatarFallback>
+                    </Avatar>
+                    {!collapsed && (
+                        <div className="flex flex-col overflow-hidden">
+                            <span className="font-semibold text-sm tracking-tight">{firstName}</span>
+                        </div>
+                    )}
+                </div>
+
+                {/* Controls Row - Centered and Large */}
+                <div className={cn("flex items-center", collapsed ? "flex-col gap-4" : "justify-center gap-8")}>
+                    {/* Theme Toggle */}
+                    <ModeToggle className="h-14 w-14 hover:bg-accent/50" />
+
+                    {/* Sign Out */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className={cn("h-14 w-14 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors rounded-full")}
+                        onClick={() => logout()}
+                        title="Sign Out"
+                    >
+                        <LogOut className="h-6 w-6" />
+                    </Button>
+                </div>
             </div>
         </motion.div>
     );

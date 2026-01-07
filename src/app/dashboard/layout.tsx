@@ -3,7 +3,7 @@
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useAuth } from '@/contexts/auth-context';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useTrips } from '@/hooks/use-trips';
 
 export default function DashboardLayout({
     children,
@@ -11,6 +11,7 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const { user } = useAuth();
+    const { data: trips, isLoading } = useTrips();
 
     return (
         <div className="flex h-screen bg-background overflow-hidden">
@@ -18,20 +19,19 @@ export default function DashboardLayout({
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Dashboard Header */}
                 <header className="h-16 border-b border-border/50 flex items-center justify-between px-6 bg-card/50 backdrop-blur-sm">
-                    <h1 className="text-xl font-semibold">Dashboard</h1>
+                    <div>
+                        <h1 className="text-xl font-semibold">Dashboard</h1>
+                        <p className="text-xs text-muted-foreground">
+                            {isLoading
+                                ? "Loading..."
+                                : trips?.length
+                                    ? `You have ${trips.length} trips planned`
+                                    : "No trips planned yet"}
+                        </p>
+                    </div>
 
                     <div className="flex items-center gap-4">
                         <ModeToggle />
-                        <div className="flex items-center gap-3 pl-4 border-l border-border/50">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-sm font-medium leading-none">{user?.name || 'User'}</p>
-                                <p className="text-xs text-muted-foreground">{user?.email}</p>
-                            </div>
-                            <Avatar>
-                                <AvatarImage src={user?.picture} />
-                                <AvatarFallback>{user?.name?.charAt(0) || 'U'}</AvatarFallback>
-                            </Avatar>
-                        </div>
                     </div>
                 </header>
 
