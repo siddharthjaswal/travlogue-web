@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tripService, CreateTripData } from '@/services/trip-service';
+import { activityService } from '@/services/activity-service';
 
 export function useTrips() {
     return useQuery({
@@ -27,6 +28,33 @@ export function useDeleteTrip() {
         mutationFn: (id: number) => tripService.delete(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['trips'] });
+        },
+    });
+}
+
+export function useTrip(id: number) {
+    return useQuery({
+        queryKey: ['trips', id],
+        queryFn: () => tripService.get(id),
+        enabled: !!id, // Only run if ID is valid
+    });
+}
+
+export function useTripTimeline(tripId: number) {
+    return useQuery({
+        queryKey: ['trip-timeline', tripId],
+        queryFn: () => activityService.getTimeline(tripId),
+        enabled: !!tripId,
+    });
+}
+
+export function useCreateActivity() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: any) => activityService.create(data),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['trip-timeline', variables.tripId] });
         },
     });
 }

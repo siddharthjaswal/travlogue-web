@@ -75,6 +75,11 @@ export const tripService = {
         return mapTripResponse(response.data);
     },
 
+    get: async (id: number) => {
+        const response = await api.get(`/trips/${id}`);
+        return mapTripResponse(response.data);
+    },
+
     delete: async (id: number) => {
         await api.delete(`/trips/${id}`);
     }
