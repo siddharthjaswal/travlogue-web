@@ -58,3 +58,14 @@ export function useCreateActivity() {
         },
     });
 }
+
+export function useUpdateActivity() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, data, tripId }: { id: number; data: any; tripId: number }) => activityService.update(id, data),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['trip-timeline', variables.tripId] });
+        },
+    });
+}

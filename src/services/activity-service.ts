@@ -94,4 +94,21 @@ export const activityService = {
         const response = await api.post('/activities/', payload);
         return mapActivity(response.data);
     },
+
+    update: async (id: number, data: Partial<CreateActivityData>): Promise<Activity> => {
+        const payload: any = {};
+        if (data.name) payload.name = data.name;
+        if (data.activityType) payload.activity_type = data.activityType;
+        if (data.time !== undefined) payload.time = data.time;
+        if (data.cost !== undefined) payload.cost = data.cost;
+        if (data.currency) payload.currency = data.currency;
+        if (data.location !== undefined) payload.location = data.location;
+        if (data.notes !== undefined) payload.notes = data.notes;
+        // Date is usually not editable easily as it changes the day, but if we want to allow it we need backend support for moving days. 
+        // For now let's assume date doesn't change or if it does we handle it.
+        // Actually the backend update schema allows most fields.
+
+        const response = await api.put(`/activities/${id}`, payload);
+        return mapActivity(response.data);
+    },
 };
