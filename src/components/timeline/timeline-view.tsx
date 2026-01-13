@@ -1,11 +1,14 @@
 'use client';
 
-import { useTripTimeline } from '@/hooks/use-trips';
+import { showError } from '@/lib/toast-helper';
+
+import { useTripTimeline, useCreateTripDay, useTrip } from '@/hooks/use-trips';
 import { TimelineDay } from './timeline-day';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { AddActivityDialog } from './add-activity-dialog';
+import { toast } from 'sonner';
 
 interface TimelineViewProps {
     tripId: number;
@@ -13,6 +16,31 @@ interface TimelineViewProps {
 
 export function TimelineView({ tripId }: TimelineViewProps) {
     const { data: timeline, isLoading, isError } = useTripTimeline(tripId);
+    const { data: trip } = useTrip(tripId);
+    const createTripDay = useCreateTripDay();
+
+    const handleAddDay = async () => {
+        try {
+            // Determine date: if trip has start date, use that. Else today.
+            // If days exist, this empty state wouldn't run, so we just check start date.
+            let date = new Date().toISOString().split('T')[0];
+
+            if (trip?.startDateTimestamp) {
+                date = new Date(trip.startDateTimestamp * 1000).toISOString().split('T')[0];
+            }
+
+            await createTripDay.mutateAsync({
+                tripId,
+                date: date,
+                dayNumber: 1, // Only used when itinerary is empty
+                place: trip?.primaryDestinationCity || trip?.primaryDestinationCountry || 'Unknown Location'
+            });
+            toast.success("Day added successfully");
+        } catch (error) {
+            showError("Failed to add day", error);
+            console.error(error);
+        }
+    };
 
     if (isLoading) {
         return <TimelineSkeleton />;
@@ -27,7 +55,9 @@ export function TimelineView({ tripId }: TimelineViewProps) {
             <div className="text-center py-12">
                 <h3 className="text-lg font-semibold">Itinerary is empty</h3>
                 <p className="text-muted-foreground mb-4">Start by adding days to your trip.</p>
-                <Button>Add Day</Button>
+                <Button onClick={handleAddDay} disabled={createTripDay.isPending}>
+                    {createTripDay.isPending ? 'Adding...' : 'Add Day'}
+                </Button>
             </div>
         );
     }

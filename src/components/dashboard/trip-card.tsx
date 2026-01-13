@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useDeleteTrip } from '@/hooks/use-trips';
 import { toast } from 'sonner';
+import { showError } from '@/lib/toast-helper';
 
 interface TripCardProps {
     trip: Trip;
@@ -47,8 +48,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                 setShowDeleteDialog(false);
             },
             onError: (error: any) => {
-                const msg = error?.response?.data?.detail || error.message || 'Failed to delete trip';
-                toast.error(`Error: ${msg}`);
+                showError('Failed to delete trip', error);
             }
         });
     };

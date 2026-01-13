@@ -25,6 +25,7 @@ import {
 import { useDeleteTrip } from '@/hooks/use-trips';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { showError } from '@/lib/toast-helper';
 
 interface TripHeaderProps {
     trip: Trip;
@@ -41,8 +42,8 @@ export function TripHeader({ trip }: TripHeaderProps) {
                 toast.success("Trip deleted successfully");
                 router.push('/dashboard/trips');
             },
-            onError: () => {
-                toast.error("Failed to delete trip");
+            onError: (error: any) => {
+                showError("Failed to delete trip", error);
             }
         });
     };

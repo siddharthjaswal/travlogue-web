@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tripService, CreateTripData } from '@/services/trip-service';
 import { activityService } from '@/services/activity-service';
+import { tripDayService, CreateTripDayData } from '@/services/trip-day-service';
 
 export function useTrips() {
     return useQuery({
@@ -17,6 +18,17 @@ export function useCreateTrip() {
         onSuccess: () => {
             // Invalidate trips list to refetch
             queryClient.invalidateQueries({ queryKey: ['trips'] });
+        },
+    });
+}
+
+export function useCreateTripDay() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: CreateTripDayData) => tripDayService.create(data),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['trip-timeline', variables.tripId] });
         },
     });
 }

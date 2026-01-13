@@ -43,6 +43,7 @@ import { useCreateActivity, useUpdateActivity } from '@/hooks/use-trips';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
 import { Activity } from '@/services/activity-service';
+import { showError } from '@/lib/toast-helper';
 
 const formSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -152,8 +153,9 @@ export function AddActivityDialog({
                     toast.success('Activity updated');
                     setShow(false);
                 },
+
                 onError: (error: any) => {
-                    toast.error('Failed to update activity');
+                    showError('Failed to update activity', error);
                 }
             });
         } else {
@@ -173,8 +175,7 @@ export function AddActivityDialog({
                     if (mode === 'create') form.reset();
                 },
                 onError: (error: any) => {
-                    const msg = error?.response?.data?.detail || error.message || 'Failed to add activity';
-                    toast.error(`Error: ${msg}`);
+                    showError('Failed to add activity', error);
                 }
             });
         }

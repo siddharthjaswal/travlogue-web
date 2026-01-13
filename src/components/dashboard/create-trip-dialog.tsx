@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { Plus, Loader2, CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { showError } from '@/lib/toast-helper';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -61,8 +62,7 @@ export function CreateTripDialog() {
             },
             onError: (error: any) => {
                 console.error("Failed to create trip:", error);
-                const msg = error?.response?.data?.detail || error.message || 'Failed to create trip';
-                toast.error(`Error: ${msg}`);
+                showError('Failed to create trip', error);
             }
         });
     };
