@@ -74,53 +74,50 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                     <p className="text-muted-foreground text-lg">Your trip schedule at a glance.</p>
                 </div>
                 <AddActivityDialog tripId={tripId} trigger={
-                    <Button size="lg" className="shadow-sm">
-                        <Plus className="h-5 w-5 mr-2" />
-                        Add Activity
+                    <Button size="icon" className="shadow-sm" title="Add Activity">
+                        <Plus className="h-5 w-5" />
                     </Button>
                 } />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-16 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-16 items-start">
                 {/* Left Sidebar: Sticky Calendar */}
                 <div className="hidden lg:block sticky top-24">
-                    <div className="rounded-[2rem] bg-[#0B1121] dark:bg-[#0B1121] text-slate-100 shadow-xl p-8 overflow-hidden">
+                    <div className="rounded-[2rem] bg-slate-50 dark:bg-[#0B1121] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 shadow-xl overflow-hidden p-12">
                         <Calendar
                             mode="multiple"
                             selected={tripDates}
-                            className="w-full flex justify-center p-0"
+                            className="w-full flex justify-center"
                             defaultMonth={startDate}
                             modifiersStyles={{
                                 selected: {
-                                    backgroundColor: '#3b82f6', // blue-500
-                                    color: 'white',
-                                    fontWeight: 'bold',
-                                    borderRadius: '8px'
+                                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)',
+                                    color: '#93c5fd',
+                                    fontWeight: '500',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 0 0 1px rgba(59, 130, 246, 0.25), 0 2px 8px rgba(59, 130, 246, 0.1)'
                                 },
                                 today: {
-                                    color: '#3b82f6',
-                                    fontWeight: 'bold'
+                                    color: '#60a5fa',
+                                    fontWeight: '600'
                                 }
                             }}
                             classNames={{
-                                head_cell: "text-slate-400 font-normal text-[0.8rem]",
-                                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-transparent focus-within:relative focus-within:z-20",
-                                day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-slate-800 rounded-full",
-                                day_selected: "bg-blue-500 text-white hover:bg-blue-600 hover:text-white focus:bg-blue-500 focus:text-white",
-                                day_today: "bg-transparent text-blue-500",
-                                day_outside: "text-slate-700 opacity-50",
-                                day_disabled: "text-slate-700 opacity-50",
+                                root: "p-16",
+                                months: "flex gap-4 flex-col md:flex-row relative",
+                                head_cell: "text-slate-500 dark:text-slate-400 font-normal text-sm w-12",
+                                cell: "text-center text-sm p-2 relative [&:has([aria-selected])]:bg-transparent focus-within:relative focus-within:z-20",
+                                day: "h-11 w-11 p-0 font-normal text-slate-700 dark:text-slate-300 aria-selected:opacity-100 hover:bg-slate-200 dark:hover:bg-slate-800/50 rounded-xl transition-all duration-200",
+                                day_selected: "bg-gradient-to-br from-blue-500/15 to-indigo-500/15 text-blue-600 dark:text-blue-300 hover:from-blue-500/25 hover:to-indigo-500/25 hover:text-blue-700 dark:hover:text-blue-200 focus:from-blue-500/20 focus:to-indigo-500/20 focus:text-blue-600 dark:focus:text-blue-200 ring-1 ring-blue-400/25 shadow-lg shadow-blue-500/10",
+                                day_today: "bg-transparent text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/30 font-semibold",
+                                day_outside: "text-slate-400 dark:text-slate-700 opacity-50",
+                                day_disabled: "text-slate-400 dark:text-slate-700 opacity-50",
                                 day_hidden: "invisible",
-                                nav_button: "border-slate-700 hover:bg-slate-800 hover:text-slate-50",
-                                caption: "flex justify-center pt-1 relative items-center text-slate-50 font-medium",
+                                nav_button: "border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-50",
+                                caption: "flex justify-center pt-6 relative items-center text-slate-900 dark:text-slate-50 font-medium mb-4",
+                                weeks: "space-y-3",
                             }}
                         />
-                        <div className="mt-8 border-t border-slate-800 pt-6">
-                            <h4 className="font-semibold text-slate-50 mb-1">Trip Dates</h4>
-                            <p className="text-sm text-slate-400">
-                                {timeline.days.length} days planned
-                            </p>
-                        </div>
                     </div>
                 </div>
 

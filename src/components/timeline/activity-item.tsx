@@ -38,7 +38,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
             {/* 2. Timeline Track */}
             <div className="relative flex flex-col items-center">
                 {/* Vertical Line */}
-                <div className="absolute top-0 bottom-[-16px] w-px bg-border group-last:bottom-0" />
+                <div className="absolute top-0 bottom-[-16px] w-px border-l border-dashed border-border group-last:bottom-0" />
 
                 {/* Icon Bubble */}
                 <div className="relative z-10 h-10 w-10 rounded-full bg-background border-2 border-primary/20 flex items-center justify-center text-primary shadow-sm group-hover:border-primary transition-colors">

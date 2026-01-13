@@ -70,23 +70,33 @@ export function TimelineDay({ day }: TimelineDayProps) {
                             </div>
                         )}
 
-                        {/* Add Activity Button - At the bottom */}
-                        <div className="mt-4 flex justify-start pl-[100px]">
-                            {/* Indent to align with content column of items roughly? Or just left aligned?
-                               ActivityItem grid is [60px 40px 1fr]. So 100px indent aligns with content.
-                           */}
-                            <AddActivityDialog
-                                tripId={day.tripId}
-                                initialDate={dateObj}
-                                trigger={
-                                    <Button variant="ghost" className="text-muted-foreground hover:text-primary pl-0 hover:bg-transparent group">
-                                        <div className="h-8 w-8 rounded-full border border-dashed border-muted-foreground/50 flex items-center justify-center mr-2 group-hover:border-primary group-hover:bg-primary/10">
-                                            <PlusCircle className="h-4 w-4" />
-                                        </div>
-                                        Add Activity
-                                    </Button>
-                                }
-                            />
+                        {/* Add Activity Button - Aligned with timeline */}
+                        <div className="grid grid-cols-[60px_40px_1fr] gap-4 mt-6">
+                            {/* Empty time column for alignment */}
+                            <div></div>
+
+                            {/* Timeline column with button */}
+                            <div className="relative flex flex-col items-center">
+                                <AddActivityDialog
+                                    tripId={day.tripId}
+                                    initialDate={dateObj}
+                                    trigger={
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-muted-foreground hover:text-primary hover:bg-transparent group relative h-9 w-9 p-0"
+                                            title="Add Activity"
+                                        >
+                                            <div className="h-9 w-9 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
+                                                <PlusCircle className="h-5 w-5" />
+                                            </div>
+                                        </Button>
+                                    }
+                                />
+                            </div>
+
+                            {/* Empty content column */}
+                            <div></div>
                         </div>
                     </div>
                 </div>
