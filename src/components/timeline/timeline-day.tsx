@@ -29,13 +29,13 @@ export function TimelineDay({ day }: TimelineDayProps) {
                     <div className="md:sticky md:top-24 flex md:justify-end pr-6">
                         <div className="flex items-center gap-3 md:flex-row-reverse">
                             {/* Circle Day Number */}
-                            <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 border-2 border-blue-200 dark:border-blue-700 flex items-center justify-center text-xl font-bold text-blue-700 dark:text-blue-200">
+                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border-2 border-blue-400/30 flex items-center justify-center text-xl font-bold text-blue-700 dark:text-blue-200 shadow-lg shadow-blue-500/10 transition-all hover:shadow-xl hover:shadow-blue-500/20 hover:scale-105">
                                 {format(dateObj, 'd')}
                             </div>
 
                             {/* Month/Day Label */}
                             <div className="text-right flex flex-col justify-center">
-                                <span className="text-sm font-bold text-muted-foreground tracking-wide">
+                                <span className="text-sm font-extrabold text-foreground tracking-wide">
                                     {monthName}, {dayName}
                                 </span>
                             </div>
@@ -46,8 +46,8 @@ export function TimelineDay({ day }: TimelineDayProps) {
                 {/* Content Column (Right) */}
                 <div className="relative">
                     {/* Base Location Header */}
-                    <div className="flex items-center gap-2 mb-6 text-sm font-medium text-muted-foreground/80 bg-muted/30 w-fit px-3 py-1.5 rounded-full">
-                        <MapPin className="h-3.5 w-3.5" />
+                    <div className="flex items-center gap-2 mb-6 text-sm font-semibold text-foreground/90 bg-muted/40 w-fit px-3 py-1.5 rounded-full">
+                        <MapPin className="h-4 w-4" />
                         <span>{day.place}</span>
                     </div>
 

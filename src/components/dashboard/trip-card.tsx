@@ -76,19 +76,23 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
             >
                 <div className="relative group h-full">
                     <Link href={`/dashboard/trips/${trip.id}`} className="block h-full">
-                        <Card className="overflow-hidden border-border/50 hover:border-primary/50 transition-all hover:shadow-lg hover:shadow-primary/5 h-full flex flex-col relative">
+                        <Card className="overflow-hidden border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-full flex flex-col relative rounded-2xl">
                             {/* Cover Image Area */}
                             <div className={cn(
                                 "h-32 w-full relative bg-muted",
-                                !trip.coverPhotoUrl && "bg-gradient-to-br from-primary/20 to-secondary/20"
+                                !trip.coverPhotoUrl && "bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-transparent"
                             )}>
                                 {trip.coverPhotoUrl ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
-                                        src={trip.coverPhotoUrl}
-                                        alt={trip.name}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                    />
+                                    <>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={trip.coverPhotoUrl}
+                                            alt={trip.name}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        />
+                                        {/* Gemini-style gradient overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-transparent to-transparent pointer-events-none" />
+                                    </>
                                 ) : (
                                     <div className="absolute inset-0 flex items-center justify-center text-primary/20">
                                         <MapPin className="h-12 w-12" />

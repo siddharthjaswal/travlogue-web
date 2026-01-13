@@ -30,7 +30,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
         <div className="group relative grid grid-cols-[60px_40px_1fr] gap-4 mb-2 min-h-[80px]">
             {/* 1. Time Column */}
             <div className="text-right pt-2">
-                <span className="text-sm font-semibold text-muted-foreground">
+                <span className="text-sm font-bold text-foreground">
                     {activity.time || 'All Day'}
                 </span>
             </div>
@@ -41,17 +41,17 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                 <div className="absolute top-0 bottom-[-16px] w-px border-l border-dashed border-border group-last:bottom-0" />
 
                 {/* Icon Bubble */}
-                <div className="relative z-10 h-10 w-10 rounded-full bg-background border-2 border-primary/20 flex items-center justify-center text-primary shadow-sm group-hover:border-primary transition-colors">
-                    <Icon className="h-4 w-4" />
+                <div className="relative z-10 h-10 w-10 rounded-full bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border-2 border-primary/20 flex items-center justify-center text-primary shadow-lg shadow-primary/10 group-hover:border-primary group-hover:shadow-xl group-hover:shadow-primary/20 transition-all">
+                    <Icon className="h-5 w-5" />
                 </div>
             </div>
 
             {/* 3. Content Card */}
             <div className="pt-1 pb-4 pr-4">
-                <div className="flex items-start justify-between bg-card/50 hover:bg-card border border-transparent hover:border-border rounded-lg p-3 transition-all">
+                <div className="flex items-start justify-between bg-card/50 hover:bg-card border border-transparent hover:border-border rounded-xl p-3 shadow-sm hover:shadow-lg hover:shadow-primary/5 transition-all duration-200">
                     <div className="min-w-0 flex-1 mr-4">
                         <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-semibold text-base truncate">{activity.name}</h4>
+                            <h4 className="font-bold text-base truncate">{activity.name}</h4>
                             <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-muted-foreground uppercase tracking-wide">
                                 {activity.activityType}
                             </Badge>
