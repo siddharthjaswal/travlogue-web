@@ -4,6 +4,7 @@ import { useTrip } from '@/hooks/use-trips';
 import { TripHeader } from '@/components/trips/trip-header';
 import { TripOverview } from '@/components/trips/trip-overview';
 import { TimelineView } from '@/components/timeline/timeline-view';
+import { BudgetView } from '@/components/budget/budget-view';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -62,9 +63,7 @@ export default function TripDetailsPage() {
                 </TabsContent>
 
                 <TabsContent value="budget">
-                    <div className="flex items-center justify-center min-h-[300px] border border-dashed rounded-lg bg-muted/20">
-                        <p className="text-muted-foreground">Expenses tracking coming soon</p>
-                    </div>
+                    <BudgetView tripId={id} trip={trip} />
                 </TabsContent>
 
                 <TabsContent value="settings">

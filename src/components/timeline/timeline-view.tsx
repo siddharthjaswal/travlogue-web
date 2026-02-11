@@ -1,7 +1,6 @@
 'use client';
 
 import { showError } from '@/lib/toast-helper';
-
 import { useTripTimeline, useCreateTripDay, useTrip } from '@/hooks/use-trips';
 import { TimelineDay } from './timeline-day';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -9,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { AddActivityDialog } from './add-activity-dialog';
 import { toast } from 'sonner';
+import { Calendar } from '@/components/ui/calendar';
 
 interface TimelineViewProps {
     tripId: number;
@@ -133,9 +133,6 @@ export function TimelineView({ tripId }: TimelineViewProps) {
         </div>
     );
 }
-
-// Need to import Calendar
-import { Calendar } from '@/components/ui/calendar';
 
 function TimelineSkeleton() {
     return (

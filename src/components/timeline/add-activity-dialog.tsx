@@ -3,8 +3,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, parseISO } from 'date-fns';
-import { CalendarIcon, Loader2, Pencil, PlusCircle } from 'lucide-react';
+import { format } from 'date-fns';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -103,14 +103,6 @@ export function AddActivityDialog({
     useEffect(() => {
         if (show) {
             if (mode === 'edit' && activity) {
-                // Determine date. Activity doesn't strictly have date field in interface shown but it belongs to a tripDay which has date.
-                // Actually Activity interface doesn't have date directly in UI models usually, but backend response might not have it flattened.
-                // However, `initialDate` passed from parent `TimelineDay` is the correct date for that day.
-                // We'll trust `initialDate` or try to parse from somewhere if needed.
-                // Ideally activity object should have date if we were listing all activities flat.
-                // But here we are editing inside a day, so date is fixed to that day usually.
-                // Let's assume date is `initialDate`.
-
                 form.reset({
                     name: activity.name,
                     activityType: activity.activityType.toLowerCase(),
@@ -146,7 +138,6 @@ export function AddActivityDialog({
                     location: values.location,
                     cost: values.cost ? Number(values.cost) : undefined,
                     notes: values.notes,
-                    // Date update not supported in this simple flow yet (needs moving to valid day)
                 }
             }, {
                 onSuccess: () => {
@@ -252,7 +243,7 @@ export function AddActivityDialog({
                                                             "w-full pl-3 text-left font-normal",
                                                             !field.value && "text-muted-foreground"
                                                         )}
-                                                        disabled={mode === 'edit'} // Disable date change in edit for now to simplify
+                                                        disabled={mode === 'edit'}
                                                     >
                                                         {field.value ? (
                                                             format(field.value, "PPP")
