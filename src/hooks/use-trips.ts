@@ -44,6 +44,17 @@ export function useDeleteTrip() {
     });
 }
 
+export function useRegenerateCover() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, query }: { id: number; query?: string }) => tripService.regenerateCover(id, query),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['trips'] });
+        },
+    });
+}
+
 export function useTrip(id: number) {
     return useQuery({
         queryKey: ['trips', id],

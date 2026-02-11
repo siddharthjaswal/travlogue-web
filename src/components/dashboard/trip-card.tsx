@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Users, MoreVertical, Trash2, Edit, Heart } from 'lucide-react';
+import { Calendar, MapPin, Users, MoreVertical, Trash2, Edit, Heart, Sparkles, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Trip } from '@/services/trip-service';
@@ -13,6 +13,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import {
     AlertDialog,
@@ -24,7 +25,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useDeleteTrip } from '@/hooks/use-trips';
+import { useDeleteTrip, useRegenerateCover } from '@/hooks/use-trips';
 import { toast } from 'sonner';
 import { showError } from '@/lib/toast-helper';
 
@@ -37,10 +38,23 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const { mutate: deleteTrip, isPending: isDeleting } = useDeleteTrip();
+    const { mutate: regenerateCover, isPending: isRegenerating } = useRegenerateCover();
+
+    // Auto-generate cover if missing
+    useEffect(() => {
+        if (!trip.coverPhotoUrl) {
+            // Add a small delay based on index to stagger requests and avoid rate limits
+            const timeout = setTimeout(() => {
+                regenerateCover({ id: trip.id });
+            }, index * 500 + 500);
+            
+            return () => clearTimeout(timeout);
+        }
+    }, [trip.coverPhotoUrl, trip.id, regenerateCover, index]);
 
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();
-        e.stopPropagation();
+        e.stopPropagation(); // Stop propagation to Link
 
         deleteTrip(trip.id, {
             onSuccess: () => {
@@ -50,6 +64,16 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
             onError: (error: any) => {
                 showError('Failed to delete trip', error);
             }
+        });
+    };
+
+    const handleRegenerateCover = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        regenerateCover({ id: trip.id }, {
+            onSuccess: () => toast.success('New cover image generated! ✨'),
+            onError: () => toast.error('Failed to generate cover')
         });
     };
 
@@ -87,7 +111,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                         )}>
                             {/* Sophisticated Cover Image */}
                             <div className={cn(
-                                "h-48 w-full relative overflow-hidden",
+                                "h-48 w-full relative overflow-hidden group",
                                 !trip.coverPhotoUrl && "bg-gradient-to-br from-primary/8 via-secondary/5 to-accent/5"
                             )}>
                                 {trip.coverPhotoUrl ? (
@@ -99,20 +123,31 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                             className={cn(
                                                 "w-full h-full object-cover",
                                                 "transition-transform duration-700 ease-out",
-                                                isHovered && "scale-105"
+                                                isHovered && "scale-105",
+                                                isRegenerating && "opacity-50 blur-sm scale-110" // Visual feedback during regen
                                             )}
                                         />
                                         {/* Warm gradient overlay */}
                                         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent pointer-events-none" />
                                     </>
                                 ) : (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <MapPin className="h-16 w-16 text-primary/20" strokeWidth={1.5} />
+                                    <div className="absolute inset-0 flex items-center justify-center flex-col gap-2">
+                                        <MapPin className="h-12 w-12 text-primary/20" strokeWidth={1.5} />
+                                        <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            className="z-20 hover:bg-primary/10 hover:text-primary gap-2"
+                                            onClick={handleRegenerateCover}
+                                            disabled={isRegenerating}
+                                        >
+                                            {isRegenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                            Generate Cover
+                                        </Button>
                                     </div>
                                 )}
                                 
                                 {/* Status Badge */}
-                                <div className="absolute top-3 right-3 z-10">
+                                <div className="absolute top-3 right-3 z-10 pointer-events-none">
                                     <Badge className={cn(
                                         "capitalize shadow-sm backdrop-blur-sm border",
                                         "transition-transform duration-200",
@@ -122,6 +157,22 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                         {trip.status}
                                     </Badge>
                                 </div>
+
+                                {/* Quick Regen Button (Visible on Hover if image exists) */}
+                                {trip.coverPhotoUrl && (
+                                    <div className="absolute top-3 right-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                         <Button
+                                            variant="secondary"
+                                            size="icon"
+                                            className="h-8 w-8 rounded-full shadow-lg bg-background/80 backdrop-blur-sm hover:bg-background"
+                                            onClick={handleRegenerateCover}
+                                            disabled={isRegenerating}
+                                            title="Regenerate Cover"
+                                        >
+                                            {isRegenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 text-primary" />}
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Content Section */}
@@ -169,7 +220,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
 
                     {/* Floating Actions Menu */}
                     <div className={cn(
-                        "absolute top-3 left-3 z-10",
+                        "absolute top-3 left-3 z-20", // Increased z-index
                         "transition-opacity duration-200",
                         "opacity-0 group-hover:opacity-100"
                     )}>
@@ -185,11 +236,17 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                         "hover:bg-background hover:scale-105",
                                         "transition-all duration-200"
                                     )}
+                                    onClick={(e) => e.stopPropagation()} // Prevent link click
                                 >
                                     <MoreVertical className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="start" className="w-40">
+                                <DropdownMenuItem onClick={handleRegenerateCover}>
+                                    <Sparkles className="mr-2 h-4 w-4" />
+                                    Regenerate Cover
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
                                 <DropdownMenuItem 
                                     onClick={(e) => { 
                                         e.stopPropagation(); 

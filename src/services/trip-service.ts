@@ -82,5 +82,11 @@ export const tripService = {
 
     delete: async (id: number) => {
         await api.delete(`/trips/${id}`);
+    },
+
+    regenerateCover: async (id: number, query?: string) => {
+        const url = `/trips/${id}/cover${query ? `?query=${query}` : ''}`;
+        const response = await api.patch(url);
+        return mapTripResponse(response.data);
     }
 };
