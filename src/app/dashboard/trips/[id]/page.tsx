@@ -5,6 +5,8 @@ import { TripHeader } from '@/components/trips/trip-header';
 import { TripOverview } from '@/components/trips/trip-overview';
 import { TimelineView } from '@/components/timeline/timeline-view';
 import { BudgetView } from '@/components/budget/budget-view';
+import { MediaView } from '@/components/media/media-view';
+import { TripSettings } from '@/components/settings/trip-settings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -51,6 +53,7 @@ export default function TripDetailsPage() {
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
                     <TabsTrigger value="budget">Expenses & Budget</TabsTrigger>
+                    <TabsTrigger value="media">Gallery</TabsTrigger>
                     <TabsTrigger value="settings">Settings</TabsTrigger>
                 </TabsList>
 
@@ -66,10 +69,12 @@ export default function TripDetailsPage() {
                     <BudgetView tripId={id} trip={trip} />
                 </TabsContent>
 
+                <TabsContent value="media">
+                    <MediaView tripId={id} trip={trip} />
+                </TabsContent>
+
                 <TabsContent value="settings">
-                    <div className="flex items-center justify-center min-h-[300px] border border-dashed rounded-lg bg-muted/20">
-                        <p className="text-muted-foreground">Trip settings coming soon</p>
-                    </div>
+                    <TripSettings tripId={id} trip={trip} />
                 </TabsContent>
             </Tabs>
         </div>
