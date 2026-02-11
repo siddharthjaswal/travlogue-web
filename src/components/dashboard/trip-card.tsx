@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { Calendar, MapPin, Users, MoreVertical, Trash2, Edit } from 'lucide-react';
+import { Calendar, MapPin, Users, MoreVertical, Trash2, Edit, Heart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Trip } from '@/services/trip-service';
@@ -35,10 +35,10 @@ interface TripCardProps {
 
 export function TripCard({ trip, index = 0 }: TripCardProps) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const { mutate: deleteTrip, isPending: isDeleting } = useDeleteTrip();
 
     const handleDelete = (e: React.MouseEvent) => {
-        // Prevent clicking the card link
         e.preventDefault();
         e.stopPropagation();
 
@@ -53,17 +53,17 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
         });
     };
 
-    // Format dates or show "Flexible Dates"
+    // Format dates elegantly
     const dateDisplay = trip.startDateTimestamp && trip.endDateTimestamp
         ? `${format(new Date(trip.startDateTimestamp * 1000), 'MMM d')} - ${format(new Date(trip.endDateTimestamp * 1000), 'MMM d, yyyy')}`
-        : 'Flexible Dates';
+        : 'Dates to be decided';
 
-    // Status Color Mapping
-    const statusColors = {
-        planning: 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20',
-        active: 'bg-green-500/10 text-green-500 hover:bg-green-500/20',
-        completed: 'bg-muted text-muted-foreground hover:bg-muted/80',
-        cancelled: 'bg-red-500/10 text-red-500 hover:bg-red-500/20',
+    // Sophisticated status styling
+    const statusStyles = {
+        planning: 'bg-primary/10 text-primary border-primary/20',
+        active: 'bg-accent/10 text-accent-foreground border-accent/20',
+        completed: 'bg-muted text-muted-foreground border-border',
+        cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
     };
 
     return (
@@ -71,16 +71,24 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: index * 0.05, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                 className="h-full"
+                onHoverStart={() => setIsHovered(true)}
+                onHoverEnd={() => setIsHovered(false)}
             >
                 <div className="relative group h-full">
                     <Link href={`/dashboard/trips/${trip.id}`} className="block h-full">
-                        <Card className="overflow-hidden border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 h-full flex flex-col relative rounded-2xl">
-                            {/* Cover Image Area */}
+                        <Card className={cn(
+                            "overflow-hidden h-full flex flex-col relative",
+                            "border-border/40 rounded-2xl",
+                            "transition-all duration-300 ease-out",
+                            "hover:border-primary/30 hover:shadow-xl",
+                            "focus-within:ring-2 focus-within:ring-primary/20 focus-within:ring-offset-2"
+                        )}>
+                            {/* Sophisticated Cover Image */}
                             <div className={cn(
-                                "h-32 w-full relative bg-muted",
-                                !trip.coverPhotoUrl && "bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-transparent"
+                                "h-48 w-full relative overflow-hidden",
+                                !trip.coverPhotoUrl && "bg-gradient-to-br from-primary/8 via-secondary/5 to-accent/5"
                             )}>
                                 {trip.coverPhotoUrl ? (
                                     <>
@@ -88,76 +96,118 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                         <img
                                             src={trip.coverPhotoUrl}
                                             alt={trip.name}
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                            className={cn(
+                                                "w-full h-full object-cover",
+                                                "transition-transform duration-700 ease-out",
+                                                isHovered && "scale-105"
+                                            )}
                                         />
-                                        {/* Gemini-style gradient overlay */}
-                                        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-transparent to-transparent pointer-events-none" />
+                                        {/* Warm gradient overlay */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent pointer-events-none" />
                                     </>
                                 ) : (
-                                    <div className="absolute inset-0 flex items-center justify-center text-primary/20">
-                                        <MapPin className="h-12 w-12" />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <MapPin className="h-16 w-16 text-primary/20" strokeWidth={1.5} />
                                     </div>
                                 )}
-                                <div className="absolute top-2 right-2 flex gap-1">
-                                    <Badge className={cn("capitalize shadow-sm", statusColors[trip.status as keyof typeof statusColors])}>
+                                
+                                {/* Status Badge */}
+                                <div className="absolute top-3 right-3 z-10">
+                                    <Badge className={cn(
+                                        "capitalize shadow-sm backdrop-blur-sm border",
+                                        "transition-transform duration-200",
+                                        isHovered && "scale-105",
+                                        statusStyles[trip.status as keyof typeof statusStyles]
+                                    )}>
                                         {trip.status}
                                     </Badge>
                                 </div>
                             </div>
 
-                            <CardHeader className="pb-2">
-                                <h3 className="font-bold text-lg leading-tight truncate group-hover:text-primary transition-colors pr-6">
-                                    {trip.name}
-                                </h3>
-                                <div className="flex items-center text-sm text-muted-foreground">
-                                    <MapPin className="mr-1 h-3 w-3" />
-                                    <span className="truncate">
-                                        {trip.primaryDestinationCity ? `${trip.primaryDestinationCity}, ` : ''}
-                                        {trip.primaryDestinationCountry || 'Unknown Destination'}
-                                    </span>
-                                </div>
-                            </CardHeader>
-
-                            <CardContent className="pb-2 flex-1">
-                                <p className="text-sm text-muted-foreground line-clamp-2">
-                                    {trip.description || 'No description provided.'}
-                                </p>
-                            </CardContent>
-
-                            <CardFooter className="pt-2 border-t border-border/30 bg-muted/20 text-xs text-muted-foreground flex justify-between items-center">
-                                <div className="flex items-center">
-                                    <Calendar className="mr-1.5 h-3 w-3" />
-                                    {dateDisplay}
-                                </div>
-                                {trip.visibility === 'public' && (
-                                    <div className="flex items-center" title="Public Trip">
-                                        <Users className="h-3 w-3" />
+                            {/* Content Section */}
+                            <div className="flex flex-col flex-1 p-5">
+                                <CardHeader className="p-0 pb-3 space-y-2">
+                                    <h3 className={cn(
+                                        "font-bold text-xl leading-tight tracking-tight",
+                                        "transition-colors duration-200",
+                                        isHovered && "text-primary"
+                                    )}>
+                                        {trip.name}
+                                    </h3>
+                                    
+                                    <div className="flex items-center text-sm text-muted-foreground gap-1.5">
+                                        <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                                        <span className="truncate">
+                                            {trip.primaryDestinationCity && `${trip.primaryDestinationCity}, `}
+                                            {trip.primaryDestinationCountry || 'Destination awaits'}
+                                        </span>
                                     </div>
-                                )}
-                            </CardFooter>
+                                </CardHeader>
+
+                                <CardContent className="p-0 flex-1">
+                                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                                        {trip.description || 'An adventure waiting to be written...'}
+                                    </p>
+                                </CardContent>
+
+                                <CardFooter className="p-0 pt-4 border-t border-border/30 mt-4">
+                                    <div className="flex items-center justify-between w-full text-xs text-muted-foreground">
+                                        <div className="flex items-center gap-1.5">
+                                            <Calendar className="h-3.5 w-3.5" />
+                                            <span>{dateDisplay}</span>
+                                        </div>
+                                        {trip.visibility === 'public' && (
+                                            <div className="flex items-center gap-1" title="Public Trip">
+                                                <Users className="h-3.5 w-3.5" />
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardFooter>
+                            </div>
                         </Card>
                     </Link>
 
-                    {/* Actions Menu - Absolute positioned to float above link */}
-                    <div className="absolute top-2 left-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* Floating Actions Menu */}
+                    <div className={cn(
+                        "absolute top-3 left-3 z-10",
+                        "transition-opacity duration-200",
+                        "opacity-0 group-hover:opacity-100"
+                    )}>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="secondary" size="icon" className="h-8 w-8 bg-background/80 backdrop-blur-sm shadow-sm hover:bg-background">
+                                <Button 
+                                    variant="secondary" 
+                                    size="icon" 
+                                    className={cn(
+                                        "h-9 w-9 rounded-xl",
+                                        "bg-background/90 backdrop-blur-md",
+                                        "shadow-lg border border-border/40",
+                                        "hover:bg-background hover:scale-105",
+                                        "transition-all duration-200"
+                                    )}
+                                >
                                     <MoreVertical className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.info('Edit feature coming soon!'); }}>
-                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                            <DropdownMenuContent align="start" className="w-40">
+                                <DropdownMenuItem 
+                                    onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        toast.info('Edit feature coming soon!'); 
+                                    }}
+                                >
+                                    <Edit className="mr-2 h-4 w-4" /> 
+                                    Edit Trip
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
-                                    className="text-red-500 focus:text-red-500"
+                                    className="text-destructive focus:text-destructive"
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setShowDeleteDialog(true);
                                     }}
                                 >
-                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                    <Trash2 className="mr-2 h-4 w-4" /> 
+                                    Delete
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -165,21 +215,22 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                 </div>
             </motion.div>
 
+            {/* Elegant Delete Confirmation */}
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-                <AlertDialogContent>
+                <AlertDialogContent className="rounded-2xl">
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This will permanently delete "{trip.name}" and all associated data. This action cannot be undone.
+                        <AlertDialogTitle className="text-xl">Delete this trip?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-base leading-relaxed">
+                            This will permanently delete <span className="font-semibold text-foreground">"{trip.name}"</span> and all associated memories. This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel className="rounded-xl">Keep Trip</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
-                            className="bg-red-500 hover:bg-red-600 focus:ring-red-500"
+                            className="bg-destructive hover:bg-destructive/90 focus:ring-destructive rounded-xl"
                         >
-                            {isDeleting ? 'Deleting...' : 'Delete Trip'}
+                            {isDeleting ? 'Deleting...' : 'Delete Forever'}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
