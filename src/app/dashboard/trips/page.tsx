@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Map, Sparkles, Globe } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
+import type { Trip } from '@/services/trip-service';
 
 export default function TripsPage() {
     const { user } = useAuth();
@@ -56,7 +57,7 @@ export default function TripsPage() {
                 </div>
             ) : trips && trips.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {trips.map((trip, index) => (
+                    {trips.map((trip: Trip, index: number) => (
                         <TripCard key={trip.id} trip={trip} index={index} />
                     ))}
                 </div>
