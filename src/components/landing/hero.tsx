@@ -2,46 +2,52 @@
 
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { ArrowRight, Globe, MapPin, Compass } from 'lucide-react';
+import { ArrowRight, Sparkles, MapPin, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 export function Hero() {
     return (
-        <section className="relative overflow-hidden pt-32 pb-16 md:pt-48 md:pb-32">
-            {/* Background Gradients */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/20 rounded-full blur-[100px] -z-10 opacity-50 dark:opacity-20" />
-            <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-secondary/30 rounded-full blur-[120px] -z-10 opacity-40" />
+        <section className="relative overflow-hidden pt-32 pb-20 md:pt-48 md:pb-32">
+            {/* Elegant Background */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/8 rounded-full blur-[120px] -z-10" />
+            <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-accent/6 rounded-full blur-[140px] -z-10" />
 
             <div className="container mx-auto px-4 text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="max-w-3xl mx-auto space-y-8"
+                    transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+                    className="max-w-4xl mx-auto space-y-8"
                 >
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-sm font-medium">
+                    {/* Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/50 backdrop-blur-sm border border-border/40 text-sm font-medium">
                         <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                         </span>
-                        Plan your next adventure
+                        Start planning your next adventure
                     </div>
 
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground">
-                        Your Journey Begins with <br className="hidden md:block" />
-                        <span className="bg-gradient-to-r from-primary via-blue-500 to-indigo-500 bg-clip-text text-transparent">
-                            Smart Planning
+                    {/* Main Heading */}
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1]">
+                        Travel Planning
+                        <br className="hidden md:block" />
+                        <span className="bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent">
+                            Made Effortless
                         </span>
                     </h1>
 
-                    <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                        Collaborate, organize, and explore. Travlogue brings your travel dreams to life with intuitive itineraries, expense tracking, and real-time collaboration.
+                    {/* Description */}
+                    <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                        Create beautiful itineraries, collaborate with travel companions, 
+                        and turn your wanderlust into well-organized adventures.
                     </p>
 
+                    {/* CTAs */}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                         <Link href="/login">
-                            <Button size="lg" className="h-12 px-8 text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all">
-                                Start Planning Free
+                            <Button size="lg" className="h-12 px-8 text-base shadow-lg hover:shadow-xl">
+                                Get Started Free
                                 <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         </Link>
@@ -53,31 +59,56 @@ export function Hero() {
                     </div>
                 </motion.div>
 
-                {/* Floating Elements Animation */}
-                <div className="relative mt-20 h-[300px] md:h-[400px] w-full max-w-5xl mx-auto perspective-[1000px]">
-                    <motion.div
-                        initial={{ rotateX: 20, opacity: 0 }}
-                        animate={{ rotateX: 0, opacity: 1 }}
-                        transition={{ delay: 0.3, duration: 0.8 }}
-                        className="relative w-full h-full bg-background border border-border/50 rounded-xl shadow-2xl overflow-hidden"
-                    >
-                        {/* Mock UI for Dashboard Preview */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-background to-muted/50" />
-                        <div className="absolute top-4 left-4 right-4 h-8 bg-muted/20 rounded-md flex items-center px-4 gap-2">
-                            <div className="w-3 h-3 rounded-full bg-red-400/80" />
-                            <div className="w-3 h-3 rounded-full bg-amber-400/80" />
-                            <div className="w-3 h-3 rounded-full bg-green-400/80" />
+                {/* Feature Pills */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.6 }}
+                    className="flex flex-wrap items-center justify-center gap-4 mt-16 max-w-3xl mx-auto"
+                >
+                    {[
+                        { icon: MapPin, text: "Beautiful Itineraries" },
+                        { icon: Calendar, text: "Smart Planning" },
+                        { icon: Sparkles, text: "Effortless Organization" }
+                    ].map((feature, i) => (
+                        <div
+                            key={i}
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card/50 backdrop-blur-sm border border-border/40 text-sm"
+                        >
+                            <feature.icon className="h-4 w-4 text-primary" />
+                            <span className="text-muted-foreground">{feature.text}</span>
                         </div>
-                        <div className="absolute top-16 left-4 w-60 h-32 bg-card border rounded-lg p-4 shadow-sm animate-pulse">
-                            <div className="h-4 w-24 bg-primary/20 rounded mb-4" />
+                    ))}
+                </motion.div>
+
+                {/* Dashboard Preview */}
+                <motion.div
+                    initial={{ rotateX: 20, opacity: 0 }}
+                    animate={{ rotateX: 0, opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.8 }}
+                    className="relative mt-24 h-[300px] md:h-[400px] w-full max-w-5xl mx-auto"
+                    style={{ perspective: '1000px' }}
+                >
+                    <div className="relative w-full h-full bg-card border border-border/40 rounded-2xl shadow-2xl overflow-hidden">
+                        {/* Mock Browser Chrome */}
+                        <div className="absolute top-4 left-4 right-4 h-8 bg-muted/30 rounded-lg flex items-center px-4 gap-2">
+                            <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                            <div className="w-3 h-3 rounded-full bg-warning/60" />
+                            <div className="w-3 h-3 rounded-full bg-accent/60" />
+                        </div>
+                        
+                        {/* Mock Dashboard Content */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-background/95 to-muted/50" />
+                        <div className="absolute top-20 left-6 w-64 h-36 bg-primary/10 border border-primary/20 rounded-2xl p-4 backdrop-blur-sm">
+                            <div className="h-5 w-28 bg-primary/20 rounded-lg mb-3" />
                             <div className="space-y-2">
-                                <div className="h-2 w-full bg-muted rounded" />
-                                <div className="h-2 w-2/3 bg-muted rounded" />
+                                <div className="h-3 w-full bg-muted/50 rounded" />
+                                <div className="h-3 w-3/4 bg-muted/50 rounded" />
                             </div>
                         </div>
-                        <div className="absolute top-20 right-10 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
-                    </motion.div>
-                </div>
+                        <div className="absolute top-24 right-10 w-56 h-56 bg-accent/5 rounded-full blur-3xl" />
+                    </div>
+                </motion.div>
             </div>
         </section>
     );

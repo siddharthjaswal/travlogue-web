@@ -39,33 +39,35 @@ const features = [
 
 export function Features() {
     return (
-        <section id="features" className="py-24 bg-muted/30">
+        <section id="features" className="py-24 bg-gradient-to-b from-background to-muted/30">
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-2xl mx-auto mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything you need for the perfect trip</h2>
-                    <p className="text-muted-foreground text-lg">
-                        From the first spark of inspiration to the final memory captured, Travlogue handles it all.
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+                        Everything for your perfect journey
+                    </h2>
+                    <p className="text-muted-foreground text-lg leading-relaxed">
+                        From inspiration to memories, Travlogue is your complete travel companion
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {features.map((feature, index) => (
                         <motion.div
                             key={index}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
+                            transition={{ delay: index * 0.08, duration: 0.4 }}
                         >
-                            <Card className="h-full border-border/50 bg-card hover:border-primary/50 transition-colors">
+                            <Card className="h-full group hover:shadow-lg transition-all">
                                 <CardHeader>
-                                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                                        <feature.icon className="h-6 w-6" />
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/15 to-accent/10 flex items-center justify-center mb-4 text-primary group-hover:scale-110 transition-transform">
+                                        <feature.icon className="h-7 w-7" strokeWidth={1.5} />
                                     </div>
                                     <CardTitle className="text-xl">{feature.title}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-muted-foreground">
+                                    <p className="text-muted-foreground leading-relaxed">
                                         {feature.description}
                                     </p>
                                 </CardContent>
