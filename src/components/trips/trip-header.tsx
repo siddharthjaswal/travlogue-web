@@ -52,28 +52,29 @@ export function TripHeader({ trip }: TripHeaderProps) {
         timestamp ? format(new Date(timestamp * 1000), 'MMM d, yyyy') : '';
 
     return (
-        <div className="relative">
-            {/* Cover Image Placeholder */}
-            <div className="h-64 w-full bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl relative overflow-hidden">
+        <div className="relative animate-fade-in">
+            {/* Elegant Cover Image */}
+            <div className="h-72 w-full bg-gradient-to-br from-primary/20 via-accent/15 to-secondary/10 rounded-2xl relative overflow-hidden group">
                 {trip.coverPhotoUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                         src={trip.coverPhotoUrl}
                         alt={trip.name}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                 )}
-                <div className="absolute inset-0 bg-black/20" />
+                {/* Sophisticated gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
             </div>
 
-            {/* Info Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end -mt-12 px-6 relative z-10 gap-4">
-                <div className="bg-background/95 backdrop-blur shadow-lg p-6 rounded-xl border border-border md:min-w-[400px]">
-                    <h1 className="text-2xl font-bold mb-2">{trip.name}</h1>
-                    <div className="flex items-center gap-4 text-muted-foreground text-sm">
+            {/* Info Card - Floating over cover */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end -mt-16 px-6 relative z-10 gap-4">
+                <div className="glass elevated-lg p-6 rounded-2xl border border-border/40 md:min-w-[420px] transition-all">
+                    <h1 className="text-3xl font-bold mb-3 tracking-tight">{trip.name}</h1>
+                    <div className="flex flex-col gap-2 text-muted-foreground text-sm">
                         {(trip.primaryDestinationCity || trip.primaryDestinationCountry) && (
-                            <div className="flex items-center gap-1">
-                                <MapPin className="h-4 w-4" />
+                            <div className="flex items-center gap-2">
+                                <MapPin className="h-4 w-4 flex-shrink-0" />
                                 <span>
                                     {[trip.primaryDestinationCity, trip.primaryDestinationCountry].filter(Boolean).join(', ')}
                                 </span>
