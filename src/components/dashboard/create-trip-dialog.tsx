@@ -70,13 +70,13 @@ export function CreateTripDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/20 transition-all duration-300">
+                <Button size="lg" className="shadow-lg hover:shadow-xl transition-all">
                     <Plus className="mr-2 h-5 w-5" />
-                    Create Trip
+                    Create New Trip
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-                <form onSubmit={handleSubmit}>
+            <DialogContent className="sm:max-w-[540px] rounded-2xl">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     <DialogHeader>
                         <DialogTitle>Create New Trip</DialogTitle>
                         <DialogDescription>
