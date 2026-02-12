@@ -18,15 +18,15 @@ export default function DashboardLayout({
             <Sidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Dashboard Header */}
-                <header className="h-16 border-b border-border/50 flex items-center justify-between px-6 bg-card/50 backdrop-blur-sm">
+                <header className="h-16 border-b border-border/50 flex items-center justify-between px-8 bg-background/80 backdrop-blur-md sticky top-0 z-10">
                     <div>
-                        <h1 className="text-xl font-semibold">Dashboard</h1>
-                        <p className="text-xs text-muted-foreground">
+                        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+                        <p className="text-sm text-muted-foreground">
                             {isLoading
                                 ? "Loading..."
                                 : trips?.length
-                                    ? `You have ${trips.length} trips planned`
-                                    : "No trips planned yet"}
+                                    ? `You have ${trips.length} upcoming adventures`
+                                    : "Start planning your next adventure"}
                         </p>
                     </div>
 
@@ -36,8 +36,8 @@ export default function DashboardLayout({
                 </header>
 
                 {/* Main Content Scroll Area */}
-                <main className="flex-1 overflow-auto p-6">
-                    <div className="max-w-7xl mx-auto">
+                <main className="flex-1 overflow-auto p-8">
+                    <div className="max-w-7xl mx-auto space-y-8">
                         {children}
                     </div>
                 </main>

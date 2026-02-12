@@ -1,8 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { expenseService, Expense, CreateExpenseData } from './use-expenses-types'; // Assuming types are separated or re-exported
-
-// Re-implementing correctly with proper types import and mutation logic
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 
 export interface Expense {
     id: number;

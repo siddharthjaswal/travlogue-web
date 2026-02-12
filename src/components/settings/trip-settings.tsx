@@ -107,7 +107,7 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                 <CardContent className="space-y-4">
                     <div className="grid gap-2">
                         <Label htmlFor="tripName">Trip Name</Label>
-                        <Input id="tripName" defaultValue={trip?.title || "My Trip"} />
+                        <Input id="tripName" defaultValue={trip?.name || "My Trip"} />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="description">Description</Label>

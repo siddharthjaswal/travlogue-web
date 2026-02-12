@@ -16,27 +16,28 @@ export function TimelineDay({ day }: TimelineDayProps) {
 
     // Format: "JAN, FRI"
     const monthName = format(dateObj, 'MMM').toUpperCase();
-    const dayName = format(dateObj, 'EEE').toUpperCase();
+    const dayName = format(dateObj, 'EEEE').toUpperCase(); // Full day name
 
     return (
         <div className="relative pl-8 md:pl-0">
             {/* Mobile Timeline Line */}
-            <div className="absolute left-3 top-0 bottom-0 w-px bg-border md:hidden" />
+            <div className="absolute left-[-17px] top-0 bottom-0 w-px bg-border/50 md:hidden" />
+            <div className="absolute left-[-21px] top-6 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-background md:hidden" />
 
-            <div className="md:grid md:grid-cols-[200px_1fr] gap-8 mb-12">
+            <div className="md:grid md:grid-cols-[120px_1fr] gap-12 mb-12">
                 {/* Day Header (Left Column) */}
-                <div className="relative mb-4 md:mb-0 pt-2">
-                    <div className="md:sticky md:top-24 flex md:justify-end pr-6">
-                        <div className="flex items-center gap-3 md:flex-row-reverse">
-                            {/* Circle Day Number */}
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border-2 border-blue-400/30 flex items-center justify-center text-xl font-bold text-blue-700 dark:text-blue-200 shadow-lg shadow-blue-500/10 transition-all hover:shadow-xl hover:shadow-blue-500/20 hover:scale-105">
+                <div className="relative mb-6 md:mb-0 pt-1">
+                    <div className="md:sticky md:top-32 flex md:justify-end">
+                        <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-0">
+                            <span className="text-4xl md:text-5xl font-bold text-foreground leading-none tracking-tight">
                                 {format(dateObj, 'd')}
-                            </div>
-
-                            {/* Month/Day Label */}
-                            <div className="text-right flex flex-col justify-center">
-                                <span className="text-sm font-extrabold text-foreground tracking-wide">
-                                    {monthName}, {dayName}
+                            </span>
+                            <div className="flex flex-col md:items-end">
+                                <span className="text-sm font-semibold text-primary uppercase tracking-widest">
+                                    {monthName}
+                                </span>
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                                    {dayName}
                                 </span>
                             </div>
                         </div>
@@ -45,14 +46,17 @@ export function TimelineDay({ day }: TimelineDayProps) {
 
                 {/* Content Column (Right) */}
                 <div className="relative">
-                    {/* Base Location Header */}
-                    <div className="flex items-center gap-2 mb-6 text-sm font-semibold text-foreground/90 bg-muted/40 w-fit px-3 py-1.5 rounded-full">
-                        <MapPin className="h-4 w-4" />
-                        <span>{day.place}</span>
+                    {/* Location Badge */}
+                    <div className="flex items-center gap-2 mb-8">
+                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/50 border border-border/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-default">
+                            <MapPin className="h-3.5 w-3.5" />
+                            <span>{day.place}</span>
+                        </div>
+                        <div className="h-px flex-1 bg-border/30" />
                     </div>
 
                     {/* Activities List */}
-                    <div className="pt-2">
+                    <div className="space-y-6">
                         {day.activities.length > 0 ? (
                             day.activities
                                 .sort((a, b) => (a.time || '').localeCompare(b.time || ''))
@@ -65,38 +69,31 @@ export function TimelineDay({ day }: TimelineDayProps) {
                                     />
                                 ))
                         ) : (
-                            <div className="border border-dashed rounded-lg p-8 text-center bg-muted/5 mb-4">
-                                <p className="text-muted-foreground text-sm italic">No activities planned for this day yet.</p>
+                            <div className="group relative border-2 border-dashed border-border/40 hover:border-primary/20 rounded-2xl p-8 text-center bg-muted/5 transition-all hover:bg-muted/10">
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                    <PlusCircle className="h-8 w-8 text-primary/20" />
+                                </div>
+                                <p className="text-muted-foreground text-sm font-medium">Free day</p>
+                                <p className="text-muted-foreground/60 text-xs mt-1">No activities planned yet.</p>
                             </div>
                         )}
 
-                        {/* Add Activity Button - Aligned with timeline */}
-                        <div className="grid grid-cols-[60px_40px_1fr] gap-4 mt-6">
-                            {/* Empty time column for alignment */}
-                            <div></div>
-
-                            {/* Timeline column with button */}
-                            <div className="relative flex flex-col items-center">
-                                <AddActivityDialog
-                                    tripId={day.tripId}
-                                    initialDate={dateObj}
-                                    trigger={
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="text-muted-foreground hover:text-primary hover:bg-transparent group relative h-9 w-9 p-0"
-                                            title="Add Activity"
-                                        >
-                                            <div className="h-9 w-9 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
-                                                <PlusCircle className="h-5 w-5" />
-                                            </div>
-                                        </Button>
-                                    }
-                                />
-                            </div>
-
-                            {/* Empty content column */}
-                            <div></div>
+                        {/* Add Activity Button - Floating Action */}
+                        <div className="flex justify-center pt-2">
+                            <AddActivityDialog
+                                tripId={day.tripId}
+                                initialDate={dateObj}
+                                trigger={
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-muted-foreground hover:text-primary hover:bg-primary/5 gap-2 rounded-full px-4"
+                                    >
+                                        <PlusCircle className="h-4 w-4" />
+                                        Add Activity
+                                    </Button>
+                                }
+                            />
                         </div>
                     </div>
                 </div>

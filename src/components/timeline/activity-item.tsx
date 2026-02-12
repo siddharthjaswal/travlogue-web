@@ -27,70 +27,78 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     const Icon = getActivityIcon(activity.activityType);
 
     return (
-        <div className="group relative grid grid-cols-[60px_40px_1fr] gap-4 mb-2 min-h-[80px]">
+        <div className="group relative flex gap-6 mb-4">
             {/* 1. Time Column */}
-            <div className="text-right pt-2">
-                <span className="text-sm font-bold text-foreground">
-                    {activity.time || 'All Day'}
+            <div className="w-[60px] pt-1 flex flex-col items-end">
+                <span className="text-sm font-bold text-foreground tabular-nums">
+                    {activity.time || 'Any'}
+                </span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
+                    {activity.time ? (parseInt(activity.time) >= 12 ? 'PM' : 'AM') : 'TIME'}
                 </span>
             </div>
 
             {/* 2. Timeline Track */}
-            <div className="relative flex flex-col items-center">
+            <div className="relative flex flex-col items-center pt-1">
                 {/* Vertical Line */}
-                <div className="absolute top-0 bottom-[-16px] w-px border-l border-dashed border-border group-last:bottom-0" />
+                <div className="absolute top-8 bottom-[-24px] w-px bg-border/40 group-last:hidden" />
 
                 {/* Icon Bubble */}
-                <div className="relative z-10 h-10 w-10 rounded-full bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border-2 border-primary/20 flex items-center justify-center text-primary shadow-lg shadow-primary/10 group-hover:border-primary group-hover:shadow-xl group-hover:shadow-primary/20 transition-all">
-                    <Icon className="h-5 w-5" />
+                <div className="relative z-10 h-8 w-8 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground shadow-sm group-hover:border-primary group-hover:text-primary transition-colors duration-300">
+                    <Icon className="h-4 w-4" />
                 </div>
             </div>
 
             {/* 3. Content Card */}
-            <div className="pt-1 pb-4 pr-4">
-                <div className="flex items-start justify-between bg-card/50 hover:bg-card border border-transparent hover:border-border rounded-xl p-3 shadow-sm hover:shadow-lg hover:shadow-primary/5 transition-all duration-200">
-                    <div className="min-w-0 flex-1 mr-4">
-                        <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-bold text-base truncate">{activity.name}</h4>
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-muted-foreground uppercase tracking-wide">
-                                {activity.activityType}
-                            </Badge>
+            <div className="flex-1 pb-2">
+                <div className="relative bg-card hover:bg-muted/30 border border-border/40 hover:border-primary/20 rounded-xl p-4 transition-all duration-300 group-hover:shadow-sm">
+                    <div className="flex justify-between items-start gap-4">
+                        <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1.5">
+                                <h4 className="font-semibold text-base truncate pr-2 text-foreground/90 group-hover:text-primary transition-colors">
+                                    {activity.name}
+                                </h4>
+                                <Badge variant="secondary" className="text-[10px] px-1.5 h-5 font-medium text-muted-foreground bg-muted hover:bg-muted cursor-default">
+                                    {activity.activityType}
+                                </Badge>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground/80">
+                                {activity.location && (
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                        <MapPin className="h-3.5 w-3.5 flex-shrink-0 opacity-70" />
+                                        <span className="truncate">{activity.location}</span>
+                                    </div>
+                                )}
+                                {activity.cost && (
+                                    <div className="flex items-center gap-1 text-foreground/70 bg-muted/50 px-1.5 rounded-md">
+                                        <DollarSign className="h-3 w-3" />
+                                        <span className="text-xs font-medium">{activity.currency} {activity.cost}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {activity.notes && (
+                                <p className="mt-3 text-sm text-muted-foreground italic border-l-2 border-primary/20 pl-3 py-0.5">
+                                    {activity.notes}
+                                </p>
+                            )}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                            {activity.location && (
-                                <div className="flex items-center gap-1 max-w-[200px] truncate">
-                                    <MapPin className="h-3 w-3" />
-                                    <span className="truncate">{activity.location}</span>
-                                </div>
-                            )}
-                            {activity.cost && (
-                                <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                                    <span className="text-xs font-medium">{activity.currency} {activity.cost}</span>
-                                </div>
-                            )}
+                        {/* Edit Action - Visible on Hover */}
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2">
+                            <AddActivityDialog
+                                tripId={tripId}
+                                initialDate={date}
+                                mode="edit"
+                                activity={activity}
+                                trigger={
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg">
+                                        <Pencil className="h-3.5 w-3.5" />
+                                    </Button>
+                                }
+                            />
                         </div>
-
-                        {activity.notes && (
-                            <p className="mt-2 text-sm text-muted-foreground/80 line-clamp-2 italic text-[13px]">
-                                "{activity.notes}"
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Edit Action - Visible on Hover */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <AddActivityDialog
-                            tripId={tripId}
-                            initialDate={date} // Passed for context, though editing reuses activity date mostly
-                            mode="edit"
-                            activity={activity}
-                            trigger={
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                                    <Pencil className="h-4 w-4" />
-                                </Button>
-                            }
-                        />
                     </div>
                 </div>
             </div>

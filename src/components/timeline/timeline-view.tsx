@@ -63,7 +63,10 @@ export function TimelineView({ tripId }: TimelineViewProps) {
     }
 
     // Extract dates for Calendar highlighting
-    const tripDates = timeline.days.map(day => new Date(day.date));
+    const tripDates = timeline.days
+        .map(day => new Date(day.date))
+        .filter(date => !isNaN(date.getTime()));
+        
     const startDate = tripDates.length > 0 ? tripDates[0] : new Date();
 
     return (
@@ -83,38 +86,30 @@ export function TimelineView({ tripId }: TimelineViewProps) {
             <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-16 items-start">
                 {/* Left Sidebar: Sticky Calendar */}
                 <div className="hidden lg:block sticky top-24">
-                    <div className="rounded-[2rem] bg-slate-50 dark:bg-[#0B1121] border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 shadow-xl overflow-hidden p-12">
+                    <div className="rounded-3xl bg-transparent p-4">
                         <Calendar
                             mode="multiple"
                             selected={tripDates}
                             className="w-full flex justify-center"
                             defaultMonth={startDate}
                             modifiersStyles={{
-                                selected: {
-                                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)',
-                                    color: '#93c5fd',
-                                    fontWeight: '500',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 0 0 1px rgba(59, 130, 246, 0.25), 0 2px 8px rgba(59, 130, 246, 0.1)'
-                                },
                                 today: {
-                                    color: '#60a5fa',
-                                    fontWeight: '600'
+                                    fontWeight: '700'
                                 }
                             }}
                             classNames={{
-                                root: "p-16",
-                                months: "flex gap-4 flex-col md:flex-row relative",
-                                head_cell: "text-slate-500 dark:text-slate-400 font-normal text-sm w-12",
-                                cell: "text-center text-sm p-2 relative [&:has([aria-selected])]:bg-transparent focus-within:relative focus-within:z-20",
-                                day: "h-11 w-11 p-0 font-normal text-slate-700 dark:text-slate-300 aria-selected:opacity-100 hover:bg-slate-200 dark:hover:bg-slate-800/50 rounded-xl transition-all duration-200",
-                                day_selected: "bg-gradient-to-br from-blue-500/15 to-indigo-500/15 text-blue-600 dark:text-blue-300 hover:from-blue-500/25 hover:to-indigo-500/25 hover:text-blue-700 dark:hover:text-blue-200 focus:from-blue-500/20 focus:to-indigo-500/20 focus:text-blue-600 dark:focus:text-blue-200 ring-1 ring-blue-400/25 shadow-lg shadow-blue-500/10",
-                                day_today: "bg-transparent text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/30 font-semibold",
-                                day_outside: "text-slate-400 dark:text-slate-700 opacity-50",
-                                day_disabled: "text-slate-400 dark:text-slate-700 opacity-50",
+                                root: "p-4",
+                                months: "flex gap-8 flex-col relative",
+                                head_cell: "text-muted-foreground/60 font-medium text-xs w-10 h-10 tracking-wider",
+                                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-transparent focus-within:relative focus-within:z-20",
+                                day: "h-10 w-10 p-0 font-medium text-foreground/80 aria-selected:opacity-100 hover:bg-muted/50 rounded-lg transition-all duration-200",
+                                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md shadow-primary/20",
+                                day_today: "bg-transparent text-primary ring-1 ring-primary/30 font-bold",
+                                day_outside: "text-muted-foreground/20 opacity-30",
+                                day_disabled: "text-muted-foreground/20 opacity-30",
                                 day_hidden: "invisible",
-                                nav_button: "border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-50",
-                                caption: "flex justify-center pt-6 relative items-center text-slate-900 dark:text-slate-50 font-medium mb-4",
+                                nav_button: "border-0 hover:bg-muted/50 text-foreground/60 hover:text-foreground transition-colors",
+                                caption: "flex justify-center pt-2 relative items-center text-foreground font-bold text-lg mb-8 tracking-tight",
                                 weeks: "space-y-3",
                             }}
                         />
@@ -122,9 +117,9 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 </div>
 
                 {/* Right Column: Timeline Stream */}
-                <div className="space-y-0 relative border-l border-border/50 ml-4 lg:ml-0 pl-8 lg:pl-0 lg:border-l-0 min-h-[500px]">
+                <div className="space-y-0 relative border-l-2 border-border/30 ml-4 lg:ml-0 pl-10 lg:pl-12 lg:border-l-2 min-h-[500px]">
                     {timeline.days.map((day) => (
-                        <div key={day.id} className="relative pb-4">
+                        <div key={day.id} className="relative pb-16">
                             <TimelineDay day={day} />
                         </div>
                     ))}
