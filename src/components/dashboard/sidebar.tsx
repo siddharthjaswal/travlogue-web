@@ -49,13 +49,14 @@ export function Sidebar() {
             {/* Header */}
             <div className="h-16 flex items-center justify-between px-4 border-b border-border/50">
                 {!collapsed && (
-                    <span className="text-xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent truncate tracking-tight">
-                        Travlogue
+                    <span className="flex items-center gap-2 text-xl font-bold tracking-tight">
+                        <img src="/ic_travlogue.svg" alt="Travlogue" className="h-6 w-6" />
+                        <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent truncate">Travlogue</span>
                     </span>
                 )}
                 {collapsed && (
-                    <div className="w-8 h-8 rounded-lg bg-primary/20 mx-auto flex items-center justify-center text-primary font-bold">
-                        T
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 mx-auto flex items-center justify-center">
+                        <img src="/ic_travlogue.svg" alt="Travlogue" className="h-5 w-5" />
                     </div>
                 )}
                 <Button

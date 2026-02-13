@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Travlogue",
   description: "Plan, track, and log your travel memories.",
+  icons: {
+    icon: "/ic_travlogue.svg",
+  },
 };
 
 import QueryProvider from "@/providers/query-provider";
