@@ -45,7 +45,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Activity } from '@/services/activity-service';
 import { showError } from '@/lib/toast-helper';
 import { StyledMap } from '@/components/maps/styled-map';
-import { guessCenter, parseLatLng } from '@/lib/geo';
+import { guessCenter, parseLatLng, parseGoogleMapsLink } from '@/lib/geo';
 
 const formSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -338,7 +338,25 @@ export function AddActivityDialog({
                                 <FormItem>
                                     <FormLabel>Location</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Address or coordinates" {...field} />
+                                        <Input
+                                            placeholder="Address, coordinates, or Google Maps link"
+                                            {...field}
+                                            onBlur={(e) => {
+                                                field.onBlur();
+                                                const value = e.target.value;
+                                                if (value?.includes('google.com/maps')) {
+                                                    const parsed = parseGoogleMapsLink(value);
+                                                    if (parsed) {
+                                                        if (parsed.lat && parsed.lng) {
+                                                            form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                        }
+                                                        if (parsed.name && !form.getValues('name')) {
+                                                            form.setValue('name', parsed.name);
+                                                        }
+                                                    }
+                                                }
+                                            }}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -349,7 +367,7 @@ export function AddActivityDialog({
                             <div className="flex items-center justify-between mb-3">
                                 <div>
                                     <p className="text-sm font-medium">Map</p>
-                                    <p className="text-xs text-muted-foreground">Click to set coordinates (Maps JS only)</p>
+                                    <p className="text-xs text-muted-foreground">Paste a Google Maps link or click to set coordinates</p>
                                 </div>
                                 <Button
                                     type="button"
@@ -365,7 +383,7 @@ export function AddActivityDialog({
                                 <StyledMap
                                     center={mapCenter}
                                     marker={marker}
-                                    height={240}
+                                    height={260}
                                     onClick={onMapClick}
                                     rounded="rounded-2xl"
                                 />

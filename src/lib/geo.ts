@@ -116,3 +116,29 @@ export function guessCenter(city?: string, country?: string) {
   }
   return { lat: 20, lng: 0 }; // fallback
 }
+
+export function parseGoogleMapsLink(url: string) {
+  try {
+    const u = new URL(url);
+    if (!u.hostname.includes('google') || !u.pathname.includes('/maps')) return null;
+
+    // Common patterns: ?q=Place, ?query=, @lat,lng, or /place/Name
+    const q = u.searchParams.get('q') || u.searchParams.get('query');
+
+    const atMatch = u.pathname.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    const llMatch = u.searchParams.get('ll')?.match(/(-?\d+\.\d+),(-?\d+\.\d+)/);
+
+    const lat = atMatch ? parseFloat(atMatch[1]) : llMatch ? parseFloat(llMatch[1]) : null;
+    const lng = atMatch ? parseFloat(atMatch[2]) : llMatch ? parseFloat(llMatch[2]) : null;
+
+    let name: string | null = null;
+    if (q) name = q;
+
+    const placeMatch = u.pathname.match(/\/place\/([^/]+)/);
+    if (!name && placeMatch) name = decodeURIComponent(placeMatch[1]).replace(/\+/g, ' ');
+
+    return { name, lat, lng };
+  } catch {
+    return null;
+  }
+}
