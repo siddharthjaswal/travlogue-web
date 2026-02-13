@@ -23,7 +23,9 @@ export default function LoginPage() {
 
             {/* Left Decoration - Visible on LG screens */}
             <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
-                <div className="absolute inset-0 bg-primary" />
+                {/* Unsplash Background */}
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center" />
+                <div className="absolute inset-0 bg-black/40" />
                 <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
 
                 {/* Decorative Circles */}
