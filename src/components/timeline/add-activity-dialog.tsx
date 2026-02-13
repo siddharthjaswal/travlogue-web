@@ -62,6 +62,7 @@ const formSchema = z.object({
 interface AddActivityDialogProps {
     tripId: number;
     initialDate?: Date;
+    initialTime?: string;
     trigger?: React.ReactNode;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
@@ -72,6 +73,7 @@ interface AddActivityDialogProps {
 export function AddActivityDialog({
     tripId,
     initialDate,
+    initialTime,
     trigger,
     open,
     onOpenChange,
@@ -97,7 +99,7 @@ export function AddActivityDialog({
             name: '',
             activityType: 'sightseeing',
             date: initialDate || new Date(),
-            time: '',
+            time: initialTime || '',
             location: '',
             cost: '',
             notes: '',
@@ -147,7 +149,7 @@ export function AddActivityDialog({
                     name: '',
                     activityType: 'sightseeing',
                     date: initialDate || new Date(),
-                    time: '',
+                    time: initialTime || '',
                     location: '',
                     cost: '',
                     notes: '',
