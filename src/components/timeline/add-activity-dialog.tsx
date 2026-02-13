@@ -41,7 +41,7 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { useCreateActivity, useUpdateActivity } from '@/hooks/use-trips';
 import { toast } from 'sonner';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Activity } from '@/services/activity-service';
 import { showError } from '@/lib/toast-helper';
 
@@ -77,6 +77,10 @@ export function AddActivityDialog({
     activity
 }: AddActivityDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const [showMap, setShowMap] = useState(false);
+    const mapRef = useRef<HTMLDivElement | null>(null);
+    const mapInstanceRef = useRef<any>(null);
+    const markerRef = useRef<any>(null);
     const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
     const { mutate: updateActivity, isPending: isUpdating } = useUpdateActivity();
 
@@ -125,6 +129,55 @@ export function AddActivityDialog({
             }
         }
     }, [show, mode, activity, initialDate, form]);
+
+    // Load Google Maps script only when needed
+    useEffect(() => {
+        if (!show || !showMap) return;
+
+        const existing = document.getElementById('google-maps-script');
+        if (!existing) {
+            const script = document.createElement('script');
+            script.id = 'google-maps-script';
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => initMap();
+            document.body.appendChild(script);
+        } else {
+            initMap();
+        }
+    }, [show, showMap]);
+
+    const initMap = () => {
+        if (!mapRef.current || mapInstanceRef.current) return;
+        if (!(window as any).google?.maps) return;
+
+        const defaultCenter = { lat: 41.9028, lng: 12.4964 }; // Rome
+
+        mapInstanceRef.current = new (window as any).google.maps.Map(mapRef.current, {
+            center: defaultCenter,
+            zoom: 12,
+            disableDefaultUI: true,
+            zoomControl: true,
+            gestureHandling: 'greedy'
+        });
+
+        mapInstanceRef.current.addListener('click', (e: any) => {
+            const lat = e.latLng.lat();
+            const lng = e.latLng.lng();
+
+            if (!markerRef.current) {
+                markerRef.current = new (window as any).google.maps.Marker({
+                    position: { lat, lng },
+                    map: mapInstanceRef.current
+                });
+            } else {
+                markerRef.current.setPosition({ lat, lng });
+            }
+
+            form.setValue('location', `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        });
+    };
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         if (mode === 'edit' && activity) {
@@ -308,12 +361,36 @@ export function AddActivityDialog({
                                 <FormItem>
                                     <FormLabel>Location</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Address or place name" {...field} />
+                                        <Input placeholder="Address or coordinates" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
+
+                        <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
+                            <div className="flex items-center justify-between mb-3">
+                                <div>
+                                    <p className="text-sm font-medium">Pick on Map</p>
+                                    <p className="text-xs text-muted-foreground">Click to set coordinates (Maps JS only)</p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant={showMap ? 'secondary' : 'outline'}
+                                    size="sm"
+                                    onClick={() => setShowMap(!showMap)}
+                                >
+                                    {showMap ? 'Hide Map' : 'Show Map'}
+                                </Button>
+                            </div>
+
+                            {showMap && (
+                                <div
+                                    ref={mapRef}
+                                    className="h-56 w-full rounded-lg overflow-hidden border border-border/30"
+                                />
+                            )}
+                        </div>
 
                         <FormField
                             control={form.control}
