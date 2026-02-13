@@ -51,6 +51,21 @@ export function TripHeader({ trip }: TripHeaderProps) {
     const formattedDate = (timestamp?: number) =>
         timestamp ? format(new Date(timestamp * 1000), 'MMM d, yyyy') : '';
 
+    const handleCopyLink = async () => {
+        const url = `${window.location.origin}/dashboard/trips/${trip.id}`;
+        try {
+            await navigator.clipboard.writeText(url);
+            toast.success('Link copied to clipboard');
+        } catch {
+            toast.error('Failed to copy link');
+        }
+    };
+
+    const handleExportPdf = () => {
+        toast.info('Preparing print view...');
+        window.print();
+    };
+
     return (
         <div className="relative animate-fade-in">
             {/* Elegant Cover Image */}
@@ -93,10 +108,23 @@ export function TripHeader({ trip }: TripHeaderProps) {
                 </div>
 
                 <div className="flex gap-2">
-                    <Button variant="secondary" className="shadow-lg">
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Share
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="secondary" className="shadow-lg">
+                                <Share2 className="h-4 w-4 mr-2" />
+                                Share
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => handleCopyLink()}>
+                                Copy Link
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleExportPdf()}>
+                                Export as PDF
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="default" size="icon" className="shadow-lg">

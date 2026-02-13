@@ -1,5 +1,6 @@
 import { Trip } from '@/services/trip-service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TripMap } from './trip-map';
 
 interface TripOverviewProps {
     trip: Trip;
@@ -43,6 +44,9 @@ export function TripOverview({ trip }: TripOverviewProps) {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Map Preview */}
+            <TripMap trip={trip} />
 
             {/* Placeholder for future widgets like Weather, Tasks, etc. */}
             <Card className="col-span-full md:col-span-1">
