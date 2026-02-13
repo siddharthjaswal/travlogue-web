@@ -39,11 +39,13 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { useCreateActivity, useUpdateActivity } from '@/hooks/use-trips';
+import { useCreateActivity, useUpdateActivity, useTrip, useTripTimeline } from '@/hooks/use-trips';
 import { toast } from 'sonner';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Activity } from '@/services/activity-service';
 import { showError } from '@/lib/toast-helper';
+import { StyledMap } from '@/components/maps/styled-map';
+import { guessCenter, parseLatLng } from '@/lib/geo';
 
 const formSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -77,10 +79,9 @@ export function AddActivityDialog({
     activity
 }: AddActivityDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [showMap, setShowMap] = useState(false);
-    const mapRef = useRef<HTMLDivElement | null>(null);
-    const mapInstanceRef = useRef<any>(null);
-    const markerRef = useRef<any>(null);
+    const [showMap, setShowMap] = useState(true);
+    const { data: trip } = useTrip(tripId);
+    const { data: timeline } = useTripTimeline(tripId);
     const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
     const { mutate: updateActivity, isPending: isUpdating } = useUpdateActivity();
 
@@ -103,6 +104,31 @@ export function AddActivityDialog({
         },
     });
 
+    const lastActivityCoords = useMemo(() => {
+        if (!timeline?.days) return null;
+        for (const day of [...timeline.days].reverse()) {
+            for (const act of [...day.activities].reverse()) {
+                const coords = parseLatLng(act.location);
+                if (coords) return coords;
+            }
+        }
+        return null;
+    }, [timeline]);
+
+    const mapCenter = useMemo(() => {
+        // Priority: activity location -> last activity coords -> trip city/country
+        const actCoords = parseLatLng(activity?.location);
+        if (actCoords) return actCoords;
+        if (lastActivityCoords) return lastActivityCoords;
+        return guessCenter(trip?.primaryDestinationCity, trip?.primaryDestinationCountry);
+    }, [activity?.location, lastActivityCoords, trip?.primaryDestinationCity, trip?.primaryDestinationCountry]);
+
+    const marker = useMemo(() => parseLatLng(form.getValues('location')) || null, [form]);
+
+    const onMapClick = (lat: number, lng: number) => {
+        form.setValue('location', `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+    };
+
     // Reset/Populate form when dialog opens or mode/activity changes
     useEffect(() => {
         if (show) {
@@ -110,7 +136,7 @@ export function AddActivityDialog({
                 form.reset({
                     name: activity.name,
                     activityType: activity.activityType.toLowerCase(),
-                    date: initialDate || new Date(), // Keep date as is for now
+                    date: initialDate || new Date(),
                     time: activity.time || '',
                     location: activity.location || '',
                     cost: activity.cost ? String(activity.cost) : '',
@@ -129,55 +155,6 @@ export function AddActivityDialog({
             }
         }
     }, [show, mode, activity, initialDate, form]);
-
-    // Load Google Maps script only when needed
-    useEffect(() => {
-        if (!show || !showMap) return;
-
-        const existing = document.getElementById('google-maps-script');
-        if (!existing) {
-            const script = document.createElement('script');
-            script.id = 'google-maps-script';
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`;
-            script.async = true;
-            script.defer = true;
-            script.onload = () => initMap();
-            document.body.appendChild(script);
-        } else {
-            initMap();
-        }
-    }, [show, showMap]);
-
-    const initMap = () => {
-        if (!mapRef.current || mapInstanceRef.current) return;
-        if (!(window as any).google?.maps) return;
-
-        const defaultCenter = { lat: 41.9028, lng: 12.4964 }; // Rome
-
-        mapInstanceRef.current = new (window as any).google.maps.Map(mapRef.current, {
-            center: defaultCenter,
-            zoom: 12,
-            disableDefaultUI: true,
-            zoomControl: true,
-            gestureHandling: 'greedy'
-        });
-
-        mapInstanceRef.current.addListener('click', (e: any) => {
-            const lat = e.latLng.lat();
-            const lng = e.latLng.lng();
-
-            if (!markerRef.current) {
-                markerRef.current = new (window as any).google.maps.Marker({
-                    position: { lat, lng },
-                    map: mapInstanceRef.current
-                });
-            } else {
-                markerRef.current.setPosition({ lat, lng });
-            }
-
-            form.setValue('location', `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
-        });
-    };
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         if (mode === 'edit' && activity) {
@@ -228,7 +205,7 @@ export function AddActivityDialog({
     return (
         <Dialog open={show} onOpenChange={setShow}>
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-            <DialogContent className="sm:max-w-[500px] overflow-y-auto max-h-[90vh]">
+            <DialogContent className="sm:max-w-[520px] overflow-y-auto max-h-[90vh]">
                 <DialogHeader>
                     <DialogTitle>{mode === 'edit' ? 'Edit Activity' : 'Add Activity'}</DialogTitle>
                     <DialogDescription>
@@ -371,7 +348,7 @@ export function AddActivityDialog({
                         <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
                             <div className="flex items-center justify-between mb-3">
                                 <div>
-                                    <p className="text-sm font-medium">Pick on Map</p>
+                                    <p className="text-sm font-medium">Map</p>
                                     <p className="text-xs text-muted-foreground">Click to set coordinates (Maps JS only)</p>
                                 </div>
                                 <Button
@@ -385,9 +362,12 @@ export function AddActivityDialog({
                             </div>
 
                             {showMap && (
-                                <div
-                                    ref={mapRef}
-                                    className="h-56 w-full rounded-lg overflow-hidden border border-border/30"
+                                <StyledMap
+                                    center={mapCenter}
+                                    marker={marker}
+                                    height={240}
+                                    onClick={onMapClick}
+                                    rounded="rounded-2xl"
                                 />
                             )}
                         </div>

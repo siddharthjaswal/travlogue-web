@@ -1,6 +1,10 @@
+'use client';
+
 import { Trip } from '@/services/trip-service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin } from 'lucide-react';
+import { StyledMap } from '@/components/maps/styled-map';
+import { guessCenter } from '@/lib/geo';
 
 interface TripMapProps {
     trip: Trip;
@@ -11,8 +15,7 @@ export function TripMap({ trip }: TripMapProps) {
         ? `${trip.primaryDestinationCity}, ${trip.primaryDestinationCountry || ''}`
         : trip.primaryDestinationCountry || trip.name;
 
-    const query = encodeURIComponent(location);
-    const mapUrl = `https://maps.google.com/maps?q=${query}&z=12&output=embed`;
+    const center = guessCenter(trip.primaryDestinationCity, trip.primaryDestinationCountry);
 
     return (
         <Card className="col-span-full overflow-hidden animate-fade-in">
@@ -24,15 +27,7 @@ export function TripMap({ trip }: TripMapProps) {
                 <span className="text-sm text-muted-foreground">{location}</span>
             </CardHeader>
             <CardContent className="p-0">
-                <div className="relative h-[300px] w-full">
-                    <iframe
-                        title="Trip Map"
-                        src={mapUrl}
-                        className="absolute inset-0 w-full h-full border-0"
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                    />
-                </div>
+                <StyledMap center={center} marker={center} height={300} rounded="rounded-none" />
             </CardContent>
         </Card>
     );
