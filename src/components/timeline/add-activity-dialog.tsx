@@ -205,7 +205,7 @@ export function AddActivityDialog({
     return (
         <Dialog open={show} onOpenChange={setShow}>
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-            <DialogContent className="sm:max-w-[520px] overflow-y-auto max-h-[90vh]">
+            <DialogContent className="sm:max-w-[900px] w-[95vw] overflow-y-auto max-h-[92vh]">
                 <DialogHeader>
                     <DialogTitle>{mode === 'edit' ? 'Edit Activity' : 'Add Activity'}</DialogTitle>
                     <DialogDescription>
