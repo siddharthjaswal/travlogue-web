@@ -1,27 +1,140 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useTrips } from '@/hooks/use-trips';
 import { TripCard } from '@/components/dashboard/trip-card';
 import { CreateTripDialog } from '@/components/dashboard/create-trip-dialog';
 import { Button } from '@/components/ui/button';
-import { Map, Sparkles, Globe } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Map, Sparkles, Globe, Search, SlidersHorizontal, Calendar, ArrowUpDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import type { Trip } from '@/services/trip-service';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+
+const statusOptions = [
+    { label: 'All Statuses', value: 'all' },
+    { label: 'Planning', value: 'planning' },
+    { label: 'Active', value: 'active' },
+    { label: 'Completed', value: 'completed' },
+    { label: 'Cancelled', value: 'cancelled' },
+];
+
+const sortOptions = [
+    { label: 'Upcoming', value: 'upcoming' },
+    { label: 'Recently Added', value: 'recent' },
+    { label: 'Name (A–Z)', value: 'name' },
+];
 
 export default function TripsPage() {
     const { user } = useAuth();
     const { data: trips, isLoading, isError } = useTrips();
+    const [query, setQuery] = useState('');
+    const [status, setStatus] = useState('all');
+    const [sort, setSort] = useState('upcoming');
+
+    const filteredTrips = useMemo(() => {
+        if (!trips) return [];
+
+        const q = query.trim().toLowerCase();
+        let list = trips.filter((trip: Trip) => {
+            const haystack = [
+                trip.name,
+                trip.description,
+                trip.primaryDestinationCity,
+                trip.primaryDestinationCountry,
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+
+            const matchesQuery = q.length === 0 || haystack.includes(q);
+            const matchesStatus = status === 'all' || trip.status === status;
+            return matchesQuery && matchesStatus;
+        });
+
+        if (sort === 'name') {
+            list = list.sort((a: Trip, b: Trip) => a.name.localeCompare(b.name));
+        } else if (sort === 'recent') {
+            // No createdAt in Trip model; fallback to startDateTimestamp
+            list = list.sort((a: Trip, b: Trip) => (b.startDateTimestamp || 0) - (a.startDateTimestamp || 0));
+        } else {
+            // Upcoming: earliest start date first
+            list = list.sort((a: Trip, b: Trip) => (a.startDateTimestamp || 0) - (b.startDateTimestamp || 0));
+        }
+
+        return list;
+    }, [trips, query, status, sort]);
 
     return (
         <div className="space-y-8 animate-fade-in">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight">My Journeys</h2>
-                    <p className="text-muted-foreground mt-1">
-                        Your collection of adventures, past and planned
-                    </p>
+            <div className="flex flex-col gap-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-3xl font-bold tracking-tight">My Journeys</h2>
+                        <p className="text-muted-foreground mt-1">
+                            Your collection of adventures, past and planned
+                        </p>
+                    </div>
+                    <CreateTripDialog />
+                </div>
+
+                {/* Search + Filters */}
+                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Search by destination, name, or notes..."
+                            className="pl-9 h-10"
+                        />
+                    </div>
+
+                    <div className="flex gap-3 flex-wrap">
+                        <Select value={status} onValueChange={setStatus}>
+                            <SelectTrigger className="w-[170px] h-10">
+                                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                                <SelectValue placeholder="Filter" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {statusOptions.map((s) => (
+                                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={sort} onValueChange={setSort}>
+                            <SelectTrigger className="w-[170px] h-10">
+                                <ArrowUpDown className="h-4 w-4 mr-2" />
+                                <SelectValue placeholder="Sort" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {sortOptions.map((s) => (
+                                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                {/* Active Filters */}
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {query && (
+                        <Badge variant="secondary" className="rounded-full px-3">Query: {query}</Badge>
+                    )}
+                    {status !== 'all' && (
+                        <Badge variant="secondary" className="rounded-full px-3 capitalize">Status: {status}</Badge>
+                    )}
+                    <Badge variant="outline" className="rounded-full px-3">{filteredTrips.length} trips</Badge>
                 </div>
             </div>
 
@@ -55,9 +168,9 @@ export default function TripsPage() {
                         Try Again
                     </Button>
                 </div>
-            ) : trips && trips.length > 0 ? (
+            ) : filteredTrips.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {trips.map((trip: Trip, index: number) => (
+                    {filteredTrips.map((trip: Trip, index: number) => (
                         <TripCard key={trip.id} trip={trip} index={index} />
                     ))}
                 </div>
