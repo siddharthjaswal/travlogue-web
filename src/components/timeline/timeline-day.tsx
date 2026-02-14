@@ -3,13 +3,29 @@
 import { TripDay } from '@/services/activity-service';
 import { ActivityItem } from './activity-item';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MapPin } from 'lucide-react';
+import { PlusCircle, MapPin, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { AddActivityDialog } from './add-activity-dialog';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useCreateActivity } from '@/hooks/use-trips';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface TimelineDayProps {
     day: TripDay;
 }
+
+const templates = [
+    { label: 'Breakfast', type: 'dining' },
+    { label: 'Lunch', type: 'dining' },
+    { label: 'Dinner', type: 'dining' },
+    { label: 'Check-in', type: 'accommodation' },
+    { label: 'Check-out', type: 'accommodation' },
+    { label: 'Museum', type: 'sightseeing' },
+    { label: 'City Walk', type: 'sightseeing' },
+    { label: 'Transit', type: 'transit' },
+];
 
 function getNextDefaultTime(activities: TripDay['activities']): string {
     const times = activities
@@ -32,6 +48,29 @@ export function TimelineDay({ day }: TimelineDayProps) {
     const dayName = format(dateObj, 'EEEE').toUpperCase(); // Full day name
 
     const nextTime = getNextDefaultTime(day.activities);
+    const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
+    const [quickName, setQuickName] = useState('');
+    const [quickTime, setQuickTime] = useState(nextTime);
+    const [quickType, setQuickType] = useState('sightseeing');
+
+    const submitQuickAdd = () => {
+        if (!quickName.trim()) return;
+        createActivity({
+            tripId: day.tripId,
+            activityDate: day.date,
+            name: quickName.trim(),
+            activityType: quickType,
+            time: quickTime || undefined,
+        }, {
+            onSuccess: () => {
+                setQuickName('');
+                setQuickTime(getNextDefaultTime(day.activities));
+                setQuickType('sightseeing');
+                toast.success('Activity added');
+            },
+            onError: () => toast.error('Failed to add activity')
+        });
+    };
 
     return (
         <div className="relative pl-8 md:pl-0">
@@ -87,6 +126,59 @@ export function TimelineDay({ day }: TimelineDayProps) {
                                     </Button>
                                 }
                             />
+                        </div>
+
+                        {/* Quick Add */}
+                        <div className="mb-5 rounded-xl border border-border/40 bg-muted/10 p-4">
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <Input
+                                    placeholder="Quick add an activity…"
+                                    value={quickName}
+                                    onChange={(e) => setQuickName(e.target.value)}
+                                    className="flex-1"
+                                />
+                                <Input
+                                    type="time"
+                                    value={quickTime}
+                                    onChange={(e) => setQuickTime(e.target.value)}
+                                    className="w-full sm:w-32"
+                                />
+                                <Select value={quickType} onValueChange={setQuickType}>
+                                    <SelectTrigger className="w-full sm:w-44">
+                                        <SelectValue placeholder="Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="sightseeing">Sightseeing</SelectItem>
+                                        <SelectItem value="dining">Dining</SelectItem>
+                                        <SelectItem value="transit">Transit</SelectItem>
+                                        <SelectItem value="accommodation">Stay</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Button onClick={submitQuickAdd} disabled={isCreating} className="gap-2">
+                                    <PlusCircle className="h-4 w-4" />
+                                    Add
+                                </Button>
+                            </div>
+
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {templates.map((t) => (
+                                    <button
+                                        key={t.label}
+                                        type="button"
+                                        onClick={() => {
+                                            setQuickName(t.label);
+                                            setQuickType(t.type);
+                                        }}
+                                        className="text-xs px-3 py-1 rounded-full border border-border/40 bg-background hover:bg-muted/40 transition-colors"
+                                    >
+                                        {t.label}
+                                    </button>
+                                ))}
+                                <div className="text-xs text-muted-foreground flex items-center gap-1 px-2">
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    Templates
+                                </div>
+                            </div>
                         </div>
 
                         {/* Activities List */}

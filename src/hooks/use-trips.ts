@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tripService, CreateTripData } from '@/services/trip-service';
 import { activityService } from '@/services/activity-service';
 import { tripDayService, CreateTripDayData } from '@/services/trip-day-service';
+import { trackEvent } from '@/lib/analytics';
 
 export function useTrips() {
     return useQuery({
@@ -15,9 +16,9 @@ export function useCreateTrip() {
 
     return useMutation({
         mutationFn: (data: CreateTripData) => tripService.create(data),
-        onSuccess: () => {
-            // Invalidate trips list to refetch
+        onSuccess: (trip) => {
             queryClient.invalidateQueries({ queryKey: ['trips'] });
+            trackEvent('trip_created', { trip_id: trip?.id, name: trip?.name });
         },
     });
 }
@@ -76,8 +77,14 @@ export function useCreateActivity() {
 
     return useMutation({
         mutationFn: (data: any) => activityService.create(data),
-        onSuccess: (_, variables) => {
+        onSuccess: (activity, variables) => {
             queryClient.invalidateQueries({ queryKey: ['trip-timeline', variables.tripId] });
+            trackEvent('activity_added', {
+                trip_id: variables.tripId,
+                activity_id: activity?.id,
+                name: activity?.name,
+                activity_type: activity?.activityType
+            });
         },
     });
 }
@@ -89,6 +96,7 @@ export function useUpdateActivity() {
         mutationFn: ({ id, data, tripId }: { id: number; data: any; tripId: number }) => activityService.update(id, data),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['trip-timeline', variables.tripId] });
+            trackEvent('activity_updated', { trip_id: variables.tripId, activity_id: variables.id });
         },
     });
 }

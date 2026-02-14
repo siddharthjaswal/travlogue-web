@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { trackEvent } from '@/lib/analytics';
 
 export interface Expense {
     id: number;
@@ -67,6 +68,11 @@ export function useCreateExpense() {
         mutationFn: expenseService.create,
         onSuccess: (newExpense) => {
             queryClient.invalidateQueries({ queryKey: ['expenses', newExpense.tripId] });
+            trackEvent('expense_added', {
+                trip_id: newExpense.tripId,
+                amount: newExpense.amount,
+                category: newExpense.category
+            });
         },
     });
 }
