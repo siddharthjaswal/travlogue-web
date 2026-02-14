@@ -15,8 +15,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Travlogue",
   description: "Plan, track, and log your travel memories.",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/ic_travlogue.svg",
+    apple: "/icons/apple-touch-icon.png",
   },
 };
 
