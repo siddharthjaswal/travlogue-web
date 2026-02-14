@@ -98,14 +98,14 @@ export function MediaView({ tripId, trip }: MediaViewProps) {
     }
 
     return (
-        <div className="max-w-7xl mx-auto py-8 px-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 gap-4">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Trip Gallery</h2>
                     <p className="text-muted-foreground">Relive your memories with photos and videos.</p>
                 </div>
                 <UploadMediaDialog tripId={tripId} onUpload={handleUpload} trigger={
-                    <Button className="gap-2 shadow-lg shadow-primary/20">
+                    <Button className="gap-2 shadow-lg shadow-primary/20 w-full md:w-auto">
                         <Plus className="h-4 w-4" /> Upload Media
                     </Button>
                 } />

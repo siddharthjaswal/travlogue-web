@@ -9,7 +9,7 @@ interface TripOverviewProps {
 export function TripOverview({ trip }: TripOverviewProps) {
     return (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
-            <Card className="col-span-2">
+            <Card className="col-span-2 rounded-2xl border-border/50 shadow-sm">
                 <CardHeader>
                     <CardTitle>About this Trip</CardTitle>
                 </CardHeader>
@@ -20,7 +20,7 @@ export function TripOverview({ trip }: TripOverviewProps) {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className="rounded-2xl border-border/50 shadow-sm">
                 <CardHeader>
                     <CardTitle>Quick Stats</CardTitle>
                 </CardHeader>
@@ -49,7 +49,7 @@ export function TripOverview({ trip }: TripOverviewProps) {
             <TripMap trip={trip} />
 
             {/* Placeholder for future widgets like Weather, Tasks, etc. */}
-            <Card className="col-span-full md:col-span-1">
+            <Card className="col-span-full md:col-span-1 rounded-2xl border-border/50 shadow-sm">
                 <CardHeader>
                     <CardTitle>Travellers</CardTitle>
                 </CardHeader>

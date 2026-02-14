@@ -92,14 +92,14 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
     };
 
     return (
-        <div className="max-w-4xl mx-auto py-8 px-4 space-y-8">
+        <div className="max-w-5xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8 space-y-8">
             <div>
-                <h2 className="text-3xl font-bold tracking-tight mb-2">Trip Settings</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">Trip Settings</h2>
                 <p className="text-muted-foreground">Manage trip details, collaborators, and permissions.</p>
             </div>
 
             {/* General Settings */}
-            <Card>
+            <Card className="rounded-2xl border-border/50 shadow-sm">
                 <CardHeader>
                     <CardTitle>General Information</CardTitle>
                     <CardDescription>Update basic details about your trip.</CardDescription>
@@ -120,8 +120,8 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
             </Card>
 
             {/* Collaboration Settings */}
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
+            <Card className="rounded-2xl border-border/50 shadow-sm">
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                         <CardTitle>Collaborators</CardTitle>
                         <CardDescription>Invite friends to plan this trip with you.</CardDescription>
@@ -135,7 +135,7 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                 <CardContent>
                     <div className="space-y-4">
                         {members.map((member) => (
-                            <div key={member.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                            <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <Avatar>
                                         <AvatarImage src={member.avatar} />
@@ -194,18 +194,18 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
             </Card>
 
             {/* Danger Zone */}
-            <Card className="border-destructive/20 bg-destructive/5">
+            <Card className="rounded-2xl border-destructive/20 bg-destructive/5">
                 <CardHeader>
                     <CardTitle className="text-destructive">Danger Zone</CardTitle>
                     <CardDescription>Irreversible actions for this trip.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
                             <p className="font-medium">Delete Trip</p>
                             <p className="text-sm text-muted-foreground">Permanently delete this trip and all its data.</p>
                         </div>
-                        <Button variant="destructive">Delete Trip</Button>
+                        <Button variant="destructive" className="w-full sm:w-auto">Delete Trip</Button>
                     </div>
                 </CardContent>
             </Card>

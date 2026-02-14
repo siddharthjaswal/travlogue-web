@@ -69,7 +69,7 @@ export function TripHeader({ trip }: TripHeaderProps) {
     return (
         <div className="relative animate-fade-in">
             {/* Elegant Cover Image */}
-            <div className="h-72 w-full bg-gradient-to-br from-primary/20 via-accent/15 to-secondary/10 rounded-2xl relative overflow-hidden group">
+            <div className="h-56 sm:h-72 w-full bg-gradient-to-br from-primary/20 via-accent/15 to-secondary/10 rounded-2xl relative overflow-hidden group">
                 {trip.coverPhotoUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -83,8 +83,8 @@ export function TripHeader({ trip }: TripHeaderProps) {
             </div>
 
             {/* Info Card - Floating over cover */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end -mt-16 px-6 relative z-10 gap-4">
-                <div className="glass elevated-lg p-6 rounded-2xl border border-border/40 md:min-w-[420px] transition-all">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end -mt-16 px-4 sm:px-6 relative z-10 gap-4">
+                <div className="glass elevated-lg p-6 rounded-2xl border border-border/40 w-full md:min-w-[420px] transition-all">
                     <h1 className="text-3xl font-bold mb-3 tracking-tight">{trip.name}</h1>
                     <div className="flex flex-col gap-2 text-muted-foreground text-sm">
                         {(trip.primaryDestinationCity || trip.primaryDestinationCountry) && (
@@ -107,10 +107,10 @@ export function TripHeader({ trip }: TripHeaderProps) {
                     </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="secondary" className="shadow-lg">
+                            <Button variant="secondary" className="shadow-lg w-full sm:w-auto">
                                 <Share2 className="h-4 w-4 mr-2" />
                                 Share
                             </Button>
@@ -127,7 +127,7 @@ export function TripHeader({ trip }: TripHeaderProps) {
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="default" size="icon" className="shadow-lg">
+                            <Button variant="default" size="icon" className="shadow-lg w-full sm:w-10">
                                 <MoreVertical className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
