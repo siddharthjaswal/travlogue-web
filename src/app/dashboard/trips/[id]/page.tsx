@@ -49,7 +49,7 @@ export default function TripDetailsPage() {
             <TripHeader trip={trip} />
 
             <Tabs defaultValue="overview" className="mt-8">
-                <TabsList>
+                <TabsList className="w-full overflow-x-auto flex-nowrap justify-start">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
                     <TabsTrigger value="budget">Expenses & Budget</TabsTrigger>

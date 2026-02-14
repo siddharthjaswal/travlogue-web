@@ -30,6 +30,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { useCreateExpense } from '@/hooks/use-expenses';
+import { CreateExpenseData } from '@/services/expense-service';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { showError } from '@/lib/toast-helper';
