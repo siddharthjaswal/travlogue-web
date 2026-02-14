@@ -6,12 +6,17 @@ import { Plane, Hotel, Utensils, Camera, MapPin, Clock, DollarSign, Pencil } fro
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { AddActivityDialog } from './add-activity-dialog';
+import { parseLatLng } from '@/lib/geo';
+import api from '@/lib/api';
+import { useEffect, useState } from 'react';
 
 interface ActivityItemProps {
     activity: Activity;
     tripId: number;
     date: Date;
 }
+
+const photoCache = new Map<string, string>();
 
 export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     const getActivityIcon = (type: string) => {
@@ -25,6 +30,33 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     };
 
     const Icon = getActivityIcon(activity.activityType);
+    const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        const coords = parseLatLng(activity.location || '');
+        if (!coords || !activity.name) return;
+
+        const cacheKey = `${activity.id}-${activity.name}`;
+        if (photoCache.has(cacheKey)) {
+            setPhotoUrl(photoCache.get(cacheKey) || null);
+            return;
+        }
+
+        (async () => {
+            try {
+                const res = await api.get('/activities/place-photo', {
+                    params: { query: activity.name }
+                });
+                const url = res?.data?.url;
+                if (url) {
+                    photoCache.set(cacheKey, url);
+                    setPhotoUrl(url);
+                }
+            } catch {
+                // ignore
+            }
+        })();
+    }, [activity.id, activity.location, activity.name]);
 
     return (
         <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
@@ -52,8 +84,15 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
             {/* 3. Content Card */}
             <div className="flex-1 pb-2">
                 <div className="relative bg-card hover:bg-muted/30 border border-border/40 hover:border-primary/20 rounded-xl p-4 transition-all duration-300 group-hover:shadow-sm">
-                    <div className="flex justify-between items-start gap-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                         <div className="min-w-0 flex-1">
+                            {photoUrl && (
+                                <div className="mb-3 sm:hidden overflow-hidden rounded-lg border border-border/40">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={photoUrl} alt={activity.name} className="h-36 w-full object-cover" />
+                                </div>
+                            )}
+
                             <div className="flex items-center gap-2 mb-1.5">
                                 <h4 className="font-semibold text-base truncate pr-2 text-foreground/90 group-hover:text-primary transition-colors">
                                     {activity.name}
@@ -84,6 +123,13 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                                 </p>
                             )}
                         </div>
+
+                        {photoUrl && (
+                            <div className="hidden sm:block shrink-0 overflow-hidden rounded-lg border border-border/40">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={photoUrl} alt={activity.name} className="h-20 w-28 object-cover" />
+                            </div>
+                        )}
 
                         {/* Edit Action - Visible on Hover */}
                         <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute top-2 right-2">
