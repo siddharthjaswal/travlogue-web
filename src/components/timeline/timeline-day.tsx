@@ -39,7 +39,7 @@ export function TimelineDay({ day }: TimelineDayProps) {
             <div className="absolute left-[-17px] top-0 bottom-0 w-px bg-border/50 md:hidden" />
             <div className="absolute left-[-21px] top-6 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-background md:hidden" />
 
-            <div className="md:grid md:grid-cols-[140px_1fr] gap-10 mb-16">
+            <div className="md:grid md:grid-cols-[140px_1fr] gap-8 sm:gap-10 mb-12 sm:mb-16">
                 {/* Day Header (Left Column) */}
                 <div className="relative mb-6 md:mb-0 pt-1">
                     <div className="md:sticky md:top-32 flex md:justify-end">

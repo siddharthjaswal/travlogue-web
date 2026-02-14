@@ -77,14 +77,16 @@ export default function TripsPage() {
     return (
         <div className="space-y-8 animate-fade-in">
             <div className="flex flex-col gap-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight">My Journeys</h2>
+                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">My Journeys</h2>
                         <p className="text-muted-foreground mt-1">
                             Your collection of adventures, past and planned
                         </p>
                     </div>
-                    <CreateTripDialog />
+                    <div className="w-full sm:w-auto">
+                        <CreateTripDialog />
+                    </div>
                 </div>
 
                 {/* Search + Filters */}
@@ -99,9 +101,9 @@ export default function TripsPage() {
                         />
                     </div>
 
-                    <div className="flex gap-3 flex-wrap">
+                    <div className="flex gap-3 flex-wrap w-full">
                         <Select value={status} onValueChange={setStatus}>
-                            <SelectTrigger className="w-[170px] h-10">
+                            <SelectTrigger className="w-full sm:w-[170px] h-10">
                                 <SlidersHorizontal className="h-4 w-4 mr-2" />
                                 <SelectValue placeholder="Filter" />
                             </SelectTrigger>
@@ -113,7 +115,7 @@ export default function TripsPage() {
                         </Select>
 
                         <Select value={sort} onValueChange={setSort}>
-                            <SelectTrigger className="w-[170px] h-10">
+                            <SelectTrigger className="w-full sm:w-[170px] h-10">
                                 <ArrowUpDown className="h-4 w-4 mr-2" />
                                 <SelectValue placeholder="Sort" />
                             </SelectTrigger>

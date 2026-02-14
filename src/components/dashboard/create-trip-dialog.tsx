@@ -70,7 +70,7 @@ export function CreateTripDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="lg" className="shadow-lg hover:shadow-xl transition-all">
+                <Button size="lg" className="shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
                     <Plus className="mr-2 h-5 w-5" />
                     Create New Trip
                 </Button>
@@ -95,7 +95,7 @@ export function CreateTripDialog() {
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid sm:grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="country">Country</Label>
                                 <Input
@@ -116,7 +116,7 @@ export function CreateTripDialog() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid sm:grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label>Start Date</Label>
                                 <DatePicker

@@ -27,9 +27,9 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     const Icon = getActivityIcon(activity.activityType);
 
     return (
-        <div className="group relative flex gap-6 mb-4">
+        <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
             {/* 1. Time Column */}
-            <div className="w-[60px] pt-1 flex flex-col items-end">
+            <div className="w-full sm:w-[60px] pt-1 flex sm:flex-col items-center sm:items-end justify-between sm:justify-start">
                 <span className="text-sm font-bold text-foreground tabular-nums">
                     {activity.time || 'Any'}
                 </span>
@@ -39,9 +39,9 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
             </div>
 
             {/* 2. Timeline Track */}
-            <div className="relative flex flex-col items-center pt-1">
+            <div className="relative flex flex-col items-center pt-1 sm:pt-1">
                 {/* Vertical Line */}
-                <div className="absolute top-8 bottom-[-24px] w-px bg-border/40 group-last:hidden" />
+                <div className="absolute top-8 bottom-[-24px] w-px bg-border/40 group-last:hidden hidden sm:block" />
 
                 {/* Icon Bubble */}
                 <div className="relative z-10 h-8 w-8 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground shadow-sm group-hover:border-primary group-hover:text-primary transition-colors duration-300">
@@ -86,7 +86,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                         </div>
 
                         {/* Edit Action - Visible on Hover */}
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2">
+                        <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute top-2 right-2">
                             <AddActivityDialog
                                 tripId={tripId}
                                 initialDate={date}

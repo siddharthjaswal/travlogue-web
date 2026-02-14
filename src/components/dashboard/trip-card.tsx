@@ -89,7 +89,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                 <div className="relative group h-full">
                     <Link href={`/dashboard/trips/${trip.id}`} className="block h-full">
                         <Card className={cn(
-                            "relative overflow-hidden h-[400px] flex flex-col",
+                            "relative overflow-hidden h-[320px] sm:h-[400px] flex flex-col",
                             "border-0 rounded-3xl shadow-lg",
                             "transition-all duration-500 ease-out",
                             "hover:shadow-2xl hover:scale-[1.02]",

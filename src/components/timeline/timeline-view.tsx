@@ -70,20 +70,21 @@ export function TimelineView({ tripId }: TimelineViewProps) {
     const startDate = tripDates.length > 0 ? tripDates[0] : new Date();
 
     return (
-        <div className="max-w-7xl mx-auto py-8 px-6 lg:px-8">
-            <div className="flex justify-between items-center mb-12">
+        <div className="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-12">
                 <div>
-                    <h2 className="text-4xl font-bold tracking-tight mb-2">Itinerary</h2>
-                    <p className="text-muted-foreground text-lg">Your trip schedule at a glance.</p>
+                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">Itinerary</h2>
+                    <p className="text-muted-foreground text-base sm:text-lg">Your trip schedule at a glance.</p>
                 </div>
                 <AddActivityDialog tripId={tripId} trigger={
-                    <Button size="icon" className="shadow-sm" title="Add Activity">
+                    <Button className="w-full sm:w-auto shadow-sm gap-2" title="Add Activity">
                         <Plus className="h-5 w-5" />
+                        Add Activity
                     </Button>
                 } />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-16 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 lg:gap-16 items-start">
                 {/* Left Sidebar: Sticky Calendar */}
                 <div className="hidden lg:block sticky top-24">
                     <div className="rounded-3xl bg-transparent p-4">
@@ -117,9 +118,9 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 </div>
 
                 {/* Right Column: Timeline Stream */}
-                <div className="space-y-0 relative border-l-2 border-border/30 ml-4 lg:ml-0 pl-10 lg:pl-12 lg:border-l-2 min-h-[500px]">
+                <div className="space-y-0 relative border-l-0 lg:border-l-2 border-border/30 pl-0 lg:pl-12 min-h-[400px]">
                     {timeline.days.map((day) => (
-                        <div key={day.id} className="relative pb-16">
+                        <div key={day.id} className="relative pb-12 sm:pb-16">
                             <TimelineDay day={day} />
                         </div>
                     ))}
