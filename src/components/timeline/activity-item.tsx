@@ -33,7 +33,9 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        const coords = parseLatLng(activity.location || '');
+        const coords = (activity.latitude && activity.longitude)
+            ? { lat: activity.latitude, lng: activity.longitude }
+            : parseLatLng(activity.location || '');
         if (!coords || !activity.name) return;
 
         const cacheKey = `${activity.id}-${activity.name}`;
@@ -56,7 +58,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                 // ignore
             }
         })();
-    }, [activity.id, activity.location, activity.name]);
+    }, [activity.id, activity.location, activity.name, activity.latitude, activity.longitude]);
 
     return (
         <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">

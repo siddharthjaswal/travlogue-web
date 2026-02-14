@@ -8,6 +8,8 @@ export interface Activity {
     time?: string;
     duration?: number;
     location?: string;
+    latitude?: number;
+    longitude?: number;
     cost?: number;
     currency: string;
     status: string;
@@ -40,6 +42,8 @@ const mapActivity = (data: any): Activity => ({
     time: data.time,
     duration: data.duration,
     location: data.location,
+    latitude: data.latitude,
+    longitude: data.longitude,
     cost: data.cost,
     currency: data.currency,
     status: data.status,
