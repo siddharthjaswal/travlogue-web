@@ -22,31 +22,6 @@ export function TripOverview({ trip }: TripOverviewProps) {
                 </Card>
             )}
 
-            <Card className="rounded-2xl border-border/50 shadow-sm">
-                <CardHeader>
-                    <CardTitle>Quick Stats</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Status</span>
-                        <span className="capitalize font-medium">{trip.status}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Visibility</span>
-                        <span className="capitalize font-medium">{trip.visibility}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Duration</span>
-                        <span className="font-medium">
-                            {trip.startDateTimestamp && trip.endDateTimestamp
-                                ? `${Math.ceil((trip.endDateTimestamp - trip.startDateTimestamp) / (60 * 60 * 24))} days`
-                                : 'N/A'
-                            }
-                        </span>
-                    </div>
-                </CardContent>
-            </Card>
-
             {/* Map Preview */}
             <TripMap trip={trip} />
 

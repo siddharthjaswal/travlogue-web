@@ -76,11 +76,11 @@ export default function TripDetailsPage() {
                     </div>
                 </div>
                 <TabsList className="hidden md:flex w-full overflow-x-auto flex-nowrap justify-start md:justify-start rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-1">
-                    <TabsTrigger value="overview" className="rounded-full">Overview</TabsTrigger>
-                    <TabsTrigger value="itinerary" className="rounded-full">Itinerary</TabsTrigger>
-                    <TabsTrigger value="budget" className="rounded-full">Expenses & Budget</TabsTrigger>
-                    <TabsTrigger value="media" className="rounded-full">Gallery</TabsTrigger>
-                    <TabsTrigger value="settings" className="rounded-full">Settings</TabsTrigger>
+                    <TabsTrigger value="overview" className="rounded-full flex items-center gap-2"><LayoutDashboard className="h-4 w-4" />Overview</TabsTrigger>
+                    <TabsTrigger value="itinerary" className="rounded-full flex items-center gap-2"><Map className="h-4 w-4" />Itinerary</TabsTrigger>
+                    <TabsTrigger value="budget" className="rounded-full flex items-center gap-2"><Wallet className="h-4 w-4" />Expenses & Budget</TabsTrigger>
+                    <TabsTrigger value="media" className="rounded-full flex items-center gap-2"><ImageIcon className="h-4 w-4" />Gallery</TabsTrigger>
+                    <TabsTrigger value="settings" className="rounded-full flex items-center gap-2"><Settings className="h-4 w-4" />Settings</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview">

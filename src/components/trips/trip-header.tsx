@@ -105,6 +105,15 @@ export function TripHeader({ trip }: TripHeaderProps) {
                             </div>
                         )}
                     </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                        <span className="text-[11px] px-2 py-1 rounded-full border border-border/40 bg-muted/30">Status: {trip.status}</span>
+                        <span className="text-[11px] px-2 py-1 rounded-full border border-border/40 bg-muted/30">Visibility: {trip.visibility}</span>
+                        {(trip.startDateTimestamp && trip.endDateTimestamp) && (
+                            <span className="text-[11px] px-2 py-1 rounded-full border border-border/40 bg-muted/30">
+                                {Math.ceil((trip.endDateTimestamp - trip.startDateTimestamp) / (60 * 60 * 24))} days
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 <div className="absolute top-3 right-3">
