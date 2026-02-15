@@ -39,12 +39,7 @@ export default function RootLayout({
       >
         <QueryProvider>
           <AuthProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
               {children}
               <Toaster />
             </ThemeProvider>
