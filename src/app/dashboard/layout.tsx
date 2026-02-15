@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { Sidebar } from '@/components/dashboard/sidebar';
-import { ModeToggle } from '@/components/mode-toggle';
 import { useAuth } from '@/contexts/auth-context';
 import { useTrips } from '@/hooks/use-trips';
 import { LayoutDashboard, Map, CalendarDays, Wallet, Settings } from 'lucide-react';
@@ -63,10 +62,6 @@ export default function DashboardLayout({
                                     ? `You have ${trips.length} upcoming adventures`
                                     : "Start planning your next adventure"}
                         </p>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <ModeToggle />
                     </div>
                 </header>
 
