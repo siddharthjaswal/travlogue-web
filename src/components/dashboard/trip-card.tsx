@@ -189,8 +189,8 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                             {/* Bottom Content */}
                             <div className="relative z-10 mt-auto p-6 space-y-3">
                                 {/* Date */}
-                                <div className="flex items-center gap-2 text-primary/90 text-xs font-semibold uppercase tracking-wider">
-                                    <Calendar className="h-3.5 w-3.5" />
+                                <div className="flex items-center gap-2 text-white/80 text-xs font-semibold uppercase tracking-wider">
+                                    <Calendar className="h-3.5 w-3.5 text-white/70" />
                                     <span>{dateDisplay}</span>
                                 </div>
 
@@ -200,7 +200,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                         {trip.name}
                                     </h3>
                                     <div className="flex items-center gap-1.5 text-white/90 text-sm font-medium">
-                                        <MapPin className="h-4 w-4 text-primary" />
+                                        <MapPin className="h-4 w-4 text-white/70" />
                                         <span>
                                             {trip.primaryDestinationCity || trip.primaryDestinationCountry || 'Destination Unknown'}
                                         </span>
