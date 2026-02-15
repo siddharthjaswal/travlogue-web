@@ -29,7 +29,7 @@ import { Loader2, UploadCloud } from 'lucide-react';
 import { MediaItem } from './media-view';
 
 const formSchema = z.object({
-    file: z.instanceof(FileList).refine((files) => files?.length > 0, "File is required"),
+    file: z.any().refine((files) => files && files.length > 0, "File is required"),
     caption: z.string().optional(),
 });
 
