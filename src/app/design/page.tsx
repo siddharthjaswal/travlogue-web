@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Plus, Share2, Calendar as CalendarIcon, Menu, Search, Bell, Settings, Home, Map, Wallet } from 'lucide-react';
+import Image from 'next/image';
 
 export default function DesignPage() {
   return (
@@ -18,6 +19,46 @@ export default function DesignPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
+        <Card className="md:col-span-2 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
+          <h2 className="text-xl font-semibold mb-2">Typography</h2>
+          <div className="space-y-2">
+            <div className="text-5xl font-bold tracking-tight">Travlogue</div>
+            <div className="text-3xl font-semibold tracking-tight">Plan. Travel. Remember.</div>
+            <div className="text-xl text-muted-foreground">A calm, expressive system for travel planning.</div>
+            <div className="text-sm text-muted-foreground">Body / regular — The quick brown fox jumps over the lazy dog.</div>
+          </div>
+        </Card>
+
+        <Card className="md:col-span-2 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
+          <h2 className="text-xl font-semibold mb-2">Branding</h2>
+          <div className="grid gap-4 md:grid-cols-3 items-center">
+            <div className="flex items-center gap-3">
+              <Image src="/ic_travlogue.svg" alt="Travlogue logo" width={32} height={32} />
+              <div className="text-xl font-semibold">Travlogue</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Image src="/ic_travlogue.svg" alt="Travlogue icon" width={28} height={28} />
+              <div className="text-base font-medium text-muted-foreground">Icon only</div>
+            </div>
+            <div className="text-xl font-semibold">Travlogue</div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="rounded-2xl border border-border/40 bg-background p-4 flex items-center gap-2">
+              <Image src="/favicon.svg" alt="Web tab" width={20} height={20} />
+              <span className="text-sm">Web tab icon</span>
+            </div>
+            <div className="rounded-2xl border border-border/40 bg-background p-4 flex items-center gap-2">
+              <Image src="/icons/icon-192.png" alt="PWA icon" width={24} height={24} />
+              <span className="text-sm">PWA icon</span>
+            </div>
+            <div className="rounded-2xl border border-border/40 bg-background p-4 flex items-center gap-2">
+              <Image src="/icons/apple-touch-icon.png" alt="Apple icon" width={24} height={24} />
+              <span className="text-sm">Apple touch</span>
+            </div>
+          </div>
+        </Card>
+
         <Card className="md:col-span-2 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
           <h2 className="text-xl font-semibold mb-2">Color Scheme</h2>
           <div className="grid gap-4 md:grid-cols-4">
