@@ -9,6 +9,7 @@ import { AddActivityDialog } from './add-activity-dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCreateActivity } from '@/hooks/use-trips';
+import { useTransits } from '@/hooks/use-transits';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -53,6 +54,7 @@ export function TimelineDay({ day }: TimelineDayProps) {
 
     const nextTime = getNextDefaultTime(day.activities);
     const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
+    const { data: transits } = useTransits(day.id);
     const [quickName, setQuickName] = useState('');
     const [quickTime, setQuickTime] = useState(nextTime);
     const [quickType, setQuickType] = useState('sightseeing');
@@ -251,6 +253,39 @@ export function TimelineDay({ day }: TimelineDayProps) {
                                 <Button variant="secondary" onClick={addTemplate}>Save Template</Button>
                             </div>
                         </div>
+
+                        {/* Transits */}
+                        {transits && transits.length > 0 && (
+                            <div className="mb-6">
+                                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Transport</div>
+                                <div className="space-y-3">
+                                    {transits.map((t) => (
+                                        <div key={t.id} className="rounded-xl border border-border/40 bg-muted/20 p-3 text-sm">
+                                            <div className="flex items-center justify-between">
+                                                <div className="font-medium capitalize">{t.transitMode}</div>
+                                                <div className="text-xs text-muted-foreground">
+                                                    {t.departureTime && t.departureTimezone
+                                                        ? new Intl.DateTimeFormat('en-US', { timeZone: t.departureTimezone, hour: '2-digit', minute: '2-digit' }).format(new Date(t.departureTime * 1000))
+                                                        : t.departureTime ? new Date(t.departureTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                                    {t.arrivalTime ? ' → ' : ''}
+                                                    {t.arrivalTime && t.arrivalTimezone
+                                                        ? new Intl.DateTimeFormat('en-US', { timeZone: t.arrivalTimezone, hour: '2-digit', minute: '2-digit' }).format(new Date(t.arrivalTime * 1000))
+                                                        : t.arrivalTime ? new Date(t.arrivalTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                                </div>
+                                            </div>
+                                            <div className="text-xs text-muted-foreground mt-1">
+                                                {t.fromLocation} {t.toLocation ? `→ ${t.toLocation}` : ''}
+                                            </div>
+                                            {t.carrier && (
+                                                <div className="text-xs text-muted-foreground mt-1">
+                                                    {t.carrier} {t.flightNumber ? `• ${t.flightNumber}` : ''}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Activities List */}
                         <div className="space-y-5">
