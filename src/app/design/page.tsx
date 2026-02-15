@@ -31,6 +31,34 @@ export default function DesignPage() {
 
         <Card className="md:col-span-2 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
           <h2 className="text-xl font-semibold mb-2">Branding</h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-border/40 bg-background p-4">
+              <div className="text-sm font-semibold">Icon System</div>
+              <div className="mt-2 text-xs text-muted-foreground">M3 + Apple HIG aligned</div>
+              <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
+                <li>Grid: 24dp / 48dp / 64dp</li>
+                <li>Stroke: 2px optical</li>
+                <li>Padding: 20–24% safe area</li>
+                <li>Corner radius: squircle (24%)</li>
+              </ul>
+            </div>
+            <div className="rounded-2xl border border-border/40 bg-background p-4">
+              <div className="text-sm font-semibold">App Icon</div>
+              <div className="mt-2 text-xs text-muted-foreground">Centered mark, high contrast</div>
+              <div className="mt-4 flex items-center gap-3">
+                <Image src="/icons/icon-192.png" alt="PWA icon" width={48} height={48} className="rounded-[14px]" />
+                <Image src="/icons/apple-touch-icon.png" alt="Apple icon" width={48} height={48} className="rounded-[14px]" />
+              </div>
+            </div>
+            <div className="rounded-2xl border border-border/40 bg-background p-4">
+              <div className="text-sm font-semibold">Favicon</div>
+              <div className="mt-2 text-xs text-muted-foreground">Auto switches light/dark</div>
+              <div className="mt-4 flex items-center gap-3">
+                <Image src="/favicon-light.svg" alt="Favicon light" width={24} height={24} />
+                <Image src="/favicon-dark.svg" alt="Favicon dark" width={24} height={24} />
+              </div>
+            </div>
+          </div>
           <div className="grid gap-4 md:grid-cols-3 items-center">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
