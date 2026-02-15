@@ -84,7 +84,7 @@ export function TripHeader({ trip }: TripHeaderProps) {
 
             {/* Info Card - Floating over cover */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end -mt-16 px-4 sm:px-6 relative z-10 gap-4">
-                <div className="glass elevated-lg p-6 rounded-2xl border border-border/40 w-full md:min-w-[420px] transition-all">
+                <div className="relative glass elevated-lg p-6 rounded-2xl border border-border/40 w-full transition-all">
                     <h1 className="text-3xl font-bold mb-3 tracking-tight">{trip.name}</h1>
                     <div className="flex flex-col gap-2 text-muted-foreground text-sm">
                         {(trip.primaryDestinationCity || trip.primaryDestinationCountry) && (
@@ -107,10 +107,10 @@ export function TripHeader({ trip }: TripHeaderProps) {
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <div className="absolute top-3 right-3">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="default" size="icon" className="shadow-lg w-full sm:w-10">
+                            <Button variant="secondary" size="icon" className="h-9 w-9 rounded-full">
                                 <MoreVertical className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>

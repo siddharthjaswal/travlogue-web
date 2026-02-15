@@ -9,16 +9,18 @@ interface TripOverviewProps {
 export function TripOverview({ trip }: TripOverviewProps) {
     return (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
-            <Card className="col-span-2 rounded-2xl border-border/50 shadow-sm">
-                <CardHeader>
-                    <CardTitle>About this Trip</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">
-                        {trip.description || "No description provided yet."}
-                    </p>
-                </CardContent>
-            </Card>
+            {trip.description && (
+                <Card className="col-span-2 rounded-2xl border-border/50 shadow-sm">
+                    <CardHeader>
+                        <CardTitle>About this Trip</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">
+                            {trip.description}
+                        </p>
+                    </CardContent>
+                </Card>
+            )}
 
             <Card className="rounded-2xl border-border/50 shadow-sm">
                 <CardHeader>
