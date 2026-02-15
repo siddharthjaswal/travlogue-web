@@ -155,6 +155,13 @@ export default function DesignPage() {
         </Card>
 
         <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
+          <h2 className="text-xl font-semibold mb-2">Calendar (Range)</h2>
+          <div className="max-w-sm">
+            <Calendar mode="range" selected={{ from: new Date(2026, 1, 7), to: new Date(2026, 1, 14) }} />
+          </div>
+        </Card>
+
+        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
           <h2 className="text-xl font-semibold mb-2">Button Groups</h2>
           <div className="flex rounded-full border border-border/40 overflow-hidden">
             <Button variant="secondary" className="rounded-none flex-1">Day</Button>
