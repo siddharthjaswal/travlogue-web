@@ -14,11 +14,12 @@ interface ActivityItemProps {
     activity: Activity;
     tripId: number;
     date: Date;
+    dayPlace?: string;
 }
 
 const photoCache = new Map<string, string>();
 
-export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
+export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemProps) {
     const getActivityIcon = (type: string) => {
         switch (type.toLowerCase()) {
             case 'transit': return Plane;
@@ -38,7 +39,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
             : parseLatLng(activity.location || '');
         if (!coords || !activity.name) return;
 
-        const cacheKey = `${activity.id}-${activity.name}`;
+        const cacheKey = `${activity.id}-${activity.name}-${dayPlace || ''}`;
         if (photoCache.has(cacheKey)) {
             setPhotoUrl(photoCache.get(cacheKey) || null);
             return;
@@ -46,8 +47,9 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
 
         (async () => {
             try {
+                const query = [activity.name, dayPlace].filter(Boolean).join(' ');
                 const res = await api.get('/activities/place-photo', {
-                    params: { query: activity.name }
+                    params: { query }
                 });
                 const url = res?.data?.url;
                 if (url) {
@@ -58,7 +60,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                 // ignore
             }
         })();
-    }, [activity.id, activity.location, activity.name, activity.latitude, activity.longitude]);
+    }, [activity.id, activity.location, activity.name, activity.latitude, activity.longitude, dayPlace]);
 
     return (
         <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
@@ -85,15 +87,13 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
 
             {/* 3. Content Card */}
             <div className="flex-1 pb-2">
-                <div className="relative bg-card hover:bg-muted/30 border border-border/40 hover:border-primary/20 rounded-xl p-4 transition-all duration-300 group-hover:shadow-sm">
-                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div
+                    className="relative bg-card hover:bg-muted/30 border border-border/40 hover:border-primary/20 rounded-xl p-4 transition-all duration-300 group-hover:shadow-sm overflow-hidden"
+                    style={photoUrl ? { backgroundImage: `url(${photoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+                >
+                    {photoUrl && <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/60 to-background/30" />}
+                    <div className="relative flex flex-col sm:flex-row justify-between items-start gap-4">
                         <div className="min-w-0 flex-1">
-                            {photoUrl && (
-                                <div className="mb-3 sm:hidden overflow-hidden rounded-lg border border-border/40">
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={photoUrl} alt={activity.name} className="h-36 w-full object-cover" />
-                                </div>
-                            )}
 
                             <div className="flex items-center gap-2 mb-1.5">
                                 <h4 className="font-semibold text-base truncate pr-2 text-foreground/90 group-hover:text-primary transition-colors">

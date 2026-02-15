@@ -251,6 +251,7 @@ export function TimelineDay({ day }: TimelineDayProps) {
                                             activity={activity}
                                             tripId={day.tripId}
                                             date={dateObj}
+                                            dayPlace={day.place}
                                         />
                                     ))
                             ) : (
