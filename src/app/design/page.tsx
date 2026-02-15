@@ -33,13 +33,13 @@ export default function DesignPage() {
           <h2 className="text-xl font-semibold mb-2">Branding</h2>
           <div className="grid gap-4 md:grid-cols-3 items-center">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
                 <Image src="/ic_travlogue.svg" alt="Travlogue logo" width={26} height={26} />
               </div>
               <div className="text-xl font-semibold">Travlogue</div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
                 <Image src="/ic_travlogue.svg" alt="Travlogue icon" width={24} height={24} />
               </div>
               <div className="text-base font-medium text-muted-foreground">Icon only</div>
