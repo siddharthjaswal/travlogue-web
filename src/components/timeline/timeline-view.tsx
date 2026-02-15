@@ -118,12 +118,14 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 </div>
 
                 {/* Right Column: Timeline Stream */}
-                <div className="space-y-0 relative border-l-0 lg:border-l-2 border-border/30 pl-0 lg:pl-12 min-h-[400px]">
-                    {timeline.days.map((day) => (
-                        <div key={day.id} className="relative pb-12 sm:pb-16">
-                            <TimelineDay day={day} />
-                        </div>
-                    ))}
+                <div className="relative border-l-0 lg:border-l-2 border-border/30 pl-0 lg:pl-12 min-h-[400px]">
+                    <div className="rounded-3xl border border-border/40 bg-card/40 backdrop-blur-sm p-4 sm:p-6 shadow-sm">
+                        {timeline.days.map((day) => (
+                            <div key={day.id} className="relative pb-12 sm:pb-16">
+                                <TimelineDay day={day} />
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

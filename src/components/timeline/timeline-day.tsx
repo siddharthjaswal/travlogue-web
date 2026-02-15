@@ -132,7 +132,15 @@ export function TimelineDay({ day }: TimelineDayProps) {
 
                 {/* Content Column (Right) */}
                 <div className="relative">
-                    <div className="rounded-2xl border border-border/40 bg-card/50 backdrop-blur-md p-6 shadow-sm">
+                    <div className="rounded-2xl border border-border/40 bg-card/70 backdrop-blur-md p-6 shadow-sm hover:shadow-md transition-shadow">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span className="px-2 py-0.5 rounded-full bg-muted/60 border border-border/40">Day {day.dayNumber}</span>
+                                <span>{day.activities.length} activities</span>
+                            </div>
+                        </div>
+
                         {/* Location + Add */}
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-2">
@@ -162,6 +170,10 @@ export function TimelineDay({ day }: TimelineDayProps) {
 
                         {/* Quick Add */}
                         <div className="mb-5 rounded-xl border border-border/40 bg-muted/10 p-4">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                                <Sparkles className="h-3.5 w-3.5" />
+                                Quick add
+                            </div>
                             <div className="flex flex-col sm:flex-row gap-3">
                                 <Input
                                     placeholder="Quick add an activity…"
@@ -242,6 +254,7 @@ export function TimelineDay({ day }: TimelineDayProps) {
 
                         {/* Activities List */}
                         <div className="space-y-5">
+                            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Activities</div>
                             {day.activities.length > 0 ? (
                                 day.activities
                                     .sort((a, b) => (a.time || '').localeCompare(b.time || ''))
