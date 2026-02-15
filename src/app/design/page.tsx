@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
-import { Plus, Share2, Calendar as CalendarIcon } from 'lucide-react';
+import { Plus, Share2, Calendar as CalendarIcon, Menu, Search, Bell, Settings, Home, Map, Wallet } from 'lucide-react';
 
 export default function DesignPage() {
   return (
@@ -96,6 +96,42 @@ export default function DesignPage() {
             <Button variant="secondary" className="rounded-full px-4">Create</Button>
             <Button variant="outline" className="rounded-full px-4">Share</Button>
           </div>
+        </Card>
+
+        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 space-y-6">
+          <h2 className="text-xl font-semibold">App Bar</h2>
+          <div className="rounded-2xl border border-border/40 bg-background/80 backdrop-blur-xl p-3 flex items-center justify-between">
+            <Button size="icon" variant="outline" className="rounded-full h-10 w-10"><Menu /></Button>
+            <div className="font-semibold">Dashboard</div>
+            <div className="flex items-center gap-2">
+              <Button size="icon" variant="outline" className="rounded-full h-10 w-10"><Search /></Button>
+              <Button size="icon" variant="outline" className="rounded-full h-10 w-10"><Bell /></Button>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 space-y-6">
+          <h2 className="text-xl font-semibold">Navigation Bar</h2>
+          <div className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl shadow-lg px-4 py-3 flex items-center justify-around">
+            <div className="flex flex-col items-center text-[11px]"><Home className="h-5 w-5" />Home</div>
+            <div className="flex flex-col items-center text-[11px]"><Map className="h-5 w-5" />Trips</div>
+            <div className="flex flex-col items-center text-[11px]"><CalendarIcon className="h-5 w-5" />Calendar</div>
+            <div className="flex flex-col items-center text-[11px]"><Wallet className="h-5 w-5" />Expenses</div>
+            <div className="flex flex-col items-center text-[11px]"><Settings className="h-5 w-5" />Settings</div>
+          </div>
+        </Card>
+
+        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 space-y-6">
+          <h2 className="text-xl font-semibold">FAB</h2>
+          <div className="flex items-center gap-3">
+            <Button className="rounded-full h-14 px-6 shadow-lg" size="lg"><Plus className="mr-2" />Add</Button>
+            <Button size="icon" className="rounded-full h-14 w-14 shadow-lg"><Plus /></Button>
+          </div>
+        </Card>
+
+        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 space-y-6">
+          <h2 className="text-xl font-semibold">Loading</h2>
+          <div className="h-10 w-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
         </Card>
       </div>
     </div>
