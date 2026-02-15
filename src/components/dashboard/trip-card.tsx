@@ -129,7 +129,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                 {/* Top Shadow for badges */}
                                 <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
                                 {/* Bottom Blur + Gradient for text */}
-                                <div className="absolute bottom-0 left-0 right-0 h-44 bg-gradient-to-t from-black/80 via-black/45 to-transparent backdrop-blur-xl pointer-events-none" />
+                                <div className="absolute bottom-0 left-0 right-0 h-44 bg-gradient-to-t from-black/80 via-black/45 to-transparent pointer-events-none" />
                             </div>
 
                             {/* Top Controls (Glassmorphism) */}
@@ -140,7 +140,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                         <Button 
                                             variant="ghost" 
                                             size="icon" 
-                                            className="h-10 w-10 rounded-full bg-black/20 hover:bg-black/40 text-white backdrop-blur-md border border-white/10 transition-colors"
+                                            className="h-10 w-10 rounded-full bg-black/20 hover:bg-black/40 text-white border border-white/10 transition-colors"
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             <MoreVertical className="h-5 w-5" />
@@ -163,7 +163,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                 {/* Status Badge */}
                                 <Badge className={cn(
                                     "px-3 py-1 text-xs font-medium uppercase tracking-wider",
-                                    "bg-white/20 text-white backdrop-blur-md border-white/10",
+                                    "bg-white/20 text-white border-white/10",
                                     "shadow-sm"
                                 )}>
                                     {trip.status}
