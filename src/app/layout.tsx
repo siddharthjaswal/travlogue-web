@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   description: "Plan, track, and log your travel memories.",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/ic_travlogue.svg",
+    icon: [
+      { url: "/favicon-light.svg", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-dark.svg", media: "(prefers-color-scheme: dark)" },
+    ],
     apple: "/icons/apple-touch-icon.png",
   },
 };
