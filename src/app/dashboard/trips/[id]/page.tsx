@@ -75,13 +75,25 @@ export default function TripDetailsPage() {
                         </TabsList>
                     </div>
                 </div>
-                <TabsList className="hidden md:flex w-full overflow-x-auto flex-nowrap justify-start md:justify-start rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-1">
-                    <TabsTrigger value="overview" className="rounded-full flex items-center gap-2"><LayoutDashboard className="h-4 w-4" />Overview</TabsTrigger>
-                    <TabsTrigger value="itinerary" className="rounded-full flex items-center gap-2"><Map className="h-4 w-4" />Itinerary</TabsTrigger>
-                    <TabsTrigger value="budget" className="rounded-full flex items-center gap-2"><Wallet className="h-4 w-4" />Expenses & Budget</TabsTrigger>
-                    <TabsTrigger value="media" className="rounded-full flex items-center gap-2"><ImageIcon className="h-4 w-4" />Gallery</TabsTrigger>
-                    <TabsTrigger value="settings" className="rounded-full flex items-center gap-2"><Settings className="h-4 w-4" />Settings</TabsTrigger>
-                </TabsList>
+                <div className="hidden md:block -mt-10 relative z-10">
+                    <TabsList className="w-full overflow-x-auto flex-nowrap justify-start rounded-full border border-border/30 bg-card/50 backdrop-blur-xl px-3 py-2 shadow-md">
+                        <TabsTrigger value="overview" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                            <LayoutDashboard className="h-4 w-4" />Overview
+                        </TabsTrigger>
+                        <TabsTrigger value="itinerary" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                            <Map className="h-4 w-4" />Itinerary
+                        </TabsTrigger>
+                        <TabsTrigger value="budget" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                            <Wallet className="h-4 w-4" />Expenses & Budget
+                        </TabsTrigger>
+                        <TabsTrigger value="media" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                            <ImageIcon className="h-4 w-4" />Gallery
+                        </TabsTrigger>
+                        <TabsTrigger value="settings" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                            <Settings className="h-4 w-4" />Settings
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
 
                 <TabsContent value="overview">
                     <TripOverview trip={trip} />
