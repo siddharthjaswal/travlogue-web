@@ -23,6 +23,7 @@ export default function DashboardLayout({
             <Sidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Mobile Nav (Bottom Glass Bar) */}
+                {!pathname?.startsWith('/dashboard/trips/') && (
                 <nav className="md:hidden fixed bottom-4 left-0 right-0 z-30 px-4">
                     <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl shadow-lg">
                         <div className="flex items-center justify-around py-3">
@@ -49,6 +50,7 @@ export default function DashboardLayout({
                         </div>
                     </div>
                 </nav>
+                )}
 
                 {/* Dashboard Header */}
                 <header className="h-16 border-b border-border/50 flex items-center justify-between px-8 bg-background/80 backdrop-blur-md sticky top-0 z-10">

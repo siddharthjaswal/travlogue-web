@@ -110,28 +110,19 @@ export function TripHeader({ trip }: TripHeaderProps) {
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="secondary" className="shadow-lg w-full sm:w-auto">
-                                <Share2 className="h-4 w-4 mr-2" />
-                                Share
+                            <Button variant="default" size="icon" className="shadow-lg w-full sm:w-10">
+                                <MoreVertical className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuItem onClick={() => handleCopyLink()}>
+                                <Share2 className="h-4 w-4 mr-2" />
                                 Copy Link
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleExportPdf()}>
                                 Export as PDF
                             </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="default" size="icon" className="shadow-lg w-full sm:w-10">
-                                <MoreVertical className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Trip
