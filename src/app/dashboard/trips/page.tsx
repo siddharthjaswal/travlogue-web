@@ -50,13 +50,6 @@ export default function TripsPage() {
         <div className="space-y-8 animate-fade-in">
             <div className="flex flex-col gap-6">
                 <div className="rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl p-6 sm:p-7 space-y-5">
-                    <div>
-                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">My Journeys</h2>
-                        <p className="text-muted-foreground mt-1">
-                            Your collection of adventures, past and planned
-                        </p>
-                    </div>
-
                     <div className="relative w-full md:w-96">
                         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
