@@ -133,7 +133,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                             </div>
 
                             {/* Top Controls (Glassmorphism) */}
-                            <div className="relative z-10 flex justify-between items-start p-4 pt-0.5">
+                            <div className="relative z-10 flex justify-between items-start p-4 pt-0">
                                 {/* Actions Menu */}
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -187,7 +187,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                             )}
 
                             {/* Bottom Content */}
-                            <div className="relative z-10 mt-auto p-4 pb-3">
+                            <div className="relative z-10 mt-auto p-3 pb-2">
                                 <div className="rounded-[16px] border border-white/10 bg-black/35 backdrop-blur-md p-4 space-y-2">
                                     {/* Date */}
                                     <div className="flex items-center gap-2 text-white/80 text-xs font-semibold uppercase tracking-wider">
