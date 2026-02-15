@@ -39,7 +39,7 @@ export default function TripDetailsPage() {
         <div className="space-y-6">
             <div className="flex items-center gap-2 mb-4">
                 <Link href="/dashboard/trips">
-                    <Button variant="ghost" size="sm" className="pl-0 text-muted-foreground hover:text-foreground">
+                    <Button variant="ghost" size="sm" className="rounded-full border border-border/40 bg-card/60 backdrop-blur-md px-3 text-muted-foreground hover:text-foreground">
                         <ChevronLeft className="h-4 w-4 mr-1" />
                         Back to Trips
                     </Button>
@@ -50,25 +50,25 @@ export default function TripDetailsPage() {
 
             <Tabs defaultValue="overview" className="mt-8">
                 <div className="md:hidden fixed bottom-4 left-0 right-0 z-20 px-4">
-                    <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl shadow-lg">
-                        <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-3 px-3">
-                            <TabsTrigger value="overview" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                    <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl shadow-lg">
+                        <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-2.5 px-3">
+                            <TabsTrigger value="overview" className="rounded-full text-[11px] flex flex-col items-center gap-1 data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                                 <LayoutDashboard className="h-5 w-5" />
                                 Overview
                             </TabsTrigger>
-                            <TabsTrigger value="itinerary" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                            <TabsTrigger value="itinerary" className="rounded-full text-[11px] flex flex-col items-center gap-1 data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                                 <Map className="h-5 w-5" />
                                 Itinerary
                             </TabsTrigger>
-                            <TabsTrigger value="budget" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                            <TabsTrigger value="budget" className="rounded-full text-[11px] flex flex-col items-center gap-1 data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                                 <Wallet className="h-5 w-5" />
                                 Expenses
                             </TabsTrigger>
-                            <TabsTrigger value="media" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                            <TabsTrigger value="media" className="rounded-full text-[11px] flex flex-col items-center gap-1 data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                                 <ImageIcon className="h-5 w-5" />
                                 Gallery
                             </TabsTrigger>
-                            <TabsTrigger value="settings" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                            <TabsTrigger value="settings" className="rounded-full text-[11px] flex flex-col items-center gap-1 data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                                 <Settings className="h-5 w-5" />
                                 Settings
                             </TabsTrigger>
@@ -76,20 +76,20 @@ export default function TripDetailsPage() {
                     </div>
                 </div>
                 <div className="hidden md:block -mt-10 relative z-10">
-                    <TabsList className="w-full overflow-x-auto flex-nowrap justify-start rounded-full border border-border/30 bg-card/50 backdrop-blur-xl px-3 py-2 shadow-md">
-                        <TabsTrigger value="overview" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                    <TabsList className="w-full overflow-x-auto flex-nowrap justify-start rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl p-1.5 shadow-lg">
+                        <TabsTrigger value="overview" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                             <LayoutDashboard className="h-4 w-4" />Overview
                         </TabsTrigger>
-                        <TabsTrigger value="itinerary" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                        <TabsTrigger value="itinerary" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                             <Map className="h-4 w-4" />Itinerary
                         </TabsTrigger>
-                        <TabsTrigger value="budget" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                        <TabsTrigger value="budget" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                             <Wallet className="h-4 w-4" />Expenses & Budget
                         </TabsTrigger>
-                        <TabsTrigger value="media" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                        <TabsTrigger value="media" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                             <ImageIcon className="h-4 w-4" />Gallery
                         </TabsTrigger>
-                        <TabsTrigger value="settings" className="rounded-full flex items-center gap-2 px-4 py-2 border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-primary/10">
+                        <TabsTrigger value="settings" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                             <Settings className="h-4 w-4" />Settings
                         </TabsTrigger>
                     </TabsList>
