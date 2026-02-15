@@ -10,7 +10,7 @@ import { TripSettings } from '@/components/settings/trip-settings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, LayoutDashboard, Map, Wallet, Image as ImageIcon, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -52,11 +52,26 @@ export default function TripDetailsPage() {
                 <div className="md:hidden fixed bottom-4 left-0 right-0 z-20 px-4">
                     <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl shadow-lg">
                         <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-3 px-3">
-                            <TabsTrigger value="overview" className="rounded-full text-[11px]">Overview</TabsTrigger>
-                            <TabsTrigger value="itinerary" className="rounded-full text-[11px]">Itinerary</TabsTrigger>
-                            <TabsTrigger value="budget" className="rounded-full text-[11px]">Expenses</TabsTrigger>
-                            <TabsTrigger value="media" className="rounded-full text-[11px]">Gallery</TabsTrigger>
-                            <TabsTrigger value="settings" className="rounded-full text-[11px]">Settings</TabsTrigger>
+                            <TabsTrigger value="overview" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                                <LayoutDashboard className="h-5 w-5" />
+                                Overview
+                            </TabsTrigger>
+                            <TabsTrigger value="itinerary" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                                <Map className="h-5 w-5" />
+                                Itinerary
+                            </TabsTrigger>
+                            <TabsTrigger value="budget" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                                <Wallet className="h-5 w-5" />
+                                Expenses
+                            </TabsTrigger>
+                            <TabsTrigger value="media" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                                <ImageIcon className="h-5 w-5" />
+                                Gallery
+                            </TabsTrigger>
+                            <TabsTrigger value="settings" className="rounded-full text-[11px] flex flex-col items-center gap-1">
+                                <Settings className="h-5 w-5" />
+                                Settings
+                            </TabsTrigger>
                         </TabsList>
                     </div>
                 </div>
