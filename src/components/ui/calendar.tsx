@@ -111,11 +111,11 @@ function Calendar({
           defaultClassNames.day
         ),
         range_start: cn(
-          "rounded-l-full bg-muted/60",
+          "rounded-l-2xl bg-muted/60",
           defaultClassNames.range_start
         ),
         range_middle: cn("rounded-none bg-muted/60", defaultClassNames.range_middle),
-        range_end: cn("rounded-r-full bg-muted/60", defaultClassNames.range_end),
+        range_end: cn("rounded-r-2xl bg-muted/60", defaultClassNames.range_end),
         today: cn(
           "bg-transparent text-foreground rounded-full ring-1 ring-primary/30",
           defaultClassNames.today
