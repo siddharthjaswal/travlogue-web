@@ -77,66 +77,68 @@ export default function TripsPage() {
     return (
         <div className="space-y-8 animate-fade-in">
             <div className="flex flex-col gap-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">My Journeys</h2>
-                        <p className="text-muted-foreground mt-1">
-                            Your collection of adventures, past and planned
-                        </p>
-                    </div>
-                    <div className="w-full sm:w-auto">
-                        <CreateTripDialog />
-                    </div>
-                </div>
-
-                {/* Search + Filters */}
-                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-                    <div className="relative w-full md:w-96">
-                        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search by destination, name, or notes..."
-                            className="pl-9 h-10"
-                        />
+                <div className="rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl p-6 sm:p-7 space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div>
+                            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">My Journeys</h2>
+                            <p className="text-muted-foreground mt-1">
+                                Your collection of adventures, past and planned
+                            </p>
+                        </div>
+                        <div className="w-full sm:w-auto">
+                            <CreateTripDialog />
+                        </div>
                     </div>
 
-                    <div className="flex gap-3 flex-wrap w-full">
-                        <Select value={status} onValueChange={setStatus}>
-                            <SelectTrigger className="w-full sm:w-[170px] h-10">
-                                <SlidersHorizontal className="h-4 w-4 mr-2" />
-                                <SelectValue placeholder="Filter" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {statusOptions.map((s) => (
-                                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                    {/* Search + Filters */}
+                    <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                        <div className="relative w-full md:w-96">
+                            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="Search by destination, name, or notes..."
+                                className="pl-9 h-10"
+                            />
+                        </div>
 
-                        <Select value={sort} onValueChange={setSort}>
-                            <SelectTrigger className="w-full sm:w-[170px] h-10">
-                                <ArrowUpDown className="h-4 w-4 mr-2" />
-                                <SelectValue placeholder="Sort" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {sortOptions.map((s) => (
-                                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <div className="flex gap-3 flex-wrap w-full">
+                            <Select value={status} onValueChange={setStatus}>
+                                <SelectTrigger className="w-full sm:w-[170px] h-10">
+                                    <SlidersHorizontal className="h-4 w-4 mr-2" />
+                                    <SelectValue placeholder="Filter" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {statusOptions.map((s) => (
+                                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={sort} onValueChange={setSort}>
+                                <SelectTrigger className="w-full sm:w-[170px] h-10">
+                                    <ArrowUpDown className="h-4 w-4 mr-2" />
+                                    <SelectValue placeholder="Sort" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {sortOptions.map((s) => (
+                                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                </div>
 
-                {/* Active Filters */}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    {query && (
-                        <Badge variant="secondary" className="rounded-full px-3">Query: {query}</Badge>
-                    )}
-                    {status !== 'all' && (
-                        <Badge variant="secondary" className="rounded-full px-3 capitalize">Status: {status}</Badge>
-                    )}
-                    <Badge variant="outline" className="rounded-full px-3">{filteredTrips.length} trips</Badge>
+                    {/* Active Filters */}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {query && (
+                            <Badge variant="secondary" className="rounded-full px-3">Query: {query}</Badge>
+                        )}
+                        {status !== 'all' && (
+                            <Badge variant="secondary" className="rounded-full px-3 capitalize">Status: {status}</Badge>
+                        )}
+                        <Badge variant="outline" className="rounded-full px-3">{filteredTrips.length} trips</Badge>
+                    </div>
                 </div>
             </div>
 
