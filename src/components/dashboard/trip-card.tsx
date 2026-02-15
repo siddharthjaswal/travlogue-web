@@ -140,7 +140,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                         <Button 
                                             variant="ghost" 
                                             size="icon" 
-                                            className="h-10 w-10 rounded-full bg-black/20 hover:bg-black/40 text-white border border-white/10 transition-colors"
+                                            className="h-10 w-10 rounded-[14px] bg-black/20 hover:bg-black/40 text-white border border-white/10 transition-colors"
                                             onClick={(e) => e.stopPropagation()}
                                         >
                                             <MoreVertical className="h-5 w-5" />
@@ -162,7 +162,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
 
                                 {/* Status Badge */}
                                 <Badge className={cn(
-                                    "px-3 py-1 text-xs font-medium uppercase tracking-wider",
+                                    "px-3 py-1 text-xs font-medium uppercase tracking-wider rounded-[14px]",
                                     "bg-white/20 text-white border-white/10",
                                     "shadow-sm"
                                 )}>
@@ -188,7 +188,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
 
                             {/* Bottom Content */}
                             <div className="relative z-10 mt-auto p-6">
-                                <div className="rounded-2xl border border-white/10 bg-black/35 backdrop-blur-md p-4 space-y-2">
+                                <div className="rounded-[16px] border border-white/10 bg-black/35 backdrop-blur-md p-4 space-y-2">
                                     {/* Date */}
                                     <div className="flex items-center gap-2 text-white/80 text-xs font-semibold uppercase tracking-wider">
                                         <Calendar className="h-3.5 w-3.5 text-white/70" />
