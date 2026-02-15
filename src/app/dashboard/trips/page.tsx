@@ -6,9 +6,7 @@ import { useTrips } from '@/hooks/use-trips';
 import { TripCard } from '@/components/dashboard/trip-card';
 import { CreateTripDialog } from '@/components/dashboard/create-trip-dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Map, Sparkles, Globe, Search, Calendar } from 'lucide-react';
+import { Map, Sparkles, Globe } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import type { Trip } from '@/services/trip-service';
@@ -48,26 +46,7 @@ export default function TripsPage() {
 
     return (
         <div className="space-y-8 animate-fade-in">
-            <div className="flex flex-col gap-6">
-                <div className="rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl p-6 sm:p-7 space-y-5">
-                    <div className="relative w-full md:w-96">
-                        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search by destination, name, or notes..."
-                            className="pl-9 h-10"
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Badge variant="outline" className="rounded-full px-3">
-                            {filteredTrips.length} {filteredTrips.length === 1 ? 'trip' : 'trips'}
-                        </Badge>
-                    </div>
-                </div>
-            </div>
-
+    
             {/* Content */}
             {isLoading ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -114,7 +93,6 @@ export default function TripsPage() {
                     <div className="rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl p-5 h-fit">
                         <div className="flex items-center justify-between mb-3">
                             <h4 className="text-sm font-semibold">Calendar</h4>
-                            <Badge variant="outline" className="rounded-full px-2 text-[10px]">Today</Badge>
                         </div>
                         {nextTrip ? (
                             <CalendarView
