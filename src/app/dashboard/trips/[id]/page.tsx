@@ -49,12 +49,23 @@ export default function TripDetailsPage() {
             <TripHeader trip={trip} />
 
             <Tabs defaultValue="overview" className="mt-8">
-                <TabsList className="w-full overflow-x-auto flex-nowrap justify-start">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-                    <TabsTrigger value="budget">Expenses & Budget</TabsTrigger>
-                    <TabsTrigger value="media">Gallery</TabsTrigger>
-                    <TabsTrigger value="settings">Settings</TabsTrigger>
+                <div className="md:hidden fixed bottom-24 left-0 right-0 z-20 px-4">
+                    <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-1 shadow-lg">
+                        <TabsList className="w-full flex-nowrap justify-start overflow-x-auto">
+                            <TabsTrigger value="overview" className="rounded-full">Overview</TabsTrigger>
+                            <TabsTrigger value="itinerary" className="rounded-full">Itinerary</TabsTrigger>
+                            <TabsTrigger value="budget" className="rounded-full">Expenses</TabsTrigger>
+                            <TabsTrigger value="media" className="rounded-full">Gallery</TabsTrigger>
+                            <TabsTrigger value="settings" className="rounded-full">Settings</TabsTrigger>
+                        </TabsList>
+                    </div>
+                </div>
+                <TabsList className="hidden md:flex w-full overflow-x-auto flex-nowrap justify-start md:justify-start rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-1">
+                    <TabsTrigger value="overview" className="rounded-full">Overview</TabsTrigger>
+                    <TabsTrigger value="itinerary" className="rounded-full">Itinerary</TabsTrigger>
+                    <TabsTrigger value="budget" className="rounded-full">Expenses & Budget</TabsTrigger>
+                    <TabsTrigger value="media" className="rounded-full">Gallery</TabsTrigger>
+                    <TabsTrigger value="settings" className="rounded-full">Settings</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview">
