@@ -51,12 +51,12 @@ export default function TripDetailsPage() {
             <Tabs defaultValue="overview" className="mt-8">
                 <div className="md:hidden fixed bottom-4 left-0 right-0 z-20 px-4">
                     <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl shadow-lg">
-                        <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-2 px-2">
-                            <TabsTrigger value="overview" className="rounded-full">Overview</TabsTrigger>
-                            <TabsTrigger value="itinerary" className="rounded-full">Itinerary</TabsTrigger>
-                            <TabsTrigger value="budget" className="rounded-full">Expenses</TabsTrigger>
-                            <TabsTrigger value="media" className="rounded-full">Gallery</TabsTrigger>
-                            <TabsTrigger value="settings" className="rounded-full">Settings</TabsTrigger>
+                        <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-3 px-3">
+                            <TabsTrigger value="overview" className="rounded-full text-[11px]">Overview</TabsTrigger>
+                            <TabsTrigger value="itinerary" className="rounded-full text-[11px]">Itinerary</TabsTrigger>
+                            <TabsTrigger value="budget" className="rounded-full text-[11px]">Expenses</TabsTrigger>
+                            <TabsTrigger value="media" className="rounded-full text-[11px]">Gallery</TabsTrigger>
+                            <TabsTrigger value="settings" className="rounded-full text-[11px]">Settings</TabsTrigger>
                         </TabsList>
                     </div>
                 </div>
