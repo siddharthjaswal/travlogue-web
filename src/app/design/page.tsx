@@ -18,6 +18,34 @@ export default function DesignPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
+        <Card className="md:col-span-2 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
+          <h2 className="text-xl font-semibold mb-2">Color Scheme</h2>
+          <div className="grid gap-4 md:grid-cols-4">
+            {[
+              { label: 'Primary', className: 'bg-primary text-primary-foreground' },
+              { label: 'Secondary', className: 'bg-secondary text-secondary-foreground' },
+              { label: 'Accent', className: 'bg-accent text-accent-foreground' },
+              { label: 'Destructive', className: 'bg-destructive text-destructive-foreground' },
+            ].map((c) => (
+              <div key={c.label} className={`rounded-2xl p-4 ${c.className}`}>
+                <div className="text-sm font-semibold">{c.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-4">
+            {[
+              { label: 'Background', className: 'bg-background text-foreground border border-border/40' },
+              { label: 'Card', className: 'bg-card text-card-foreground border border-border/40' },
+              { label: 'Muted', className: 'bg-muted text-muted-foreground border border-border/40' },
+              { label: 'Border', className: 'bg-border text-foreground' },
+            ].map((c) => (
+              <div key={c.label} className={`rounded-2xl p-4 ${c.className}`}>
+                <div className="text-sm font-semibold">{c.label}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
         <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
           <h2 className="text-xl font-semibold mb-2">Buttons</h2>
           <div className="flex flex-wrap gap-4">
