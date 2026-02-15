@@ -133,7 +133,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                             </div>
 
                             {/* Top Controls (Glassmorphism) */}
-                            <div className="relative z-10 flex justify-between items-start p-3">
+                            <div className="relative z-10 flex justify-between items-start p-3.5">
                                 {/* Actions Menu */}
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
