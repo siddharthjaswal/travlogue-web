@@ -118,8 +118,8 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                 {/* Cinematic Gradient Overlays */}
                                 {/* Top Shadow for badges */}
                                 <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
-                                {/* Bottom Shadow for text */}
-                                <div className="absolute bottom-0 left-0 right-0 h-2/3 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
+                                {/* Bottom Blur + Gradient for text */}
+                                <div className="absolute bottom-0 left-0 right-0 h-44 bg-gradient-to-t from-black/80 via-black/45 to-transparent backdrop-blur-xl pointer-events-none" />
                             </div>
 
                             {/* Top Controls (Glassmorphism) */}
@@ -179,14 +179,14 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                             {/* Bottom Content */}
                             <div className="relative z-10 mt-auto p-6 space-y-3">
                                 {/* Date */}
-                                <div className="flex items-center gap-2 text-white/70 text-xs font-medium uppercase tracking-wider">
+                                <div className="flex items-center gap-2 text-primary/90 text-xs font-semibold uppercase tracking-wider">
                                     <Calendar className="h-3.5 w-3.5" />
                                     <span>{dateDisplay}</span>
                                 </div>
 
                                 {/* Title & Location */}
                                 <div>
-                                    <h3 className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-sm group-hover:text-primary-foreground transition-colors">
+                                    <h3 className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-sm">
                                         {trip.name}
                                     </h3>
                                     <div className="flex items-center gap-1.5 text-white/90 text-sm font-medium">
@@ -197,15 +197,12 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                     </div>
                                 </div>
 
-                                {/* Description (Fade in on hover) */}
-                                <div className={cn(
-                                    "overflow-hidden transition-all duration-500 ease-out max-h-0 opacity-0",
-                                    isHovered && "max-h-20 opacity-100 mt-2"
-                                )}>
+                                {/* Details */}
+                                {trip.description && (
                                     <p className="text-sm text-white/70 line-clamp-2 leading-relaxed">
-                                        {trip.description || "An adventure waiting to be written..."}
+                                        {trip.description}
                                     </p>
-                                </div>
+                                )}
                             </div>
                         </Card>
                     </Link>
