@@ -85,9 +85,6 @@ export default function TripsPage() {
                                 Your collection of adventures, past and planned
                             </p>
                         </div>
-                        <div className="w-full sm:w-auto">
-                            <CreateTripDialog />
-                        </div>
                     </div>
 
                     {/* Search + Filters */}
