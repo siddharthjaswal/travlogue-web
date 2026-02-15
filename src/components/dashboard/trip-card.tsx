@@ -187,32 +187,34 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                             )}
 
                             {/* Bottom Content */}
-                            <div className="relative z-10 mt-auto p-6 space-y-3">
-                                {/* Date */}
-                                <div className="flex items-center gap-2 text-white/80 text-xs font-semibold uppercase tracking-wider">
-                                    <Calendar className="h-3.5 w-3.5 text-white/70" />
-                                    <span>{dateDisplay}</span>
-                                </div>
-
-                                {/* Title & Location */}
-                                <div>
-                                    <h3 className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-sm">
-                                        {trip.name}
-                                    </h3>
-                                    <div className="flex items-center gap-1.5 text-white/90 text-sm font-medium">
-                                        <MapPin className="h-4 w-4 text-white/70" />
-                                        <span>
-                                            {trip.primaryDestinationCity || trip.primaryDestinationCountry || 'Destination Unknown'}
-                                        </span>
+                            <div className="relative z-10 mt-auto p-6">
+                                <div className="rounded-2xl border border-white/10 bg-black/35 backdrop-blur-md p-4 space-y-2">
+                                    {/* Date */}
+                                    <div className="flex items-center gap-2 text-white/80 text-xs font-semibold uppercase tracking-wider">
+                                        <Calendar className="h-3.5 w-3.5 text-white/70" />
+                                        <span>{dateDisplay}</span>
                                     </div>
-                                </div>
 
-                                {/* Details */}
-                                {trip.description && (
-                                    <p className="text-sm text-white/70 line-clamp-2 leading-relaxed">
-                                        {trip.description}
-                                    </p>
-                                )}
+                                    {/* Title & Location */}
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-sm">
+                                            {trip.name}
+                                        </h3>
+                                        <div className="flex items-center gap-1.5 text-white/90 text-sm font-medium">
+                                            <MapPin className="h-4 w-4 text-white/70" />
+                                            <span>
+                                                {trip.primaryDestinationCity || trip.primaryDestinationCountry || 'Destination Unknown'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Details */}
+                                    {trip.description && (
+                                        <p className="text-sm text-white/70 line-clamp-2 leading-relaxed">
+                                            {trip.description}
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </Card>
                     </Link>
