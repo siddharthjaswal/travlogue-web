@@ -40,15 +40,25 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
     const { mutate: deleteTrip, isPending: isDeleting } = useDeleteTrip();
     const { mutate: regenerateCover, isPending: isRegenerating } = useRegenerateCover();
 
+    const coverQuery = [
+        trip.primaryDestinationCity,
+        trip.primaryDestinationCountry,
+        trip.name,
+        'night',
+        'moody',
+        'cinematic',
+        'dark'
+    ].filter(Boolean).join(' ');
+
     // Auto-generate cover if missing
     useEffect(() => {
         if (!trip.coverPhotoUrl) {
             const timeout = setTimeout(() => {
-                regenerateCover({ id: trip.id });
+                regenerateCover({ id: trip.id, query: coverQuery });
             }, index * 500 + 500);
             return () => clearTimeout(timeout);
         }
-    }, [trip.coverPhotoUrl, trip.id, regenerateCover, index]);
+    }, [trip.coverPhotoUrl, trip.id, regenerateCover, index, coverQuery]);
 
     const handleDelete = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -65,7 +75,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
     const handleRegenerateCover = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        regenerateCover({ id: trip.id }, {
+        regenerateCover({ id: trip.id, query: coverQuery }, {
             onSuccess: () => toast.success('New cover image generated! ✨'),
             onError: () => toast.error('Failed to generate cover')
         });
