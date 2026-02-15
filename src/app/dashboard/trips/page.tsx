@@ -137,7 +137,9 @@ export default function TripsPage() {
                         {status !== 'all' && (
                             <Badge variant="secondary" className="rounded-full px-3 capitalize">Status: {status}</Badge>
                         )}
-                        <Badge variant="outline" className="rounded-full px-3">{filteredTrips.length} trips</Badge>
+                        <Badge variant="outline" className="rounded-full px-3">
+                        {filteredTrips.length} {filteredTrips.length === 1 ? 'trip' : 'trips'}
+                    </Badge>
                     </div>
                 </div>
             </div>
