@@ -69,7 +69,7 @@ export function TripHeader({ trip }: TripHeaderProps) {
     return (
         <div className="relative animate-fade-in">
             {/* Elegant Cover Image */}
-            <div className="h-56 sm:h-72 w-full bg-gradient-to-br from-primary/20 via-accent/15 to-secondary/10 rounded-2xl relative overflow-hidden group">
+            <div className="h-56 sm:h-72 w-full bg-gradient-to-br from-primary/20 via-accent/15 to-secondary/10 rounded-3xl relative overflow-hidden group">
                 {trip.coverPhotoUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -79,47 +79,13 @@ export function TripHeader({ trip }: TripHeaderProps) {
                     />
                 )}
                 {/* Sophisticated gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
-            </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
 
-            {/* Info Card - Floating over cover */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end -mt-16 px-4 sm:px-6 relative z-10 gap-4">
-                <div className="relative glass elevated-lg p-6 rounded-2xl border border-border/40 w-full transition-all">
-                    <h1 className="text-3xl font-bold mb-3 tracking-tight">{trip.name}</h1>
-                    <div className="flex flex-col gap-2 text-muted-foreground text-sm">
-                        {(trip.primaryDestinationCity || trip.primaryDestinationCountry) && (
-                            <div className="flex items-center gap-2">
-                                <MapPin className="h-4 w-4 flex-shrink-0" />
-                                <span>
-                                    {[trip.primaryDestinationCity, trip.primaryDestinationCountry].filter(Boolean).join(', ')}
-                                </span>
-                            </div>
-                        )}
-                        {(trip.startDateTimestamp || trip.endDateTimestamp) && (
-                            <div className="flex items-center gap-1">
-                                <Calendar className="h-4 w-4" />
-                                <span>
-                                    {formattedDate(trip.startDateTimestamp)}
-                                    {trip.endDateTimestamp ? ` - ${formattedDate(trip.endDateTimestamp)}` : ''}
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                        <span className="text-[11px] px-2 py-1 rounded-full border border-border/40 bg-muted/30">Status: {trip.status}</span>
-                        <span className="text-[11px] px-2 py-1 rounded-full border border-border/40 bg-muted/30">Visibility: {trip.visibility}</span>
-                        {(trip.startDateTimestamp && trip.endDateTimestamp) && (
-                            <span className="text-[11px] px-2 py-1 rounded-full border border-border/40 bg-muted/30">
-                                {Math.ceil((trip.endDateTimestamp - trip.startDateTimestamp) / (60 * 60 * 24))} days
-                            </span>
-                        )}
-                    </div>
-                </div>
-
+                {/* Top actions */}
                 <div className="absolute top-3 right-3">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="secondary" size="icon" className="h-9 w-9 rounded-full">
+                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-[14px] bg-black/20 hover:bg-black/40 text-white border border-white/10">
                                 <MoreVertical className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
@@ -143,6 +109,41 @@ export function TripHeader({ trip }: TripHeaderProps) {
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
+                </div>
+
+                {/* Glass info card inside image */}
+                <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4">
+                    <div className="rounded-[16px] border border-white/10 bg-black/35 backdrop-blur-md px-4 py-3 text-white">
+                        <h1 className="text-3xl font-bold mb-2 tracking-tight">{trip.name}</h1>
+                        <div className="flex flex-col gap-2 text-white/80 text-sm">
+                            {(trip.primaryDestinationCity || trip.primaryDestinationCountry) && (
+                                <div className="flex items-center gap-2">
+                                    <MapPin className="h-4 w-4 text-white/70 flex-shrink-0" />
+                                    <span>
+                                        {[trip.primaryDestinationCity, trip.primaryDestinationCountry].filter(Boolean).join(', ')}
+                                    </span>
+                                </div>
+                            )}
+                            {(trip.startDateTimestamp || trip.endDateTimestamp) && (
+                                <div className="flex items-center gap-2">
+                                    <Calendar className="h-4 w-4 text-white/70" />
+                                    <span>
+                                        {formattedDate(trip.startDateTimestamp)}
+                                        {trip.endDateTimestamp ? ` - ${formattedDate(trip.endDateTimestamp)}` : ''}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                            <span className="px-2 py-1 rounded-full border border-white/15 bg-white/10">Status: {trip.status}</span>
+                            <span className="px-2 py-1 rounded-full border border-white/15 bg-white/10">Visibility: {trip.visibility}</span>
+                            {(trip.startDateTimestamp && trip.endDateTimestamp) && (
+                                <span className="px-2 py-1 rounded-full border border-white/15 bg-white/10">
+                                    {Math.ceil((trip.endDateTimestamp - trip.startDateTimestamp) / (60 * 60 * 24))} days
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
 

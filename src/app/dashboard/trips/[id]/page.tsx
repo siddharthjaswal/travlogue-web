@@ -48,7 +48,7 @@ export default function TripDetailsPage() {
 
             <TripHeader trip={trip} />
 
-            <Tabs defaultValue="overview" className="mt-8">
+            <Tabs defaultValue="overview" className="mt-10">
                 <div className="md:hidden fixed bottom-4 left-0 right-0 z-20 px-4">
                     <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl shadow-lg">
                         <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-2.5 px-3">
@@ -75,7 +75,7 @@ export default function TripDetailsPage() {
                         </TabsList>
                     </div>
                 </div>
-                <div className="hidden md:block -mt-10 relative z-10">
+                <div className="hidden md:block mt-6 relative z-10">
                     <TabsList className="w-full overflow-x-auto flex-nowrap justify-start rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl p-1.5 shadow-lg">
                         <TabsTrigger value="overview" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/15 data-[state=active]:text-foreground">
                             <LayoutDashboard className="h-4 w-4" />Overview
