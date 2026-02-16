@@ -18,7 +18,7 @@ export function TripMap({ trip }: TripMapProps) {
     const center = guessCenter(trip.primaryDestinationCity, trip.primaryDestinationCountry);
 
     return (
-        <Card className="col-span-full overflow-hidden animate-fade-in">
+        <Card className="col-span-full overflow-hidden animate-fade-in rounded-3xl">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                     <MapPin className="h-5 w-5 text-primary" />
@@ -27,7 +27,9 @@ export function TripMap({ trip }: TripMapProps) {
                 <span className="text-sm text-muted-foreground">{location}</span>
             </CardHeader>
             <CardContent className="p-0">
-                <StyledMap center={center} marker={center} height={300} rounded="rounded-none" />
+                <div className="aspect-square w-full">
+                    <StyledMap center={center} marker={center} rounded="rounded-3xl" className="h-full w-full" />
+                </div>
             </CardContent>
         </Card>
     );

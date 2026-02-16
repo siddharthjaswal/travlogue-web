@@ -10,9 +10,10 @@ interface StyledMapProps {
   height?: number;
   onClick?: (lat: number, lng: number) => void;
   rounded?: string;
+  className?: string;
 }
 
-export function StyledMap({ center, marker, height = 220, onClick, rounded = 'rounded-xl' }: StyledMapProps) {
+export function StyledMap({ center, marker, height = 220, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
@@ -64,8 +65,8 @@ export function StyledMap({ center, marker, height = 220, onClick, rounded = 'ro
   return (
     <div
       ref={mapRef}
-      className={`${rounded} overflow-hidden border border-border/30`}
-      style={{ height }}
+      className={`${rounded} overflow-hidden border border-border/30 ${className || ''}`}
+      style={height ? { height } : undefined}
     />
   );
 }

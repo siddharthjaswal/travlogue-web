@@ -1,15 +1,15 @@
 export const TRAVEL_MAP_STYLE = [
   {
     elementType: "geometry",
-    stylers: [{ color: "#1b1a17" }],
+    stylers: [{ color: "#f5f7fb" }],
   },
   {
     elementType: "labels.text.fill",
-    stylers: [{ color: "#9f8f7a" }],
+    stylers: [{ color: "#5b6372" }],
   },
   {
     elementType: "labels.text.stroke",
-    stylers: [{ color: "#1b1a17" }],
+    stylers: [{ color: "#f5f7fb" }],
   },
   {
     featureType: "administrative",
@@ -28,7 +28,7 @@ export const TRAVEL_MAP_STYLE = [
   {
     featureType: "poi.park",
     elementType: "geometry",
-    stylers: [{ color: "#1e1d19" }],
+    stylers: [{ color: "#e7eef5" }],
   },
   {
     featureType: "poi.attraction",
@@ -37,12 +37,12 @@ export const TRAVEL_MAP_STYLE = [
   {
     featureType: "road",
     elementType: "geometry",
-    stylers: [{ color: "#2a2722" }],
+    stylers: [{ color: "#dde4ee" }],
   },
   {
     featureType: "road",
     elementType: "labels.text.fill",
-    stylers: [{ color: "#8b7c69" }],
+    stylers: [{ color: "#697387" }],
   },
   {
     featureType: "transit",
@@ -51,6 +51,6 @@ export const TRAVEL_MAP_STYLE = [
   {
     featureType: "water",
     elementType: "geometry",
-    stylers: [{ color: "#131313" }],
+    stylers: [{ color: "#d7e6f7" }],
   },
 ];
