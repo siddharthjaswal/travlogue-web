@@ -4,12 +4,8 @@ export const TRAVEL_MAP_STYLE = [
     stylers: [{ color: "#f5f7fb" }],
   },
   {
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#5b6372" }],
-  },
-  {
-    elementType: "labels.text.stroke",
-    stylers: [{ color: "#f5f7fb" }],
+    elementType: "labels",
+    stylers: [{ visibility: "off" }],
   },
   {
     featureType: "administrative",
@@ -32,7 +28,7 @@ export const TRAVEL_MAP_STYLE = [
   },
   {
     featureType: "poi.attraction",
-    stylers: [{ visibility: "on" }],
+    stylers: [{ visibility: "off" }],
   },
   {
     featureType: "road",

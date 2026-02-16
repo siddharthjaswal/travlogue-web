@@ -7,16 +7,18 @@ import { TRAVEL_MAP_STYLE } from '@/lib/map-theme';
 interface StyledMapProps {
   center: { lat: number; lng: number };
   marker?: { lat: number; lng: number } | null;
+  markers?: { lat: number; lng: number }[];
   height?: number;
   onClick?: (lat: number, lng: number) => void;
   rounded?: string;
   className?: string;
 }
 
-export function StyledMap({ center, marker, height = 220, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
+export function StyledMap({ center, marker, markers, height = 220, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -64,6 +66,32 @@ export function StyledMap({ center, marker, height = 220, onClick, rounded = 'ro
     mapInstanceRef.current.setCenter(marker);
     mapInstanceRef.current.setZoom(15);
   }, [marker?.lat, marker?.lng]);
+
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    const google = (window as any).google;
+    if (!google?.maps) return;
+
+    // Clear existing multi markers
+    markersRef.current.forEach((m) => m.setMap(null));
+    markersRef.current = [];
+
+    if (!markers || markers.length === 0) return;
+
+    const bounds = new google.maps.LatLngBounds();
+    markers.forEach((m) => {
+      const marker = new google.maps.Marker({ position: m, map: mapInstanceRef.current });
+      markersRef.current.push(marker);
+      bounds.extend(m);
+    });
+
+    if (markers.length === 1) {
+      mapInstanceRef.current.setCenter(markers[0]);
+      mapInstanceRef.current.setZoom(15);
+    } else {
+      mapInstanceRef.current.fitBounds(bounds, 80);
+    }
+  }, [markers?.length, JSON.stringify(markers)]);
 
   return (
     <div
