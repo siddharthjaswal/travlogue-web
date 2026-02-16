@@ -51,15 +51,15 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
             <div className="absolute left-[-17px] top-0 bottom-0 w-px bg-border/50 md:hidden" />
             <div className="absolute left-[-21px] top-6 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-background md:hidden" />
 
-            <div className="md:grid md:grid-cols-[140px_1fr] gap-8 sm:gap-10 mb-12 sm:mb-16">
+            <div className="md:grid md:grid-cols-[110px_1fr] gap-8 sm:gap-10 mb-12 sm:mb-16">
                 {/* Day Header (Left Column) */}
                 <div className="relative mb-6 md:mb-0 pt-1">
-                    <div className="md:sticky md:top-32 flex md:justify-end">
-                        <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-1">
+                    <div className="md:sticky md:top-32 flex md:justify-start">
+                        <div className="flex flex-row md:flex-col items-center md:items-start gap-3 md:gap-1">
                             <span className="text-4xl md:text-5xl font-bold text-foreground leading-none tracking-tight">
                                 {format(dateObj, 'd')}
                             </span>
-                            <div className="flex flex-col md:items-end">
+                            <div className="flex flex-col md:items-start">
                                 <span className="text-sm font-semibold text-primary uppercase tracking-widest">
                                     {monthName}
                                 </span>
@@ -91,16 +91,8 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                             </div>
                         )}
 
-                        {/* Location + Add */}
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/50 border border-border/50 text-xs font-medium text-muted-foreground">
-                                    <MapPin className="h-3.5 w-3.5" />
-                                    <span>{day.place}</span>
-                                </div>
-                                <div className="h-px w-20 bg-border/30 hidden md:block" />
-                            </div>
-
+                        {/* Add */}
+                        <div className="flex items-center justify-end mb-6">
                             <AddActivityDialog
                                 tripId={day.tripId}
                                 initialDate={dateObj}
@@ -175,6 +167,20 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                                     <p className="text-muted-foreground/60 text-xs mt-1">No activities planned yet.</p>
                                 </div>
                             )}
+                        </div>
+
+                        {/* City Labels */}
+                        <div className="mt-6 flex flex-wrap justify-center gap-2">
+                            {day.place
+                                .split('→')
+                                .map((p) => p.trim())
+                                .filter(Boolean)
+                                .map((place, idx) => (
+                                    <div key={`${place}-${idx}`} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/50 border border-border/50 text-xs font-medium text-muted-foreground">
+                                        <MapPin className="h-3.5 w-3.5" />
+                                        <span>{place}</span>
+                                    </div>
+                                ))}
                         </div>
                     </div>
                 </div>
