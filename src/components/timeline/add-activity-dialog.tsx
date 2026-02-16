@@ -578,34 +578,17 @@ export function AddActivityDialog({
                                                         setIsExpanding(true);
                                                         try {
                                                             const res = await api.get('/utils/resolve-map-link', { params: { url: value } });
-                                                            resolvedCache.current.set(value, res?.data || {});
-                                                            if (res?.data?.lat && res?.data?.lng) {
-                                                                setResolvedCoords({ lat: res.data.lat, lng: res.data.lng });
-                                                            }
-                                                            if (res?.data?.name && !form.getValues('name')) {
-                                                                form.setValue('name', res.data.name);
-                                                            }
-                                                            if (res?.data?.address) {
-                                                                form.setValue('location', res.data.address);
-                                                            }
-                                                            if (res?.data?.photo_url) {
-                                                                toast.success('Photo found');
-                                                            } else if (res?.data?.name) {
-                                                                const nameForPhoto = res.data.name;
-                                                                try {
-                                                                    const unsplash = await api.get('/activities/place-photo', { params: { query: nameForPhoto } });
-                                                                    if (unsplash?.data?.url) {
-                                                                        toast.success('Photo found (Unsplash)');
-                                                                    } else {
-                                                                        toast.message('No photo found for this place');
+                                                                    resolvedCache.current.set(value, res?.data || {});
+                                                                    if (res?.data?.lat && res?.data?.lng) {
+                                                                        setResolvedCoords({ lat: res.data.lat, lng: res.data.lng });
                                                                     }
-                                                                } catch {
-                                                                    toast.message('No photo found for this place');
-                                                                }
-                                                            } else {
-                                                                toast.message('No photo found for this place');
-                                                            }
-                                                            if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
+                                                                    if (res?.data?.name && !form.getValues('name')) {
+                                                                        form.setValue('name', res.data.name);
+                                                                    }
+                                                                    if (res?.data?.address) {
+                                                                        form.setValue('location', res.data.address);
+                                                                    }
+                                                                    if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url)if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
                                                                 const parsed = parseGoogleMapsLink(res.data.expanded_url);
                                                                 if (parsed?.lat && parsed?.lng) setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
                                                                 if (parsed?.name && !form.getValues('name')) form.setValue('name', parsed.name);
@@ -672,23 +655,6 @@ export function AddActivityDialog({
                                                                     }
                                                                     if (res?.data?.address) {
                                                                         form.setValue('location', res.data.address);
-                                                                    }
-                                                                    if (res?.data?.photo_url) {
-                                                                toast.success('Photo found');
-                                                            } else if (res?.data?.name) {
-                                                                        const nameForPhoto = res.data.name;
-                                                                        try {
-                                                                            const unsplash = await api.get('/activities/place-photo', { params: { query: nameForPhoto } });
-                                                                            if (unsplash?.data?.url) {
-                                                                                toast.success('Photo found (Unsplash)');
-                                                                            } else {
-                                                                                toast.message('No photo found for this place');
-                                                                            }
-                                                                        } catch {
-                                                                            toast.message('No photo found for this place');
-                                                                        }
-                                                                    } else {
-                                                                        toast.message('No photo found for this place');
                                                                     }
                                                                     if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
                                                                         const parsed = parseGoogleMapsLink(res.data.expanded_url);
