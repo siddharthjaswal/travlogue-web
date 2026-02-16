@@ -3,12 +3,8 @@
 import { Activity } from '@/services/activity-service';
 import { Badge } from '@/components/ui/badge';
 import { Plane, Hotel, Utensils, Camera, MapPin, DollarSign, Pencil, ExternalLink } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { AddActivityDialog } from './add-activity-dialog';
-import { parseLatLng } from '@/lib/geo';
-import api from '@/lib/api';
-import { useEffect, useState } from 'react';
 
 interface ActivityItemProps {
     activity: Activity;
@@ -17,9 +13,7 @@ interface ActivityItemProps {
     dayPlace?: string;
 }
 
-const photoCache = new Map<string, string>();
-
-export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemProps) {
+export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     const getActivityIcon = (type: string) => {
         switch (type.toLowerCase()) {
             case 'transportation': return Plane;
@@ -31,39 +25,6 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
     };
 
     const Icon = getActivityIcon(activity.activityType);
-    const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (activity.photoUrl) {
-            setPhotoUrl(activity.photoUrl);
-            return;
-        }
-
-        if (!activity.name) return;
-
-        const cacheKey = `${activity.id}-${activity.name}-${dayPlace || ''}`;
-        if (photoCache.has(cacheKey)) {
-            setPhotoUrl(photoCache.get(cacheKey) || null);
-            return;
-        }
-
-        (async () => {
-            try {
-                const query = activity.name;
-                const res = await api.get('/activities/place-photo', {
-                    params: { query }
-                });
-                const url = res?.data?.url;
-                if (url) {
-                    photoCache.set(cacheKey, url);
-                    setPhotoUrl(url);
-                }
-            } catch {
-                // ignore
-            }
-        })();
-    }, [activity.id, activity.location, activity.name, activity.latitude, activity.longitude, dayPlace, activity.photoUrl]);
-
     const isMapLink = activity.location?.startsWith('http');
 
     return (
@@ -80,10 +41,7 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
 
             {/* 2. Timeline Track */}
             <div className="relative flex flex-col items-center pt-1 sm:pt-1">
-                {/* Vertical Line */}
                 <div className="absolute top-8 bottom-[-24px] w-px bg-border/40 group-last:hidden hidden sm:block" />
-
-                {/* Icon Bubble */}
                 <div className="relative z-10 h-8 w-8 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground shadow-sm group-hover:border-primary group-hover:text-primary transition-colors duration-300">
                     <Icon className="h-4 w-4" />
                 </div>
@@ -91,14 +49,9 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
 
             {/* 3. Content Card */}
             <div className="flex-1 pb-2">
-                <div
-                    className={`relative border border-border/40 hover:border-primary/20 rounded-xl p-4 transition-all duration-300 group-hover:shadow-sm overflow-hidden ${photoUrl ? 'bg-cover bg-center' : 'bg-card hover:bg-muted/30'}`}
-                    style={photoUrl ? { backgroundImage: `url(${photoUrl})` } : undefined}
-                >
-                    {photoUrl && <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/70 to-background/40" />}
-                    <div className={`relative flex flex-col sm:flex-row justify-between items-start gap-4 ${photoUrl ? 'backdrop-blur-md rounded-lg p-3 bg-background/55 border border-border/40' : ''}`}>
+                <div className="relative border border-border/40 hover:border-primary/20 rounded-xl p-4 transition-all duration-300 group-hover:shadow-sm overflow-hidden bg-card hover:bg-muted/30">
+                    <div className="relative flex flex-col sm:flex-row justify-between items-start gap-4">
                         <div className="min-w-0 flex-1">
-
                             <div className="flex items-center gap-2 mb-1.5">
                                 <h4 className="font-semibold text-base truncate pr-2 text-foreground/90 group-hover:text-primary transition-colors">
                                     {activity.name}
@@ -138,7 +91,7 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
                                 </p>
                             )}
                         </div>
-{/* Edit Action - Visible on Hover */}
+
                         <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute top-2 right-2">
                             <AddActivityDialog
                                 tripId={tripId}

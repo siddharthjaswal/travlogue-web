@@ -136,7 +136,6 @@ export function AddActivityDialog({
     const expandedCache = useRef(new Map<string, string>());
     const resolvedCache = useRef(new Map<string, any>());
     const [resolvedCoords, setResolvedCoords] = useState<{ lat: number; lng: number } | null>(null);
-    const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(null);
     const parsedLocation = useMemo(() => {
         const coords = parseLatLng(locationValue);
         if (coords) return coords;
@@ -175,7 +174,6 @@ export function AddActivityDialog({
                     cost: activity.cost ? String(activity.cost) : '',
                     notes: activity.notes || '',
                 });
-                setResolvedPhotoUrl(activity.photoUrl || null);
             } else {
                 form.reset({
                     name: '',
@@ -208,7 +206,6 @@ export function AddActivityDialog({
                     longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
                     cost: values.cost ? Number(values.cost) : undefined,
                     notes: values.notes,
-                    photoUrl: resolvedPhotoUrl || activity.photoUrl,
                 }
             }, {
                 onSuccess: () => {
@@ -592,14 +589,12 @@ export function AddActivityDialog({
                                                                 form.setValue('location', res.data.address);
                                                             }
                                                             if (res?.data?.photo_url) {
-                                                                setResolvedPhotoUrl(res.data.photo_url);
                                                                 toast.success('Photo found');
                                                             } else if (res?.data?.name) {
                                                                 const nameForPhoto = res.data.name;
                                                                 try {
                                                                     const unsplash = await api.get('/activities/place-photo', { params: { query: nameForPhoto } });
                                                                     if (unsplash?.data?.url) {
-                                                                        setResolvedPhotoUrl(unsplash.data.url);
                                                                         toast.success('Photo found (Unsplash)');
                                                                     } else {
                                                                         toast.message('No photo found for this place');
@@ -679,14 +674,12 @@ export function AddActivityDialog({
                                                                         form.setValue('location', res.data.address);
                                                                     }
                                                                     if (res?.data?.photo_url) {
-                                                                        setResolvedPhotoUrl(res.data.photo_url);
-                                                                        toast.success('Photo found');
-                                                                    } else if (res?.data?.name) {
+                                                                toast.success('Photo found');
+                                                            } else if (res?.data?.name) {
                                                                         const nameForPhoto = res.data.name;
                                                                         try {
                                                                             const unsplash = await api.get('/activities/place-photo', { params: { query: nameForPhoto } });
                                                                             if (unsplash?.data?.url) {
-                                                                                setResolvedPhotoUrl(unsplash.data.url);
                                                                                 toast.success('Photo found (Unsplash)');
                                                                             } else {
                                                                                 toast.message('No photo found for this place');
@@ -749,24 +742,6 @@ export function AddActivityDialog({
                                         onClick={onMapClick}
                                         rounded="rounded-2xl"
                                     />
-                                )}
-                            </div>
-
-                            <div className="rounded-xl border border-border/40 bg-muted/10 p-4">
-                                <div className="text-sm font-medium mb-3">Photo preview</div>
-                                {(resolvedPhotoUrl || activity?.photoUrl) ? (
-                                    <div className="relative overflow-hidden rounded-xl border border-border/30">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                            src={resolvedPhotoUrl || activity?.photoUrl}
-                                            alt="Activity preview"
-                                            className="h-[220px] w-full object-cover"
-                                        />
-                                    </div>
-                                ) : (
-                                    <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed border-border/40 text-xs text-muted-foreground">
-                                        No photo yet
-                                    </div>
                                 )}
                             </div>
                         </div>

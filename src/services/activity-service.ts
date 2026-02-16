@@ -15,7 +15,6 @@ export interface Activity {
     status: string;
     displayOrder: number;
     notes?: string;
-    photoUrl?: string;
 }
 
 export interface TripDay {
@@ -50,7 +49,6 @@ const mapActivity = (data: any): Activity => ({
     status: data.status,
     displayOrder: data.display_order,
     notes: data.notes,
-    photoUrl: data.photo_url,
 });
 
 const mapTripDay = (data: any): TripDay => ({
@@ -76,7 +74,6 @@ export interface CreateActivityData {
     latitude?: number;
     longitude?: number;
     notes?: string;
-    photoUrl?: string;
 }
 
 export const activityService = {
@@ -101,7 +98,6 @@ export const activityService = {
             latitude: data.latitude,
             longitude: data.longitude,
             notes: data.notes,
-            photo_url: data.photoUrl,
         };
         const response = await api.post('/activities/', payload);
         return mapActivity(response.data);
@@ -118,7 +114,6 @@ export const activityService = {
         if (data.latitude !== undefined) payload.latitude = data.latitude;
         if (data.longitude !== undefined) payload.longitude = data.longitude;
         if (data.notes !== undefined) payload.notes = data.notes;
-        if (data.photoUrl !== undefined) payload.photo_url = data.photoUrl;
         // Date is usually not editable easily as it changes the day, but if we want to allow it we need backend support for moving days. 
         // For now let's assume date doesn't change or if it does we handle it.
         // Actually the backend update schema allows most fields.
