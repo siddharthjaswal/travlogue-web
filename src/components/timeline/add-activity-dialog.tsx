@@ -595,8 +595,9 @@ export function AddActivityDialog({
                                                                 setResolvedPhotoUrl(res.data.photo_url);
                                                                 toast.success('Photo found');
                                                             } else if (res?.data?.name) {
+                                                                const nameForPhoto = res.data.name;
                                                                 try {
-                                                                    const unsplash = await api.get('/activities/place-photo', { params: { query: res.data.name } });
+                                                                    const unsplash = await api.get('/activities/place-photo', { params: { query: nameForPhoto } });
                                                                     if (unsplash?.data?.url) {
                                                                         setResolvedPhotoUrl(unsplash.data.url);
                                                                         toast.success('Photo found (Unsplash)');
@@ -681,8 +682,9 @@ export function AddActivityDialog({
                                                                         setResolvedPhotoUrl(res.data.photo_url);
                                                                         toast.success('Photo found');
                                                                     } else if (res?.data?.name) {
+                                                                        const nameForPhoto = res.data.name;
                                                                         try {
-                                                                            const unsplash = await api.get('/activities/place-photo', { params: { query: res.data.name } });
+                                                                            const unsplash = await api.get('/activities/place-photo', { params: { query: nameForPhoto } });
                                                                             if (unsplash?.data?.url) {
                                                                                 setResolvedPhotoUrl(unsplash.data.url);
                                                                                 toast.success('Photo found (Unsplash)');
