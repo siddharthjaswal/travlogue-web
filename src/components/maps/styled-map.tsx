@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { loadGoogleMaps } from '@/lib/google-maps';
 import { TRAVEL_MAP_STYLE } from '@/lib/map-theme';
 
@@ -17,6 +17,7 @@ interface StyledMapProps {
 export function StyledMap({ center, marker, markers, height = 220, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
+  const [mapReady, setMapReady] = useState(false);
   const markerRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
 
@@ -35,6 +36,7 @@ export function StyledMap({ center, marker, markers, height = 220, onClick, roun
           zoomControl: true,
           gestureHandling: 'greedy',
         });
+        setMapReady(true);
 
         if (onClick) {
           mapInstanceRef.current.addListener('click', (e: any) => {
@@ -103,7 +105,7 @@ export function StyledMap({ center, marker, markers, height = 220, onClick, roun
   };
 
   useEffect(() => {
-    if (!mapInstanceRef.current) return;
+    if (!mapInstanceRef.current || !mapReady) return;
     const google = (window as any).google;
     if (!google?.maps) return;
 
@@ -147,7 +149,7 @@ export function StyledMap({ center, marker, markers, height = 220, onClick, roun
     } else {
       mapInstanceRef.current.fitBounds(bounds, 80);
     }
-  }, [markers?.length, JSON.stringify(markers)]);
+  }, [markers?.length, JSON.stringify(markers), mapReady]);
 
   return (
     <div
