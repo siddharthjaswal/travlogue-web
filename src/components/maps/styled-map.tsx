@@ -7,7 +7,7 @@ import { TRAVEL_MAP_STYLE } from '@/lib/map-theme';
 interface StyledMapProps {
   center: { lat: number; lng: number };
   marker?: { lat: number; lng: number } | null;
-  markers?: { lat: number; lng: number; kind?: 'activity' | 'stay'; type?: string }[];
+  markers?: { lat: number; lng: number; kind?: 'activity' | 'stay'; type?: string; title?: string; subtitle?: string }[];
   height?: number;
   onClick?: (lat: number, lng: number) => void;
   rounded?: string;
@@ -114,6 +114,8 @@ export function StyledMap({ center, marker, markers, height = 220, onClick, roun
     if (!markers || markers.length === 0) return;
 
     const bounds = new google.maps.LatLngBounds();
+    const infoWindow = new google.maps.InfoWindow();
+
     markers.forEach((m) => {
       const iconUrl = getMarkerSvg(m.kind, m.type);
       const marker = new google.maps.Marker({
@@ -125,6 +127,16 @@ export function StyledMap({ center, marker, markers, height = 220, onClick, roun
           anchor: new google.maps.Point(15, 15),
         },
       });
+
+      if (m.title || m.subtitle) {
+        marker.addListener('click', () => {
+          const title = m.title ? `<div style="font-weight:600; margin-bottom:4px;">${m.title}</div>` : '';
+          const subtitle = m.subtitle ? `<div style="color:#6b7280; font-size:12px;">${m.subtitle}</div>` : '';
+          infoWindow.setContent(`<div style="font-family:Inter,system-ui; padding:4px 2px;">${title}${subtitle}</div>`);
+          infoWindow.open({ anchor: marker, map: mapInstanceRef.current });
+        });
+      }
+
       markersRef.current.push(marker);
       bounds.extend({ lat: m.lat, lng: m.lng });
     });

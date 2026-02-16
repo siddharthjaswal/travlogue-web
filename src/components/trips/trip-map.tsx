@@ -18,17 +18,17 @@ export function TripMap({ trip }: TripMapProps) {
     const center = guessCenter(trip.primaryDestinationCity, trip.primaryDestinationCountry);
 
     const activityMarkers = (timeline?.days || [])
-        .flatMap((day) => day.activities)
-        .map((a) => {
-            const coords = parseLatLng(a.location);
+        .flatMap((day) => day.activities.map((a) => ({ activity: a, place: day.place })))
+        .map(({ activity, place }) => {
+            const coords = parseLatLng(activity.location);
             if (!coords) return null;
-            return { ...coords, kind: 'activity' as const, type: a.activityType };
+            return { ...coords, kind: 'activity' as const, type: activity.activityType, title: activity.name, subtitle: activity.location || place };
         })
-        .filter(Boolean) as { lat: number; lng: number; kind: 'activity'; type?: string }[];
+        .filter(Boolean) as { lat: number; lng: number; kind: 'activity'; type?: string; title?: string; subtitle?: string }[];
 
     const stayMarkers = (accommodations || [])
-        .map((a) => (a.latitude && a.longitude ? { lat: a.latitude, lng: a.longitude, kind: 'stay' as const, type: 'stay' } : null))
-        .filter(Boolean) as { lat: number; lng: number; kind: 'stay'; type?: string }[];
+        .map((a) => (a.latitude && a.longitude ? { lat: a.latitude, lng: a.longitude, kind: 'stay' as const, type: 'stay', title: a.name, subtitle: a.address || '' } : null))
+        .filter(Boolean) as { lat: number; lng: number; kind: 'stay'; type?: string; title?: string; subtitle?: string }[];
 
     const markers = [...activityMarkers, ...stayMarkers];
 
