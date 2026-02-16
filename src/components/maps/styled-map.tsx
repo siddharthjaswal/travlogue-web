@@ -14,7 +14,7 @@ interface StyledMapProps {
   className?: string;
 }
 
-export function StyledMap({ center, marker, markers, height = 220, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
+export function StyledMap({ center, marker, markers, height, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
   const [mapReady, setMapReady] = useState(false);
