@@ -154,29 +154,23 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                 <div className="relative">
                     <div className="space-y-4">
                         {stayInfo && stayInfo.isStart && (
-                            <div className="group mb-4 rounded-full border border-border/30 bg-muted/40 px-4 py-2 text-sm font-medium text-foreground/90 shadow-sm flex items-center justify-between">
+                            <div className="mb-4 flex items-center justify-between rounded-md border border-border/30 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
                                 <div>
-                                    Stay • {stayInfo.name} • {stayInfo.nights} night{stayInfo.nights === 1 ? '' : 's'}
-                                    {stayInfo.checkInTime && (
-                                        <span className="ml-2 text-xs text-muted-foreground">• Check-in {new Date(stayInfo.checkInTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                    )}
+                                    Stay · {stayInfo.name} · {stayInfo.nights} night{stayInfo.nights === 1 ? '' : 's'}
                                 </div>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="h-6 w-6 rounded-full"
                                     onClick={() => setEditStayOpen(true)}
                                 >
-                                    <Pencil className="h-3.5 w-3.5" />
+                                    <Pencil className="h-3 w-3" />
                                 </Button>
                             </div>
                         )}
                         {stayInfo && !stayInfo.isStart && (
-                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/30 bg-muted/30 px-3 py-1 text-xs text-muted-foreground">
-                                Continuing stay • {stayInfo.name}
-                                {stayInfo.checkOutTime && (
-                                    <span>• Check-out {new Date(stayInfo.checkOutTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                )}
+                            <div className="mb-3 text-[11px] text-muted-foreground">
+                                Continuing stay · {stayInfo.name}
                             </div>
                         )}
 

@@ -28,7 +28,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     const isMapLink = activity.location?.startsWith('http');
 
     return (
-        <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
+        <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-3">
             {/* 1. Time Column */}
             <div className="hidden sm:flex w-full sm:w-[60px] pt-1 flex-col items-end justify-start">
                 <span className="text-sm font-bold text-foreground tabular-nums">
@@ -49,17 +49,17 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
 
             {/* 3. Content Card */}
             <div className="flex-1 pb-2">
-                <div className="relative border border-border/30 hover:border-primary/20 rounded-2xl p-4 transition-all duration-300 group-hover:shadow-sm overflow-hidden bg-muted/10">
+                <div className="relative border border-border/30 rounded-xl p-3 bg-background">
                     <div className="relative flex flex-col sm:flex-row justify-between items-start gap-3">
                         <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <div className="flex items-center justify-between gap-2 mb-1">
                                 <div className="flex items-center gap-2 min-w-0">
-                                    <h4 className="font-semibold text-base truncate pr-2 text-foreground/90 group-hover:text-primary transition-colors">
+                                    <h4 className="font-medium text-sm truncate pr-2 text-foreground">
                                         {activity.name}
                                     </h4>
-                                    <Badge variant="secondary" className="text-[10px] px-1.5 h-5 font-medium text-muted-foreground bg-muted hover:bg-muted cursor-default">
+                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                                         {activity.activityType}
-                                    </Badge>
+                                    </span>
                                 </div>
                                 <span className="sm:hidden text-xs font-semibold text-muted-foreground">
                                     {activity.time || 'Any'} {activity.time ? (parseInt(activity.time) >= 12 ? 'PM' : 'AM') : ''}
