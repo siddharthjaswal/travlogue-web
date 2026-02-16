@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { showError } from '@/lib/toast-helper';
 import { useTripTimeline, useCreateTripDay, useTrip } from '@/hooks/use-trips';
 import { useAccommodationsByTrip } from '@/hooks/use-accommodations';
@@ -7,7 +8,8 @@ import { Accommodation } from '@/services/accommodation-service';
 import { TimelineDay } from './timeline-day';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Maximize2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AddActivityDialog } from './add-activity-dialog';
 import { toast } from 'sonner';
 import { Calendar } from '@/components/ui/calendar';
@@ -19,6 +21,7 @@ interface TimelineViewProps {
 
 export function TimelineView({ tripId }: TimelineViewProps) {
     const { data: timeline, isLoading, isError } = useTripTimeline(tripId);
+    const [mapOpen, setMapOpen] = useState(false);
     const { data: trip } = useTrip(tripId);
     const { data: accommodations } = useAccommodationsByTrip(tripId);
     const createTripDay = useCreateTripDay();
@@ -145,7 +148,8 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                     <div className="relative rounded-3xl overflow-hidden w-full aspect-square">
                         {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
                         <div className="absolute left-3 right-3 bottom-3 rounded-2xl border border-border/30 bg-card/70 backdrop-blur px-4 py-3 text-xs text-muted-foreground">
-                            <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="flex flex-wrap items-center gap-3">
                                 <span className="inline-flex items-center gap-2">
                                     <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#8FA6C8]" /> Sightseeing
                                 </span>
@@ -161,10 +165,33 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                                 <span className="inline-flex items-center gap-2">
                                     <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#9AA8BC]" /> Other
                                 </span>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 rounded-full text-muted-foreground hover:text-foreground"
+                                    onClick={() => setMapOpen(true)}
+                                    aria-label="Expand map"
+                                >
+                                    <Maximize2 className="h-3.5 w-3.5" />
+                                </Button>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <Dialog open={mapOpen} onOpenChange={setMapOpen}>
+                    <DialogContent className="max-w-5xl p-0 overflow-hidden">
+                        <DialogHeader className="px-6 pt-6 pb-2">
+                            <DialogTitle>Trip Map</DialogTitle>
+                        </DialogHeader>
+                        <div className="px-6 pb-6">
+                            <div className="rounded-3xl overflow-hidden w-full h-[70vh]">
+                                {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
+                            </div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
 
                 {/* Right Column: Timeline Stream */}
                 <div className="relative pl-0 lg:pl-8 min-h-[400px]">
