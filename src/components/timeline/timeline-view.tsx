@@ -76,12 +76,19 @@ export function TimelineView({ tripId }: TimelineViewProps) {
             ? new Date(timeline.days[timeline.days.length - 1].date)
             : startDate;
 
-    const stayMap = new Map<number, { name: string; nights: number; isStart: boolean; isEnd: boolean }>();
+    const stayMap = new Map<number, { name: string; nights: number; isStart: boolean; isEnd: boolean; checkInTime?: number | null; checkOutTime?: number | null }>();
 
     const stayByDayName = timeline.days.map((day) => {
         const accForDay = accommodations?.filter(a => a.tripDayId === day.id) || [];
         const stay = accForDay[0];
         return stay ? stay.name : null;
+    });
+
+    const stayTimesByDay = timeline.days.map((day) => {
+        const accForDay = accommodations?.filter(a => a.tripDayId === day.id) || [];
+        const checkIn = accForDay.find(a => a.accommodationType === 'check_in')?.checkInTime ?? null;
+        const checkOut = accForDay.find(a => a.accommodationType === 'check_out')?.checkOutTime ?? null;
+        return { checkIn, checkOut };
     });
 
     let i = 0;
@@ -97,6 +104,8 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 nights,
                 isStart: k === i,
                 isEnd: k === j - 1,
+                checkInTime: stayTimesByDay[k]?.checkIn ?? null,
+                checkOutTime: stayTimesByDay[k]?.checkOut ?? null,
             });
         }
         i = j;
