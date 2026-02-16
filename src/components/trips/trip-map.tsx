@@ -14,6 +14,7 @@ interface TripMapProps {
 }
 
 export function TripMap({ trip, height = 800, className }: TripMapProps) {
+    const useHeight = height && height > 0 ? height : undefined;
     const { data: timeline } = useTripTimeline(trip.id);
     const { data: accommodations } = useAccommodationsByTrip(trip.id);
 
@@ -35,10 +36,10 @@ export function TripMap({ trip, height = 800, className }: TripMapProps) {
     const markers = [...activityMarkers, ...stayMarkers];
 
     return (
-        <div className="col-span-full overflow-hidden animate-fade-in rounded-3xl">
-            <CardContent className="p-0">
-                <div className="w-full">
-                    <StyledMap center={center} markers={markers} rounded="rounded-3xl" className={`w-full ${className || ""}`} height={height} />
+        <div className={`col-span-full overflow-hidden animate-fade-in rounded-3xl ${className || ''} h-full`}>
+            <CardContent className="p-0 h-full">
+                <div className="w-full h-full">
+                    <StyledMap center={center} markers={markers} rounded="rounded-3xl" className="w-full h-full" height={useHeight} />
                 </div>
             </CardContent>
         </div>
