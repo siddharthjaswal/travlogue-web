@@ -30,7 +30,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     return (
         <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
             {/* 1. Time Column */}
-            <div className="w-full sm:w-[60px] pt-1 flex sm:flex-col items-center sm:items-end justify-between sm:justify-start">
+            <div className="hidden sm:flex w-full sm:w-[60px] pt-1 flex-col items-end justify-start">
                 <span className="text-sm font-bold text-foreground tabular-nums">
                     {activity.time || 'Any'}
                 </span>
@@ -49,16 +49,21 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
 
             {/* 3. Content Card */}
             <div className="flex-1 pb-2">
-                <div className="relative border border-border/40 hover:border-primary/20 rounded-xl p-4 transition-all duration-300 group-hover:shadow-sm overflow-hidden bg-card hover:bg-muted/30">
-                    <div className="relative flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div className="relative border border-border/30 hover:border-primary/20 rounded-2xl p-4 transition-all duration-300 group-hover:shadow-sm overflow-hidden bg-muted/10">
+                    <div className="relative flex flex-col sm:flex-row justify-between items-start gap-3">
                         <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1.5">
-                                <h4 className="font-semibold text-base truncate pr-2 text-foreground/90 group-hover:text-primary transition-colors">
-                                    {activity.name}
-                                </h4>
-                                <Badge variant="secondary" className="text-[10px] px-1.5 h-5 font-medium text-muted-foreground bg-muted hover:bg-muted cursor-default">
-                                    {activity.activityType}
-                                </Badge>
+                            <div className="flex items-center justify-between gap-2 mb-1.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                    <h4 className="font-semibold text-base truncate pr-2 text-foreground/90 group-hover:text-primary transition-colors">
+                                        {activity.name}
+                                    </h4>
+                                    <Badge variant="secondary" className="text-[10px] px-1.5 h-5 font-medium text-muted-foreground bg-muted hover:bg-muted cursor-default">
+                                        {activity.activityType}
+                                    </Badge>
+                                </div>
+                                <span className="sm:hidden text-xs font-semibold text-muted-foreground">
+                                    {activity.time || 'Any'} {activity.time ? (parseInt(activity.time) >= 12 ? 'PM' : 'AM') : ''}
+                                </span>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground/80">
