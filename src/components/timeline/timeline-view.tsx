@@ -181,7 +181,7 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 </div>
 
                 <Dialog open={mapOpen} onOpenChange={setMapOpen}>
-                    <DialogContent className="w-[100vw] h-[100vh] max-w-none p-0 overflow-hidden rounded-3xl flex flex-col">
+                    <DialogContent className="!w-screen !h-screen !max-w-none !p-0 !rounded-3xl overflow-hidden flex flex-col">
                         <div className="relative w-full h-full">
                             <div className="absolute inset-0">
                                 {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
