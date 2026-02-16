@@ -62,12 +62,17 @@ export function TimelineView({ tripId }: TimelineViewProps) {
         );
     }
 
-    // Extract dates for Calendar highlighting
-    const tripDates = timeline.days
-        .map(day => new Date(day.date))
-        .filter(date => !isNaN(date.getTime()));
-        
-    const startDate = tripDates.length > 0 ? tripDates[0] : new Date();
+    const startDate = trip?.startDateTimestamp
+        ? new Date(trip.startDateTimestamp * 1000)
+        : timeline.days?.[0]
+            ? new Date(timeline.days[0].date)
+            : new Date();
+
+    const endDate = trip?.endDateTimestamp
+        ? new Date(trip.endDateTimestamp * 1000)
+        : timeline.days?.[timeline.days.length - 1]
+            ? new Date(timeline.days[timeline.days.length - 1].date)
+            : startDate;
 
     return (
         <div className="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
@@ -89,30 +94,10 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 <div className="hidden lg:block sticky top-24">
                     <div className="rounded-3xl bg-transparent p-4">
                         <Calendar
-                            mode="multiple"
-                            selected={tripDates}
+                            mode="range"
+                            selected={{ from: startDate, to: endDate }}
                             className="w-full flex justify-center"
                             defaultMonth={startDate}
-                            modifiersStyles={{
-                                today: {
-                                    fontWeight: '700'
-                                }
-                            }}
-                            classNames={{
-                                root: "p-4",
-                                months: "flex gap-8 flex-col relative",
-                                head_cell: "text-muted-foreground/60 font-medium text-xs w-10 h-10 tracking-wider",
-                                cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-transparent focus-within:relative focus-within:z-20",
-                                day: "h-10 w-10 p-0 font-medium text-foreground/80 aria-selected:opacity-100 hover:bg-muted/50 rounded-lg transition-all duration-200 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none",
-                                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md shadow-primary/20",
-                                day_today: "font-bold text-primary ring-2 ring-primary/50 aria-selected:ring-2 aria-selected:ring-primary/80 aria-selected:border-2 aria-selected:border-primary/90 aria-selected:bg-primary aria-selected:text-primary-foreground",
-                                day_outside: "text-muted-foreground/20 opacity-30",
-                                day_disabled: "text-muted-foreground/20 opacity-30",
-                                day_hidden: "invisible",
-                                nav_button: "border-0 hover:bg-muted/50 text-foreground/60 hover:text-foreground transition-colors",
-                                caption: "flex justify-center pt-2 relative items-center text-foreground font-bold text-lg mb-8 tracking-tight",
-                                weeks: "space-y-3",
-                            }}
                         />
                     </div>
                 </div>
