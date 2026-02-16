@@ -112,7 +112,7 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                                         className="gap-2 rounded-full"
                                     >
                                         <PlusCircle className="h-4 w-4" />
-                                        Add Activity
+                                        Add
                                     </Button>
                                 }
                             />

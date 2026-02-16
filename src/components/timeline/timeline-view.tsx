@@ -110,7 +110,7 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 <AddActivityDialog tripId={tripId} trigger={
                     <Button className="w-full sm:w-auto shadow-sm gap-2" title="Add Activity">
                         <Plus className="h-5 w-5" />
-                        Add Activity
+                        Add
                     </Button>
                 } />
             </div>
