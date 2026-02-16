@@ -11,6 +11,7 @@ import { Plus } from 'lucide-react';
 import { AddActivityDialog } from './add-activity-dialog';
 import { toast } from 'sonner';
 import { Calendar } from '@/components/ui/calendar';
+import { TripMap } from '@/components/trips/trip-map';
 
 interface TimelineViewProps {
     tripId: number;
@@ -130,9 +131,9 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 } />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-10 lg:gap-16 items-start">
-                {/* Left Sidebar: Sticky Calendar */}
-                <div className="hidden lg:block sticky top-24">
+            <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-10 lg:gap-16 items-start">
+                {/* Left Sidebar: Calendar + Map */}
+                <div className="hidden lg:block sticky top-24 space-y-6">
                     <div className="rounded-3xl bg-transparent p-0">
                         <Calendar
                             mode="range"
@@ -141,12 +142,15 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                             defaultMonth={startDate}
                         />
                     </div>
+                    <div className="rounded-3xl overflow-hidden">
+                        {trip && <TripMap trip={trip} />}
+                    </div>
                 </div>
 
                 {/* Right Column: Timeline Stream */}
                 <div className="relative pl-0 lg:pl-8 min-h-[400px]">
                     <div className="rounded-3xl border border-border/30 bg-card/30 backdrop-blur-sm p-4 sm:p-6 shadow-sm">
-                        {timeline.days.map((day, index) => (
+                        {timeline.days.map((day) => (
                             <div key={day.id} className="relative pb-12 sm:pb-16">
                                 <TimelineDay day={day} stayInfo={stayMap.get(day.id)} />
                             </div>

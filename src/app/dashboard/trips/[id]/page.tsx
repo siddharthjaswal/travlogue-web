@@ -2,14 +2,13 @@
 
 import { useTrip } from '@/hooks/use-trips';
 import { TripHeader } from '@/components/trips/trip-header';
-import { TripOverview } from '@/components/trips/trip-overview';
 import { TimelineView } from '@/components/timeline/timeline-view';
 import { BudgetView } from '@/components/budget/budget-view';
 import { TripSettings } from '@/components/settings/trip-settings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, LayoutDashboard, Map, Wallet, Settings } from 'lucide-react';
+import { ChevronLeft, Map, Wallet, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -47,14 +46,10 @@ export default function TripDetailsPage() {
 
             <TripHeader trip={trip} />
 
-            <Tabs defaultValue="overview" className="mt-10">
+            <Tabs defaultValue="itinerary" className="mt-10">
                 <div className="md:hidden fixed bottom-4 left-0 right-0 z-20 px-4">
                     <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl shadow-lg">
                         <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-2 px-2.5 gap-1">
-                            <TabsTrigger value="overview" className="rounded-full text-[11px] flex flex-col items-center gap-1 px-3 py-2 data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-                                <LayoutDashboard className="h-5 w-5" />
-                                Overview
-                            </TabsTrigger>
                             <TabsTrigger value="itinerary" className="rounded-full text-[11px] flex flex-col items-center gap-1 px-3 py-2 data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                                 <Map className="h-5 w-5" />
                                 Itinerary
@@ -72,9 +67,6 @@ export default function TripDetailsPage() {
                 </div>
                 <div className="hidden md:block mt-6 relative z-10">
                     <TabsList className="w-full overflow-x-auto flex-nowrap justify-start rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl p-1.5 shadow-lg gap-1">
-                        <TabsTrigger value="overview" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-                            <LayoutDashboard className="h-4 w-4" />Overview
-                        </TabsTrigger>
                         <TabsTrigger value="itinerary" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                             <Map className="h-4 w-4" />Itinerary
                         </TabsTrigger>
@@ -86,10 +78,6 @@ export default function TripDetailsPage() {
                         </TabsTrigger>
                     </TabsList>
                 </div>
-
-                <TabsContent value="overview">
-                    <TripOverview trip={trip} />
-                </TabsContent>
 
                 <TabsContent value="itinerary">
                     <TimelineView tripId={id} />
