@@ -20,7 +20,7 @@ export function TripMap({ trip }: TripMapProps) {
     return (
         <Card className="col-span-full overflow-hidden animate-fade-in rounded-3xl p-0 gap-0">
             <CardContent className="p-0">
-                <div className="relative w-full" style={{ aspectRatio: '1 / 1' }}>
+                <div className="relative w-full" style={{ paddingBottom: '100%' }}>
                     <StyledMap center={center} marker={center} rounded="rounded-3xl" className="absolute inset-0" />
                     <div className="absolute top-3 left-3 right-3 flex items-center justify-between rounded-2xl border border-white/10 bg-black/30 backdrop-blur-md px-3 py-2 text-white/90">
                         <div className="flex items-center gap-2 text-sm font-medium">
