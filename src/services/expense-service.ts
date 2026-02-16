@@ -4,6 +4,7 @@ export interface Expense {
   id: number;
   tripId: number;
   tripDayId?: number;
+  activityId?: number;
   description: string;
   amount: number;
   category: string;
@@ -26,6 +27,7 @@ const mapExpense = (data: any): Expense => ({
   id: data.id,
   tripId: data.trip_id,
   tripDayId: data.trip_day_id,
+  activityId: data.activity_id,
   description: data.description,
   amount: data.amount,
   category: data.category,

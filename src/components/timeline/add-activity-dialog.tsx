@@ -204,7 +204,7 @@ export function AddActivityDialog({
                     location: values.location,
                     latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
                     longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
-                    cost: values.cost ? Number(values.cost) : undefined,
+                    cost: values.cost === '' ? null : values.cost ? Number(values.cost) : undefined,
                     notes: values.notes,
                 }
             }, {
@@ -248,7 +248,7 @@ export function AddActivityDialog({
                     address: values.location,
                     latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
                     longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
-                    cost: values.cost ? Number(values.cost) : undefined,
+                    cost: values.cost === '' ? null : values.cost ? Number(values.cost) : undefined,
                     notes: combinedNotes,
                 });
 
@@ -270,7 +270,7 @@ export function AddActivityDialog({
             location: values.location,
             latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
             longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
-            cost: values.cost ? Number(values.cost) : undefined,
+            cost: values.cost === '' ? null : values.cost ? Number(values.cost) : undefined,
             notes: values.notes,
         }, {
             onSuccess: () => {

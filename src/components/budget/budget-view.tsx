@@ -110,6 +110,9 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
                                                 <Badge variant="secondary" className="text-[10px] h-5 font-normal">
                                                     {expense.category}
                                                 </Badge>
+                                                {expense.activityId && (
+                                                    <Badge variant="outline" className="text-[10px] h-5 font-normal">Activity</Badge>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
