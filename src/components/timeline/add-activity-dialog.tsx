@@ -134,13 +134,16 @@ export function AddActivityDialog({
     const locationValue = form.watch('location');
     const [isExpanding, setIsExpanding] = useState(false);
     const expandedCache = useRef(new Map<string, string>());
+    const resolvedCache = useRef(new Map<string, any>());
+    const [resolvedCoords, setResolvedCoords] = useState<{ lat: number; lng: number } | null>(null);
     const parsedLocation = useMemo(() => {
         const coords = parseLatLng(locationValue);
         if (coords) return coords;
+        if (resolvedCoords) return resolvedCoords;
         const parsed = locationValue ? parseGoogleMapsLink(locationValue) : null;
         if (parsed?.lat && parsed?.lng) return { lat: parsed.lat, lng: parsed.lng };
         return null;
-    }, [locationValue]);
+    }, [locationValue, resolvedCoords]);
 
     const mapCenter = useMemo(() => {
         // Priority: parsed location -> activity location -> last activity coords -> trip city/country
@@ -154,6 +157,7 @@ export function AddActivityDialog({
     const marker = parsedLocation || null;
 
     const onMapClick = (lat: number, lng: number) => {
+        setResolvedCoords({ lat, lng });
         form.setValue('location', `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
     };
 
@@ -198,6 +202,8 @@ export function AddActivityDialog({
                     activityType: values.activityType,
                     time: values.time || undefined,
                     location: values.location,
+                    latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
+                    longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
                     cost: values.cost ? Number(values.cost) : undefined,
                     notes: values.notes,
                 }
@@ -240,8 +246,8 @@ export function AddActivityDialog({
                     checkOutTime: toUnix(values.checkoutDate, values.checkoutTime),
                     name: values.name,
                     address: values.location,
-                    latitude: parsedLocation?.lat ?? undefined,
-                    longitude: parsedLocation?.lng ?? undefined,
+                    latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
+                    longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
                     cost: values.cost ? Number(values.cost) : undefined,
                     notes: combinedNotes,
                 });
@@ -262,6 +268,8 @@ export function AddActivityDialog({
             activityType: values.activityType.toLowerCase(),
             time: values.time || undefined,
             location: values.location,
+            latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
+            longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
             cost: values.cost ? Number(values.cost) : undefined,
             notes: values.notes,
         }, {
@@ -551,42 +559,50 @@ export function AddActivityDialog({
                                                     field.onChange(e);
                                                     const value = e.target.value;
 
-                                                    const isShort = value?.includes('maps.app.goo.gl');
-                                                    if (isShort && !isExpanding) {
+                                                    const isGoogleLink = value?.includes('maps.app.goo.gl') || value?.includes('google.com/maps');
+                                                    const resolveLink = async () => {
+                                                        if (!value) return;
+                                                        if (resolvedCache.current.has(value)) {
+                                                            const cached = resolvedCache.current.get(value);
+                                                            if (cached?.lat && cached?.lng) {
+                                                                setResolvedCoords({ lat: cached.lat, lng: cached.lng });
+                                                            }
+                                                            if (cached?.name && !form.getValues('name')) {
+                                                                form.setValue('name', cached.name);
+                                                            }
+                                                            if (cached?.address) {
+                                                                form.setValue('location', cached.address);
+                                                            }
+                                                            return;
+                                                        }
                                                         setIsExpanding(true);
                                                         try {
-                                                            if (expandedCache.current.has(value)) {
-                                                                const expanded = expandedCache.current.get(value) || value;
-                                                                const parsed = parseGoogleMapsLink(expanded);
-                                                                if (parsed?.lat && parsed?.lng) {
-                                                                    form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
-                                                                }
-                                                                if (parsed?.name && !form.getValues('name')) {
-                                                                    form.setValue('name', parsed.name);
-                                                                }
-                                                            } else {
-                                                                const res = await api.get('/utils/expand-url', { params: { url: value } });
-                                                                const expanded = res?.data?.url || value;
-                                                                expandedCache.current.set(value, expanded);
-                                                                const parsed = parseGoogleMapsLink(expanded);
-                                                                if (parsed?.lat && parsed?.lng) {
-                                                                    form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
-                                                                }
-                                                                if (parsed?.name && !form.getValues('name')) {
-                                                                    form.setValue('name', parsed.name);
-                                                                }
+                                                            const res = await api.get('/utils/resolve-map-link', { params: { url: value } });
+                                                            resolvedCache.current.set(value, res?.data || {});
+                                                            if (res?.data?.lat && res?.data?.lng) {
+                                                                setResolvedCoords({ lat: res.data.lat, lng: res.data.lng });
+                                                            }
+                                                            if (res?.data?.name && !form.getValues('name')) {
+                                                                form.setValue('name', res.data.name);
+                                                            }
+                                                            if (res?.data?.address) {
+                                                                form.setValue('location', res.data.address);
                                                             }
                                                         } catch {
                                                             // ignore
                                                         } finally {
                                                             setIsExpanding(false);
                                                         }
+                                                    };
+
+                                                    if (isGoogleLink && !isExpanding) {
+                                                        resolveLink();
                                                         return;
                                                     }
 
                                                     const parsed = value ? parseGoogleMapsLink(value) : null;
                                                     if (parsed?.lat && parsed?.lng) {
-                                                        form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                        setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
                                                     }
                                                 }}
                                                 onBlur={(e) => {
@@ -595,7 +611,7 @@ export function AddActivityDialog({
                                                     const parsed = value ? parseGoogleMapsLink(value) : null;
                                                     if (parsed) {
                                                         if (parsed.lat && parsed.lng) {
-                                                            form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                            setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
                                                         }
                                                         if (parsed.name && !form.getValues('name')) {
                                                             form.setValue('name', parsed.name);
@@ -603,10 +619,43 @@ export function AddActivityDialog({
                                                     }
                                                 }}
                                             />
-                                            {isExpanding && (
+                                            {isExpanding ? (
                                                 <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground flex items-center gap-2 text-xs">
                                                     <Loader2 className="h-4 w-4 animate-spin" />
-                                                    Expanding…
+                                                    Resolving…
+                                                </div>
+                                            ) : (
+                                                <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs">
+                                                    {locationValue?.includes('maps.app.goo.gl') || locationValue?.includes('google.com/maps') ? (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-7 px-2"
+                                                            onClick={async () => {
+                                                                const value = form.getValues('location');
+                                                                if (!value) return;
+                                                                setIsExpanding(true);
+                                                                try {
+                                                                    const res = await api.get('/utils/resolve-map-link', { params: { url: value } });
+                                                                    resolvedCache.current.set(value, res?.data || {});
+                                                                    if (res?.data?.lat && res?.data?.lng) {
+                                                                        setResolvedCoords({ lat: res.data.lat, lng: res.data.lng });
+                                                                    }
+                                                                    if (res?.data?.name && !form.getValues('name')) {
+                                                                        form.setValue('name', res.data.name);
+                                                                    }
+                                                                    if (res?.data?.address) {
+                                                                        form.setValue('location', res.data.address);
+                                                                    }
+                                                                } finally {
+                                                                    setIsExpanding(false);
+                                                                }
+                                                            }}
+                                                        >
+                                                            Resolve
+                                                        </Button>
+                                                    ) : null}
                                                 </div>
                                             )}
                                         </div>

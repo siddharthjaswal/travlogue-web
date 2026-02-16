@@ -71,6 +71,8 @@ export interface CreateActivityData {
     cost?: number;
     currency?: string;
     location?: string;
+    latitude?: number;
+    longitude?: number;
     notes?: string;
 }
 
@@ -93,6 +95,8 @@ export const activityService = {
             cost: data.cost,
             currency: data.currency || 'USD',
             location: data.location,
+            latitude: data.latitude,
+            longitude: data.longitude,
             notes: data.notes,
         };
         const response = await api.post('/activities/', payload);
@@ -107,6 +111,8 @@ export const activityService = {
         if (data.cost !== undefined) payload.cost = data.cost;
         if (data.currency) payload.currency = data.currency;
         if (data.location !== undefined) payload.location = data.location;
+        if (data.latitude !== undefined) payload.latitude = data.latitude;
+        if (data.longitude !== undefined) payload.longitude = data.longitude;
         if (data.notes !== undefined) payload.notes = data.notes;
         // Date is usually not editable easily as it changes the day, but if we want to allow it we need backend support for moving days. 
         // For now let's assume date doesn't change or if it does we handle it.
