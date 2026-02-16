@@ -92,7 +92,7 @@ export function TimelineView({ tripId }: TimelineViewProps) {
             <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 lg:gap-16 items-start">
                 {/* Left Sidebar: Sticky Calendar */}
                 <div className="hidden lg:block sticky top-24">
-                    <div className="rounded-3xl bg-transparent p-4">
+                    <div className="rounded-3xl bg-transparent p-0">
                         <Calendar
                             mode="range"
                             selected={{ from: startDate, to: endDate }}
