@@ -181,13 +181,32 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 </div>
 
                 <Dialog open={mapOpen} onOpenChange={setMapOpen}>
-                    <DialogContent className="max-w-5xl p-0 overflow-hidden">
-                        <DialogHeader className="px-6 pt-6 pb-2">
+                    <DialogContent className="max-w-[95vw] w-[95vw] h-[92vh] p-0 overflow-hidden rounded-3xl">
+                        <DialogHeader className="px-6 pt-5 pb-3">
                             <DialogTitle>Trip Map</DialogTitle>
                         </DialogHeader>
-                        <div className="px-6 pb-6">
-                            <div className="rounded-3xl overflow-hidden w-full h-[70vh]">
+                        <div className="px-4 pb-4 h-[calc(92vh-64px)]">
+                            <div className="relative rounded-3xl overflow-hidden w-full h-full">
                                 {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
+                                <div className="absolute right-4 bottom-4 rounded-2xl border border-border/30 bg-card/70 backdrop-blur px-4 py-3 text-xs text-muted-foreground">
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <span className="inline-flex items-center gap-2">
+                                            <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#8FA6C8]" /> Sightseeing
+                                        </span>
+                                        <span className="inline-flex items-center gap-2">
+                                            <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#C8A38C]" /> Dining
+                                        </span>
+                                        <span className="inline-flex items-center gap-2">
+                                            <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#7C97C9]" /> Transport
+                                        </span>
+                                        <span className="inline-flex items-center gap-2">
+                                            <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#A5BBD6]" /> Stay
+                                        </span>
+                                        <span className="inline-flex items-center gap-2">
+                                            <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#9AA8BC]" /> Other
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </DialogContent>
