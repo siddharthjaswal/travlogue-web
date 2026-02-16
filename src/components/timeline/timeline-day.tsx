@@ -260,18 +260,35 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                             )}
                         </div>
 
-                        {/* City Labels */}
-                        <div className="mt-6 flex flex-wrap justify-center gap-2">
-                            {day.place
-                                .split('→')
-                                .map((p) => p.trim())
-                                .filter(Boolean)
-                                .map((place, idx) => (
-                                    <div key={`${place}-${idx}`} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/50 border border-border/50 text-xs font-medium text-muted-foreground">
-                                        <MapPin className="h-3.5 w-3.5" />
-                                        <span>{place}</span>
-                                    </div>
-                                ))}
+                        {/* City Labels + Add */}
+                        <div className="mt-6 flex items-center justify-between">
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {day.place
+                                    .split('→')
+                                    .map((p) => p.trim())
+                                    .filter(Boolean)
+                                    .map((place, idx) => (
+                                        <div key={`${place}-${idx}`} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/50 border border-border/50 text-xs font-medium text-muted-foreground">
+                                            <MapPin className="h-3.5 w-3.5" />
+                                            <span>{place}</span>
+                                        </div>
+                                    ))}
+                            </div>
+                            <AddActivityDialog
+                                tripId={day.tripId}
+                                initialDate={dateObj}
+                                initialTime={nextTime}
+                                trigger={
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        className="gap-2 rounded-full"
+                                    >
+                                        <PlusCircle className="h-4 w-4" />
+                                        Add
+                                    </Button>
+                                }
+                            />
                         </div>
                     </div>
                 </div>

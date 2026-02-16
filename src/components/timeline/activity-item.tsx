@@ -42,7 +42,7 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
         const coords = (activity.latitude && activity.longitude)
             ? { lat: activity.latitude, lng: activity.longitude }
             : parseLatLng(activity.location || '');
-        if (!coords || !activity.name) return;
+        if (!activity.name) return;
 
         const cacheKey = `${activity.id}-${activity.name}-${dayPlace || ''}`;
         if (photoCache.has(cacheKey)) {
