@@ -5,12 +5,11 @@ import { TripHeader } from '@/components/trips/trip-header';
 import { TripOverview } from '@/components/trips/trip-overview';
 import { TimelineView } from '@/components/timeline/timeline-view';
 import { BudgetView } from '@/components/budget/budget-view';
-import { MediaView } from '@/components/media/media-view';
 import { TripSettings } from '@/components/settings/trip-settings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, LayoutDashboard, Map, Wallet, Image as ImageIcon, Settings } from 'lucide-react';
+import { ChevronLeft, LayoutDashboard, Map, Wallet, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -64,10 +63,6 @@ export default function TripDetailsPage() {
                                 <Wallet className="h-5 w-5" />
                                 Expenses
                             </TabsTrigger>
-                            <TabsTrigger value="media" className="rounded-full text-[11px] flex flex-col items-center gap-1 px-3 py-2 data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-                                <ImageIcon className="h-5 w-5" />
-                                Gallery
-                            </TabsTrigger>
                             <TabsTrigger value="settings" className="rounded-full text-[11px] flex flex-col items-center gap-1 px-3 py-2 data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                                 <Settings className="h-5 w-5" />
                                 Settings
@@ -86,9 +81,6 @@ export default function TripDetailsPage() {
                         <TabsTrigger value="budget" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                             <Wallet className="h-4 w-4" />Expenses & Budget
                         </TabsTrigger>
-                        <TabsTrigger value="media" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
-                            <ImageIcon className="h-4 w-4" />Gallery
-                        </TabsTrigger>
                         <TabsTrigger value="settings" className="rounded-full flex items-center gap-2 px-4 py-2 text-sm font-medium data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                             <Settings className="h-4 w-4" />Settings
                         </TabsTrigger>
@@ -105,10 +97,6 @@ export default function TripDetailsPage() {
 
                 <TabsContent value="budget">
                     <BudgetView tripId={id} trip={trip} />
-                </TabsContent>
-
-                <TabsContent value="media">
-                    <MediaView tripId={id} trip={trip} />
                 </TabsContent>
 
                 <TabsContent value="settings">
