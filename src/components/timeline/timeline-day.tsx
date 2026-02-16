@@ -3,34 +3,14 @@
 import { TripDay } from '@/services/activity-service';
 import { ActivityItem } from './activity-item';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MapPin, Sparkles } from 'lucide-react';
+import { PlusCircle, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { AddActivityDialog } from './add-activity-dialog';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useCreateActivity } from '@/hooks/use-trips';
 import { useTransits } from '@/hooks/use-transits';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 interface TimelineDayProps {
     day: TripDay;
 }
-
-const templates = [
-    { label: 'Breakfast', type: 'dining' },
-    { label: 'Lunch', type: 'dining' },
-    { label: 'Dinner', type: 'dining' },
-    { label: 'Coffee', type: 'dining' },
-    { label: 'Check-in', type: 'accommodation' },
-    { label: 'Check-out', type: 'accommodation' },
-    { label: 'Museum', type: 'sightseeing' },
-    { label: 'City Walk', type: 'sightseeing' },
-    { label: 'Sunset Point', type: 'sightseeing' },
-    { label: 'Shopping', type: 'sightseeing' },
-    { label: 'Transit', type: 'transit' },
-    { label: 'Airport', type: 'transit' },
-];
 
 function getNextDefaultTime(activities: TripDay['activities']): string {
     const times = activities
@@ -53,58 +33,7 @@ export function TimelineDay({ day }: TimelineDayProps) {
     const dayName = format(dateObj, 'EEEE').toUpperCase(); // Full day name
 
     const nextTime = getNextDefaultTime(day.activities);
-    const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
     const { data: transits } = useTransits(day.id);
-    const [quickName, setQuickName] = useState('');
-    const [quickTime, setQuickTime] = useState(nextTime);
-    const [quickType, setQuickType] = useState('sightseeing');
-    const [customTemplates, setCustomTemplates] = useState<{ label: string; type: string }[]>([]);
-    const [templateLabel, setTemplateLabel] = useState('');
-    const [templateType, setTemplateType] = useState('sightseeing');
-
-    useEffect(() => {
-        const savedType = typeof window !== 'undefined' ? localStorage.getItem('travlogue_quick_type') : null;
-        const savedTime = typeof window !== 'undefined' ? localStorage.getItem('travlogue_quick_time') : null;
-        const savedTemplates = typeof window !== 'undefined' ? localStorage.getItem('travlogue_templates') : null;
-
-        if (savedType) setQuickType(savedType);
-        if (savedTime) setQuickTime(savedTime);
-        if (savedTemplates) setCustomTemplates(JSON.parse(savedTemplates));
-    }, []);
-
-    useEffect(() => {
-        if (typeof window === 'undefined') return;
-        localStorage.setItem('travlogue_quick_type', quickType);
-        localStorage.setItem('travlogue_quick_time', quickTime);
-    }, [quickType, quickTime]);
-
-    const submitQuickAdd = () => {
-        if (!quickName.trim()) return;
-        createActivity({
-            tripId: day.tripId,
-            activityDate: day.date,
-            name: quickName.trim(),
-            activityType: quickType,
-            time: quickTime || undefined,
-        }, {
-            onSuccess: () => {
-                setQuickName('');
-                setQuickTime(getNextDefaultTime(day.activities));
-                toast.success('Activity added');
-            },
-            onError: () => toast.error('Failed to add activity')
-        });
-    };
-
-    const addTemplate = () => {
-        if (!templateLabel.trim()) return;
-        const next = [...customTemplates, { label: templateLabel.trim(), type: templateType }];
-        setCustomTemplates(next);
-        setTemplateLabel('');
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('travlogue_templates', JSON.stringify(next));
-        }
-    };
 
     return (
         <div className="relative pl-8 md:pl-0">
@@ -168,90 +97,6 @@ export function TimelineDay({ day }: TimelineDayProps) {
                                     </Button>
                                 }
                             />
-                        </div>
-
-                        {/* Quick Add */}
-                        <div className="mb-5 rounded-xl border border-border/40 bg-muted/10 p-4">
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                                <Sparkles className="h-3.5 w-3.5" />
-                                Quick add
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <Input
-                                    placeholder="Quick add an activity…"
-                                    value={quickName}
-                                    onChange={(e) => setQuickName(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            submitQuickAdd();
-                                        }
-                                    }}
-                                    className="flex-1"
-                                />
-                                <Input
-                                    type="time"
-                                    value={quickTime}
-                                    onChange={(e) => setQuickTime(e.target.value)}
-                                    className="w-full sm:w-32"
-                                />
-                                <Select value={quickType} onValueChange={setQuickType}>
-                                    <SelectTrigger className="w-full sm:w-44">
-                                        <SelectValue placeholder="Type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="sightseeing">Sightseeing</SelectItem>
-                                        <SelectItem value="dining">Dining</SelectItem>
-                                        <SelectItem value="transit">Transit</SelectItem>
-                                        <SelectItem value="accommodation">Stay</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Button onClick={submitQuickAdd} disabled={isCreating} className="gap-2">
-                                    <PlusCircle className="h-4 w-4" />
-                                    Add
-                                </Button>
-                            </div>
-
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {[...templates, ...customTemplates].map((t) => (
-                                    <button
-                                        key={`${t.label}-${t.type}`}
-                                        type="button"
-                                        onClick={() => {
-                                            setQuickName(t.label);
-                                            setQuickType(t.type);
-                                        }}
-                                        className="text-xs px-3 py-1 rounded-full border border-border/40 bg-background hover:bg-muted/40 transition-colors"
-                                    >
-                                        {t.label}
-                                    </button>
-                                ))}
-                                <div className="text-xs text-muted-foreground flex items-center gap-1 px-2">
-                                    <Sparkles className="h-3.5 w-3.5" />
-                                    Templates
-                                </div>
-                            </div>
-
-                            <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                                <Input
-                                    placeholder="Create a custom template"
-                                    value={templateLabel}
-                                    onChange={(e) => setTemplateLabel(e.target.value)}
-                                    className="flex-1"
-                                />
-                                <Select value={templateType} onValueChange={setTemplateType}>
-                                    <SelectTrigger className="w-full sm:w-44">
-                                        <SelectValue placeholder="Type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="sightseeing">Sightseeing</SelectItem>
-                                        <SelectItem value="dining">Dining</SelectItem>
-                                        <SelectItem value="transit">Transit</SelectItem>
-                                        <SelectItem value="accommodation">Stay</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Button variant="secondary" onClick={addTemplate}>Save Template</Button>
-                            </div>
                         </div>
 
                         {/* Transits */}
