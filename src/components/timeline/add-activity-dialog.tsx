@@ -42,11 +42,12 @@ import { Calendar } from '@/components/ui/calendar';
 import { useCreateActivity, useUpdateActivity, useTrip, useTripTimeline, useDeleteActivity } from '@/hooks/use-trips';
 import { useCreateAccommodation } from '@/hooks/use-accommodations';
 import { toast } from 'sonner';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity } from '@/services/activity-service';
 import { showError } from '@/lib/toast-helper';
 import { StyledMap } from '@/components/maps/styled-map';
 import { guessCenter, parseLatLng, parseGoogleMapsLink } from '@/lib/geo';
+import api from '@/lib/api';
 
 const formSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -131,6 +132,8 @@ export function AddActivityDialog({
     }, [timeline]);
 
     const locationValue = form.watch('location');
+    const [isExpanding, setIsExpanding] = useState(false);
+    const expandedCache = useRef(new Map<string, string>());
     const parsedLocation = useMemo(() => {
         const coords = parseLatLng(locationValue);
         if (coords) return coords;
@@ -543,9 +546,43 @@ export function AddActivityDialog({
                                         <Input
                                             placeholder="Address, coordinates, or Google Maps link"
                                             {...field}
-                                            onChange={(e) => {
+                                            onChange={async (e) => {
                                                 field.onChange(e);
                                                 const value = e.target.value;
+
+                                                const isShort = value?.includes('maps.app.goo.gl');
+                                                if (isShort && !isExpanding) {
+                                                    setIsExpanding(true);
+                                                    try {
+                                                        if (expandedCache.current.has(value)) {
+                                                            const expanded = expandedCache.current.get(value) || value;
+                                                            const parsed = parseGoogleMapsLink(expanded);
+                                                            if (parsed?.lat && parsed?.lng) {
+                                                                form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                            }
+                                                            if (parsed?.name && !form.getValues('name')) {
+                                                                form.setValue('name', parsed.name);
+                                                            }
+                                                        } else {
+                                                            const res = await api.get('/utils/expand-url', { params: { url: value } });
+                                                            const expanded = res?.data?.url || value;
+                                                            expandedCache.current.set(value, expanded);
+                                                            const parsed = parseGoogleMapsLink(expanded);
+                                                            if (parsed?.lat && parsed?.lng) {
+                                                                form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                            }
+                                                            if (parsed?.name && !form.getValues('name')) {
+                                                                form.setValue('name', parsed.name);
+                                                            }
+                                                        }
+                                                    } catch {
+                                                        // ignore
+                                                    } finally {
+                                                        setIsExpanding(false);
+                                                    }
+                                                    return;
+                                                }
+
                                                 const parsed = value ? parseGoogleMapsLink(value) : null;
                                                 if (parsed?.lat && parsed?.lng) {
                                                     form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
