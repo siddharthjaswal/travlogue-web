@@ -72,34 +72,56 @@ export function StyledMap({ center, marker, markers, height = 220, onClick, roun
   const getMarkerSvg = (kind?: 'activity' | 'stay', type?: string) => {
     const t = (type || '').toLowerCase();
     const isStay = kind === 'stay';
-    let label = '•';
-    let color = '#5B6B7E';
 
-    if (isStay) {
-      label = 'H';
-      color = '#5E7AA6';
-    } else if (t.includes('sightseeing')) {
-      label = 'C';
-      color = '#6C7EA0';
-    } else if (t.includes('dining')) {
-      label = 'F';
-      color = '#8B6D5C';
-    } else if (t.includes('transport')) {
-      label = 'T';
-      color = '#6078A5';
-    } else if (t.includes('other')) {
-      label = 'H';
-      color = '#5E7AA6';
-    } else {
-      label = 'P';
-      color = '#6E7686';
-    }
+    const stroke = '#3E4A5A';
+    const ring = '#D7DEE8';
+    const fill = '#F4F6FA';
+
+    const iconPaths = (() => {
+      if (isStay || t.includes('other')) {
+        return `
+          <rect x="10" y="7" width="16" height="20" rx="2" />
+          <path d="M10 22v-6.57" />
+          <path d="M14 15.43V22" />
+          <path d="M15 16a5 5 0 0 0-6 0" />
+          <path d="M12 11h.01" />
+          <path d="M12 7h.01" />
+          <path d="M16 11h.01" />
+          <path d="M16 7h.01" />
+          <path d="M8 11h.01" />
+          <path d="M8 7h.01" />
+        `;
+      }
+      if (t.includes('sightseeing')) {
+        return `
+          <path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z" />
+          <circle cx="12" cy="13" r="3" />
+        `;
+      }
+      if (t.includes('dining')) {
+        return `
+          <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+          <path d="M7 2v20" />
+          <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+        `;
+      }
+      if (t.includes('transport')) {
+        return `
+          <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
+        `;
+      }
+      return `
+        <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+        <circle cx="12" cy="10" r="3" />
+      `;
+    })();
 
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
-      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
-        <circle cx="18" cy="18" r="16" fill="${color}" fill-opacity="0.15" />
-        <circle cx="18" cy="18" r="10" fill="${color}" />
-        <text x="18" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#ffffff">${label}</text>
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10.5" fill="${fill}" stroke="${ring}" />
+        <g transform="translate(0,0)">
+          ${iconPaths}
+        </g>
       </svg>`;
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   };
