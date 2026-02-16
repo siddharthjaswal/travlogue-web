@@ -19,8 +19,8 @@ export function TripMap({ trip }: TripMapProps) {
     return (
         <div className="col-span-full overflow-hidden animate-fade-in rounded-3xl">
             <CardContent className="p-0">
-                <div className="relative w-full" style={{ paddingBottom: '400%' }}>
-                    <StyledMap center={center} marker={center} rounded="rounded-3xl" className="absolute inset-0" />
+                <div className="w-full">
+                    <StyledMap center={center} marker={center} rounded="rounded-3xl" className="w-full" height={800} />
                 </div>
             </CardContent>
         </div>
