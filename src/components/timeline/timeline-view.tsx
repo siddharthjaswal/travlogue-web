@@ -142,8 +142,8 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                             defaultMonth={startDate}
                         />
                     </div>
-                    <div className="rounded-3xl overflow-hidden">
-                        {trip && <TripMap trip={trip} />}
+                    <div className="rounded-3xl overflow-hidden w-full aspect-square">
+                        {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
                     </div>
                 </div>
 

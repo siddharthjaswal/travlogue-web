@@ -9,9 +9,11 @@ import { useAccommodationsByTrip } from '@/hooks/use-accommodations';
 
 interface TripMapProps {
     trip: Trip;
+    height?: number;
+    className?: string;
 }
 
-export function TripMap({ trip }: TripMapProps) {
+export function TripMap({ trip, height = 800, className }: TripMapProps) {
     const { data: timeline } = useTripTimeline(trip.id);
     const { data: accommodations } = useAccommodationsByTrip(trip.id);
 
@@ -36,7 +38,7 @@ export function TripMap({ trip }: TripMapProps) {
         <div className="col-span-full overflow-hidden animate-fade-in rounded-3xl">
             <CardContent className="p-0">
                 <div className="w-full">
-                    <StyledMap center={center} markers={markers} rounded="rounded-3xl" className="w-full" height={800} />
+                    <StyledMap center={center} markers={markers} rounded="rounded-3xl" className={`w-full ${className || ""}`} height={height} />
                 </div>
             </CardContent>
         </div>
