@@ -692,31 +692,51 @@ export function AddActivityDialog({
                             )}
                         />
 
-                        <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
-                            <div className="flex items-center justify-between mb-3">
-                                <div>
-                                    <p className="text-sm font-medium">Map</p>
-                                    <p className="text-xs text-muted-foreground">Paste a Google Maps link or click to set coordinates</p>
+                        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4">
+                            <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p className="text-sm font-medium">Map</p>
+                                        <p className="text-xs text-muted-foreground">Paste a Google Maps link or click to set coordinates</p>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant={showMap ? 'secondary' : 'outline'}
+                                        size="sm"
+                                        onClick={() => setShowMap(!showMap)}
+                                    >
+                                        {showMap ? 'Hide Map' : 'Show Map'}
+                                    </Button>
                                 </div>
-                                <Button
-                                    type="button"
-                                    variant={showMap ? 'secondary' : 'outline'}
-                                    size="sm"
-                                    onClick={() => setShowMap(!showMap)}
-                                >
-                                    {showMap ? 'Hide Map' : 'Show Map'}
-                                </Button>
+
+                                {showMap && (
+                                    <StyledMap
+                                        center={mapCenter}
+                                        marker={marker}
+                                        height={260}
+                                        onClick={onMapClick}
+                                        rounded="rounded-2xl"
+                                    />
+                                )}
                             </div>
 
-                            {showMap && (
-                                <StyledMap
-                                    center={mapCenter}
-                                    marker={marker}
-                                    height={260}
-                                    onClick={onMapClick}
-                                    rounded="rounded-2xl"
-                                />
-                            )}
+                            <div className="rounded-xl border border-border/40 bg-muted/10 p-4">
+                                <div className="text-sm font-medium mb-3">Photo preview</div>
+                                {(resolvedPhotoUrl || activity?.photoUrl) ? (
+                                    <div className="relative overflow-hidden rounded-xl border border-border/30">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={resolvedPhotoUrl || activity?.photoUrl}
+                                            alt="Activity preview"
+                                            className="h-[220px] w-full object-cover"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed border-border/40 text-xs text-muted-foreground">
+                                        No photo yet
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <FormField
