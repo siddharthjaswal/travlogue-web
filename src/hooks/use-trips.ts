@@ -100,3 +100,14 @@ export function useUpdateActivity() {
         },
     });
 }
+
+export function useDeleteActivity() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id }: { id: number }) => activityService.delete(id),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['trip-timeline'] });
+        },
+    });
+}

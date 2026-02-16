@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format, addDays } from 'date-fns';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,7 +39,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { useCreateActivity, useUpdateActivity, useTrip, useTripTimeline } from '@/hooks/use-trips';
+import { useCreateActivity, useUpdateActivity, useTrip, useTripTimeline, useDeleteActivity } from '@/hooks/use-trips';
 import { useCreateAccommodation } from '@/hooks/use-accommodations';
 import { toast } from 'sonner';
 import { useEffect, useMemo, useState } from 'react';
@@ -92,8 +92,9 @@ export function AddActivityDialog({
     const createActivity = useCreateActivity();
     const createAccommodation = useCreateAccommodation();
     const updateActivity = useUpdateActivity();
+    const deleteActivity = useDeleteActivity();
 
-    const isPending = createActivity.isPending || updateActivity.isPending || createAccommodation.isPending;
+    const isPending = createActivity.isPending || updateActivity.isPending || createAccommodation.isPending || deleteActivity.isPending;
 
     // Internal state management if not controlled externally
     const show = open !== undefined ? open : isOpen;
@@ -542,6 +543,14 @@ export function AddActivityDialog({
                                         <Input
                                             placeholder="Address, coordinates, or Google Maps link"
                                             {...field}
+                                            onChange={(e) => {
+                                                field.onChange(e);
+                                                const value = e.target.value;
+                                                const parsed = value ? parseGoogleMapsLink(value) : null;
+                                                if (parsed?.lat && parsed?.lng) {
+                                                    form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                }
+                                            }}
                                             onBlur={(e) => {
                                                 field.onBlur();
                                                 const value = e.target.value;
@@ -603,12 +612,34 @@ export function AddActivityDialog({
                             )}
                         />
 
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setShow(false)}>Cancel</Button>
-                            <Button type="submit" disabled={isPending}>
-                                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                {mode === 'edit' ? 'Save Changes' : 'Add'}
-                            </Button>
+                        <DialogFooter className="flex items-center justify-between">
+                            <div>
+                                {mode === 'edit' && activity && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="text-destructive border-destructive/30"
+                                        onClick={() => {
+                                            deleteActivity.mutate({ id: activity.id }, {
+                                                onSuccess: () => {
+                                                    toast.success('Activity deleted');
+                                                    setShow(false);
+                                                },
+                                                onError: (error: any) => showError('Failed to delete activity', error)
+                                            });
+                                        }}
+                                    >
+                                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                    </Button>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button type="button" variant="outline" onClick={() => setShow(false)}>Cancel</Button>
+                                <Button type="submit" disabled={isPending}>
+                                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {mode === 'edit' ? 'Save Changes' : 'Add'}
+                                </Button>
+                            </div>
                         </DialogFooter>
                     </form>
                 </Form>

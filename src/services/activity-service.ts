@@ -115,4 +115,8 @@ export const activityService = {
         const response = await api.put(`/activities/${id}`, payload);
         return mapActivity(response.data);
     },
+
+    delete: async (id: number) => {
+        await api.delete(`/activities/${id}`);
+    },
 };
