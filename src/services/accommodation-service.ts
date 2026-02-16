@@ -76,4 +76,18 @@ export const accommodationService = {
     const response = await api.get(`/accommodations/trip/${tripId}`);
     return (response.data || []).map(mapAccommodation);
   },
+
+  update: async (id: number, data: Partial<Accommodation>): Promise<Accommodation> => {
+    const payload: any = {};
+    if (data.name) payload.name = data.name;
+    if (data.address !== undefined) payload.address = data.address;
+    if (data.checkInTime !== undefined) payload.check_in_time = data.checkInTime;
+    if (data.checkOutTime !== undefined) payload.check_out_time = data.checkOutTime;
+    if (data.cost !== undefined) payload.cost = data.cost;
+    if (data.currency) payload.currency = data.currency;
+    if (data.notes !== undefined) payload.notes = data.notes;
+
+    const response = await api.put(`/accommodations/${id}`, payload);
+    return mapAccommodation(response.data);
+  },
 };

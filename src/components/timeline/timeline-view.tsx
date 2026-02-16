@@ -3,6 +3,7 @@
 import { showError } from '@/lib/toast-helper';
 import { useTripTimeline, useCreateTripDay, useTrip } from '@/hooks/use-trips';
 import { useAccommodationsByTrip } from '@/hooks/use-accommodations';
+import { Accommodation } from '@/services/accommodation-service';
 import { TimelineDay } from './timeline-day';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -76,7 +77,7 @@ export function TimelineView({ tripId }: TimelineViewProps) {
             ? new Date(timeline.days[timeline.days.length - 1].date)
             : startDate;
 
-    const stayMap = new Map<number, { name: string; nights: number; isStart: boolean; isEnd: boolean; checkInTime?: number | null; checkOutTime?: number | null }>();
+    const stayMap = new Map<number, { name: string; nights: number; isStart: boolean; isEnd: boolean; checkInTime?: number | null; checkOutTime?: number | null; accommodations?: Accommodation[] }>();
 
     const stayByDayName = timeline.days.map((day) => {
         const accForDay = accommodations?.filter(a => a.tripDayId === day.id) || [];
@@ -98,6 +99,8 @@ export function TimelineView({ tripId }: TimelineViewProps) {
         let j = i + 1;
         while (j < stayByDayName.length && stayByDayName[j] === name) j++;
         const nights = Math.max(1, j - i);
+        const segmentDayIds = timeline.days.slice(i, j).map(d => d.id);
+        const segmentAcc = (accommodations || []).filter(a => segmentDayIds.includes(a.tripDayId) && a.name === name);
         for (let k = i; k < j; k++) {
             stayMap.set(timeline.days[k].id, {
                 name,
@@ -106,6 +109,7 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 isEnd: k === j - 1,
                 checkInTime: stayTimesByDay[k]?.checkIn ?? null,
                 checkOutTime: stayTimesByDay[k]?.checkOut ?? null,
+                accommodations: segmentAcc,
             });
         }
         i = j;

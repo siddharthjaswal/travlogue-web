@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { accommodationService, CreateAccommodationData } from '@/services/accommodation-service';
+import { accommodationService, CreateAccommodationData, Accommodation } from '@/services/accommodation-service';
 
 export function useAccommodationsByTrip(tripId: number) {
   return useQuery({
@@ -16,6 +16,17 @@ export function useCreateAccommodation() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['accommodations', 'trip', variables.tripId] });
       queryClient.invalidateQueries({ queryKey: ['trip-timeline', variables.tripId] });
+    },
+  });
+}
+
+export function useUpdateAccommodation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Accommodation> }) => accommodationService.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['accommodations', 'trip'] });
+      queryClient.invalidateQueries({ queryKey: ['trip-timeline'] });
     },
   });
 }

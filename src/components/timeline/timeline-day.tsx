@@ -3,10 +3,23 @@
 import { TripDay } from '@/services/activity-service';
 import { ActivityItem } from './activity-item';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MapPin } from 'lucide-react';
+import { PlusCircle, MapPin, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { AddActivityDialog } from './add-activity-dialog';
 import { useTransits } from '@/hooks/use-transits';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useUpdateAccommodation } from '@/hooks/use-accommodations';
+import { toast } from 'sonner';
+import { showError } from '@/lib/toast-helper';
+import { useEffect, useState } from 'react';
 
 interface StayInfo {
     name: string;
@@ -15,6 +28,7 @@ interface StayInfo {
     isEnd: boolean;
     checkInTime?: number | null;
     checkOutTime?: number | null;
+    accommodations?: { id: number; accommodationType: 'check_in' | 'whole_day' | 'check_out'; name: string; address?: string | null; cost?: number | null; currency?: string; notes?: string | null; checkInTime?: number | null; checkOutTime?: number | null }[];
 }
 
 interface TimelineDayProps {
@@ -37,6 +51,19 @@ function getNextDefaultTime(activities: TripDay['activities']): string {
 
 export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
     const dateObj = new Date(day.date);
+    const updateAccommodation = useUpdateAccommodation();
+    const [editStayOpen, setEditStayOpen] = useState(false);
+
+    const stayRecord = stayInfo?.accommodations?.find(a => a.accommodationType === 'check_in') || stayInfo?.accommodations?.[0];
+    const checkoutRecord = stayInfo?.accommodations?.find(a => a.accommodationType === 'check_out');
+
+    const [stayName, setStayName] = useState(stayRecord?.name || '');
+    const [stayAddress, setStayAddress] = useState(stayRecord?.address || '');
+    const [stayNotes, setStayNotes] = useState(stayRecord?.notes || '');
+    const [stayCost, setStayCost] = useState(stayRecord?.cost ? String(stayRecord.cost) : '');
+    const [stayCurrency, setStayCurrency] = useState(stayRecord?.currency || 'USD');
+    const [stayCheckInTime, setStayCheckInTime] = useState(stayRecord?.checkInTime ? new Date(stayRecord.checkInTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '');
+    const [stayCheckOutTime, setStayCheckOutTime] = useState(checkoutRecord?.checkOutTime ? new Date(checkoutRecord.checkOutTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '');
 
     // Format: "JAN, FRI"
     const monthName = format(dateObj, 'MMM').toUpperCase();
@@ -44,6 +71,60 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
 
     const nextTime = getNextDefaultTime(day.activities);
     const { data: transits } = useTransits(day.id);
+
+    useEffect(() => {
+        if (stayRecord) {
+            setStayName(stayRecord.name || '');
+            setStayAddress(stayRecord.address || '');
+            setStayNotes(stayRecord.notes || '');
+            setStayCost(stayRecord.cost ? String(stayRecord.cost) : '');
+            setStayCurrency(stayRecord.currency || 'USD');
+            setStayCheckInTime(stayRecord.checkInTime ? new Date(stayRecord.checkInTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '');
+            setStayCheckOutTime(checkoutRecord?.checkOutTime ? new Date(checkoutRecord.checkOutTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '');
+        }
+    }, [stayRecord?.id, checkoutRecord?.id]);
+
+    const toUnix = (time?: string | null, baseDate?: Date) => {
+        if (!time || !baseDate) return null;
+        const [h, m] = time.split(':').map(Number);
+        const dt = new Date(baseDate);
+        dt.setHours(h || 0, m || 0, 0, 0);
+        return Math.floor(dt.getTime() / 1000);
+    };
+
+    const handleSaveStay = async () => {
+        if (!stayInfo?.accommodations || stayInfo.accommodations.length === 0) return;
+        try {
+            const checkInBase = stayRecord?.checkInTime ? new Date(stayRecord.checkInTime * 1000) : dateObj;
+            const checkOutBase = checkoutRecord?.checkOutTime ? new Date(checkoutRecord.checkOutTime * 1000) : dateObj;
+
+            const updates = stayInfo.accommodations.map(acc => {
+                const payload: any = {
+                    name: stayName,
+                    address: stayAddress || null,
+                    notes: stayNotes || null,
+                };
+
+                if (acc.accommodationType === 'check_in') {
+                    payload.checkInTime = toUnix(stayCheckInTime, checkInBase);
+                    payload.cost = stayCost ? Number(stayCost) : null;
+                    payload.currency = stayCurrency || 'USD';
+                }
+
+                if (acc.accommodationType === 'check_out') {
+                    payload.checkOutTime = toUnix(stayCheckOutTime, checkOutBase);
+                }
+
+                return updateAccommodation.mutateAsync({ id: acc.id, data: payload });
+            });
+
+            await Promise.all(updates);
+            toast.success('Stay updated');
+            setEditStayOpen(false);
+        } catch (error: any) {
+            showError('Failed to update stay', error);
+        }
+    };
 
     return (
         <div className="relative pl-8 md:pl-0">
@@ -75,11 +156,21 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                 <div className="relative">
                     <div className="rounded-2xl border border-border/40 bg-card/70 backdrop-blur-md p-6 shadow-sm hover:shadow-md transition-shadow">
                         {stayInfo && stayInfo.isStart && (
-                            <div className="mb-4 rounded-full border border-border/30 bg-muted/40 px-4 py-2 text-sm font-medium text-foreground/90 shadow-sm">
-                                Stay • {stayInfo.name} • {stayInfo.nights} night{stayInfo.nights === 1 ? '' : 's'}
-                                {stayInfo.checkInTime && (
-                                    <span className="ml-2 text-xs text-muted-foreground">• Check-in {new Date(stayInfo.checkInTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                )}
+                            <div className="group mb-4 rounded-full border border-border/30 bg-muted/40 px-4 py-2 text-sm font-medium text-foreground/90 shadow-sm flex items-center justify-between">
+                                <div>
+                                    Stay • {stayInfo.name} • {stayInfo.nights} night{stayInfo.nights === 1 ? '' : 's'}
+                                    {stayInfo.checkInTime && (
+                                        <span className="ml-2 text-xs text-muted-foreground">• Check-in {new Date(stayInfo.checkInTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    )}
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => setEditStayOpen(true)}
+                                >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                </Button>
                             </div>
                         )}
                         {stayInfo && !stayInfo.isStart && (
@@ -185,6 +276,52 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                     </div>
                 </div>
             </div>
+
+            <Dialog open={editStayOpen} onOpenChange={setEditStayOpen}>
+                <DialogContent className="sm:max-w-[560px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit stay</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Stay name</label>
+                            <Input value={stayName} onChange={(e) => setStayName(e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Address</label>
+                            <Input value={stayAddress} onChange={(e) => setStayAddress(e.target.value)} />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Check-in time</label>
+                                <Input type="time" value={stayCheckInTime} onChange={(e) => setStayCheckInTime(e.target.value)} />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Check-out time</label>
+                                <Input type="time" value={stayCheckOutTime} onChange={(e) => setStayCheckOutTime(e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cost</label>
+                                <Input value={stayCost} onChange={(e) => setStayCost(e.target.value)} />
+                            </div>
+                            <div>
+                                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Currency</label>
+                                <Input value={stayCurrency} onChange={(e) => setStayCurrency(e.target.value)} />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Notes</label>
+                            <Textarea value={stayNotes} onChange={(e) => setStayNotes(e.target.value)} rows={3} />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setEditStayOpen(false)}>Cancel</Button>
+                        <Button onClick={handleSaveStay} disabled={updateAccommodation.isPending}>Save</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
