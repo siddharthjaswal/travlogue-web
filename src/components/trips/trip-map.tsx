@@ -23,7 +23,9 @@ export function TripMap({ trip, height = 800, className }: TripMapProps) {
     const activityMarkers = (timeline?.days || [])
         .flatMap((day) => day.activities.map((a) => ({ activity: a, place: day.place })))
         .map(({ activity, place }) => {
-            const coords = parseLatLng(activity.location);
+            const coords = (activity.latitude && activity.longitude)
+                ? { lat: activity.latitude, lng: activity.longitude }
+                : parseLatLng(activity.location);
             if (!coords) return null;
             return { ...coords, kind: 'activity' as const, type: activity.activityType, title: activity.name, subtitle: activity.location || place };
         })
