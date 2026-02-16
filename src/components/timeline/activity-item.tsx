@@ -34,6 +34,11 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
     const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
     useEffect(() => {
+        if (activity.photoUrl) {
+            setPhotoUrl(activity.photoUrl);
+            return;
+        }
+
         const coords = (activity.latitude && activity.longitude)
             ? { lat: activity.latitude, lng: activity.longitude }
             : parseLatLng(activity.location || '');
@@ -60,7 +65,7 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
                 // ignore
             }
         })();
-    }, [activity.id, activity.location, activity.name, activity.latitude, activity.longitude, dayPlace]);
+    }, [activity.id, activity.location, activity.name, activity.latitude, activity.longitude, dayPlace, activity.photoUrl]);
 
     return (
         <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">

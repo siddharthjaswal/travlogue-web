@@ -136,6 +136,7 @@ export function AddActivityDialog({
     const expandedCache = useRef(new Map<string, string>());
     const resolvedCache = useRef(new Map<string, any>());
     const [resolvedCoords, setResolvedCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const [resolvedPhotoUrl, setResolvedPhotoUrl] = useState<string | null>(null);
     const parsedLocation = useMemo(() => {
         const coords = parseLatLng(locationValue);
         if (coords) return coords;
@@ -174,6 +175,7 @@ export function AddActivityDialog({
                     cost: activity.cost ? String(activity.cost) : '',
                     notes: activity.notes || '',
                 });
+                setResolvedPhotoUrl(activity.photoUrl || null);
             } else {
                 form.reset({
                     name: '',
@@ -206,6 +208,7 @@ export function AddActivityDialog({
                     longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
                     cost: values.cost ? Number(values.cost) : undefined,
                     notes: values.notes,
+                    photoUrl: resolvedPhotoUrl || activity.photoUrl,
                 }
             }, {
                 onSuccess: () => {
@@ -588,6 +591,9 @@ export function AddActivityDialog({
                                                             if (res?.data?.address) {
                                                                 form.setValue('location', res.data.address);
                                                             }
+                                                            if (res?.data?.photo_url) {
+                                                                setResolvedPhotoUrl(res.data.photo_url);
+                                                            }
                                                             if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
                                                                 const parsed = parseGoogleMapsLink(res.data.expanded_url);
                                                                 if (parsed?.lat && parsed?.lng) setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
@@ -655,6 +661,9 @@ export function AddActivityDialog({
                                                                     }
                                                                     if (res?.data?.address) {
                                                                         form.setValue('location', res.data.address);
+                                                                    }
+                                                                    if (res?.data?.photo_url) {
+                                                                        setResolvedPhotoUrl(res.data.photo_url);
                                                                     }
                                                                     if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
                                                                         const parsed = parseGoogleMapsLink(res.data.expanded_url);
