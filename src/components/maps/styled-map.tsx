@@ -60,6 +60,9 @@ export function StyledMap({ center, marker, height = 220, onClick, rounded = 'ro
     } else {
       markerRef.current.setPosition(marker);
     }
+
+    mapInstanceRef.current.setCenter(marker);
+    mapInstanceRef.current.setZoom(15);
   }, [marker?.lat, marker?.lng]);
 
   return (

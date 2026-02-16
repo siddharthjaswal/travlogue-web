@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -57,6 +57,10 @@ const formSchema = z.object({
         message: 'Must be a valid number',
     }).optional(),
     notes: z.string().optional(),
+    checkinDate: z.date().optional(),
+    checkoutDate: z.date().optional(),
+    checkinTime: z.string().optional(),
+    checkoutTime: z.string().optional(),
 });
 
 interface AddActivityDialogProps {
@@ -84,10 +88,10 @@ export function AddActivityDialog({
     const [showMap, setShowMap] = useState(true);
     const { data: trip } = useTrip(tripId);
     const { data: timeline } = useTripTimeline(tripId);
-    const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
-    const { mutate: updateActivity, isPending: isUpdating } = useUpdateActivity();
+    const createActivity = useCreateActivity();
+    const updateActivity = useUpdateActivity();
 
-    const isPending = isCreating || isUpdating;
+    const isPending = createActivity.isPending || updateActivity.isPending;
 
     // Internal state management if not controlled externally
     const show = open !== undefined ? open : isOpen;
@@ -103,8 +107,14 @@ export function AddActivityDialog({
             location: '',
             cost: '',
             notes: '',
+            checkinDate: initialDate || new Date(),
+            checkoutDate: addDays(initialDate || new Date(), 1),
+            checkinTime: '',
+            checkoutTime: '',
         },
     });
+
+    const isStay = form.watch('activityType') === 'other';
 
     const lastActivityCoords = useMemo(() => {
         if (!timeline?.days) return null;
@@ -117,15 +127,25 @@ export function AddActivityDialog({
         return null;
     }, [timeline]);
 
+    const locationValue = form.watch('location');
+    const parsedLocation = useMemo(() => {
+        const coords = parseLatLng(locationValue);
+        if (coords) return coords;
+        const parsed = locationValue ? parseGoogleMapsLink(locationValue) : null;
+        if (parsed?.lat && parsed?.lng) return { lat: parsed.lat, lng: parsed.lng };
+        return null;
+    }, [locationValue]);
+
     const mapCenter = useMemo(() => {
-        // Priority: activity location -> last activity coords -> trip city/country
+        // Priority: parsed location -> activity location -> last activity coords -> trip city/country
+        if (parsedLocation) return parsedLocation;
         const actCoords = parseLatLng(activity?.location);
         if (actCoords) return actCoords;
         if (lastActivityCoords) return lastActivityCoords;
         return guessCenter(trip?.primaryDestinationCity, trip?.primaryDestinationCountry);
-    }, [activity?.location, lastActivityCoords, trip?.primaryDestinationCity, trip?.primaryDestinationCountry]);
+    }, [parsedLocation, activity?.location, lastActivityCoords, trip?.primaryDestinationCity, trip?.primaryDestinationCountry]);
 
-    const marker = useMemo(() => parseLatLng(form.getValues('location')) || null, [form]);
+    const marker = parsedLocation || null;
 
     const onMapClick = (lat: number, lng: number) => {
         form.setValue('location', `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
@@ -153,14 +173,18 @@ export function AddActivityDialog({
                     location: '',
                     cost: '',
                     notes: '',
+                    checkinDate: initialDate || new Date(),
+                    checkoutDate: addDays(initialDate || new Date(), 1),
+                    checkinTime: '',
+                    checkoutTime: '',
                 });
             }
         }
     }, [show, mode, activity, initialDate, form]);
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
         if (mode === 'edit' && activity) {
-            updateActivity({
+            updateActivity.mutate({
                 id: activity.id,
                 tripId,
                 data: {
@@ -176,32 +200,73 @@ export function AddActivityDialog({
                     toast.success('Activity updated');
                     setShow(false);
                 },
-
                 onError: (error: any) => {
                     showError('Failed to update activity', error);
                 }
             });
-        } else {
-            createActivity({
-                tripId,
-                activityDate: format(values.date, 'yyyy-MM-dd'),
-                name: values.name,
-                activityType: values.activityType.toLowerCase(),
-                time: values.time || undefined,
-                location: values.location,
-                cost: values.cost ? Number(values.cost) : undefined,
-                notes: values.notes,
-            }, {
-                onSuccess: () => {
-                    toast.success('Activity added successfully');
-                    setShow(false);
-                    if (mode === 'create') form.reset();
-                },
-                onError: (error: any) => {
-                    showError('Failed to add activity', error);
-                }
-            });
+            return;
         }
+
+        const isStay = values.activityType === 'other';
+        if (isStay) {
+            if (!values.checkinDate || !values.checkoutDate) {
+                toast.error('Please select check-in and check-out dates');
+                return;
+            }
+
+            const start = values.checkinDate;
+            const end = values.checkoutDate;
+            const days: Date[] = [];
+            let cursor = new Date(start);
+            while (cursor <= end) {
+                days.push(new Date(cursor));
+                cursor = addDays(cursor, 1);
+            }
+
+            try {
+                await Promise.all(days.map((d, idx) => {
+                    const time = idx === 0 ? (values.checkinTime || undefined)
+                        : idx === days.length - 1 ? (values.checkoutTime || undefined)
+                        : undefined;
+                    return createActivity.mutateAsync({
+                        tripId,
+                        activityDate: format(d, 'yyyy-MM-dd'),
+                        name: values.name,
+                        activityType: values.activityType.toLowerCase(),
+                        time,
+                        location: values.location,
+                        cost: values.cost ? Number(values.cost) : undefined,
+                        notes: values.notes,
+                    });
+                }));
+                toast.success('Stay added successfully');
+                setShow(false);
+                form.reset();
+            } catch (error: any) {
+                showError('Failed to add stay', error);
+            }
+            return;
+        }
+
+        createActivity.mutate({
+            tripId,
+            activityDate: format(values.date, 'yyyy-MM-dd'),
+            name: values.name,
+            activityType: values.activityType.toLowerCase(),
+            time: values.time || undefined,
+            location: values.location,
+            cost: values.cost ? Number(values.cost) : undefined,
+            notes: values.notes,
+        }, {
+            onSuccess: () => {
+                toast.success('Activity added successfully');
+                setShow(false);
+                if (mode === 'create') form.reset();
+            },
+            onError: (error: any) => {
+                showError('Failed to add activity', error);
+            }
+        });
     }
 
     return (
@@ -259,33 +324,74 @@ export function AddActivityDialog({
                                 )}
                             />
 
-                            <FormField
-                                control={form.control}
-                                name="date"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                        <FormLabel>Date</FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <FormControl>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-full pl-3 text-left font-normal",
-                                                            !field.value && "text-muted-foreground"
-                                                        )}
-                                                        disabled={mode === 'edit'}
-                                                    >
-                                                        {field.value ? (
-                                                            format(field.value, "PPP")
-                                                        ) : (
-                                                            <span>Pick a date</span>
-                                                        )}
-                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                    </Button>
-                                                </FormControl>
-                                            </PopoverTrigger>
-                                            {mode !== 'edit' && (
+                            {!isStay ? (
+                                <FormField
+                                    control={form.control}
+                                    name="date"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                            disabled={mode === 'edit'}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                {mode !== 'edit' && (
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                )}
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            ) : (
+                                <FormField
+                                    control={form.control}
+                                    name="checkinDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Check-in Date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
                                                 <PopoverContent className="w-auto p-0" align="start">
                                                     <Calendar
                                                         mode="single"
@@ -294,28 +400,102 @@ export function AddActivityDialog({
                                                         initialFocus
                                                     />
                                                 </PopoverContent>
-                                            )}
-                                        </Popover>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
                         </div>
 
+                        {isStay && (
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="checkoutDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Check-out Date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        initialFocus
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="checkinTime"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Check-in Time</FormLabel>
+                                            <FormControl>
+                                                <Input type="time" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="time"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Time (Optional)</FormLabel>
-                                        <FormControl>
-                                            <Input type="time" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {!isStay && (
+                                <FormField
+                                    control={form.control}
+                                    name="time"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Time (Optional)</FormLabel>
+                                            <FormControl>
+                                                <Input type="time" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+
+                            {isStay && (
+                                <FormField
+                                    control={form.control}
+                                    name="checkoutTime"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Check-out Time</FormLabel>
+                                            <FormControl>
+                                                <Input type="time" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
 
                             <FormField
                                 control={form.control}
@@ -345,15 +525,13 @@ export function AddActivityDialog({
                                             onBlur={(e) => {
                                                 field.onBlur();
                                                 const value = e.target.value;
-                                                if (value?.includes('google.com/maps')) {
-                                                    const parsed = parseGoogleMapsLink(value);
-                                                    if (parsed) {
-                                                        if (parsed.lat && parsed.lng) {
-                                                            form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
-                                                        }
-                                                        if (parsed.name && !form.getValues('name')) {
-                                                            form.setValue('name', parsed.name);
-                                                        }
+                                                const parsed = value ? parseGoogleMapsLink(value) : null;
+                                                if (parsed) {
+                                                    if (parsed.lat && parsed.lng) {
+                                                        form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                    }
+                                                    if (parsed.name && !form.getValues('name')) {
+                                                        form.setValue('name', parsed.name);
                                                     }
                                                 }
                                             }}
@@ -409,7 +587,7 @@ export function AddActivityDialog({
                             <Button type="button" variant="outline" onClick={() => setShow(false)}>Cancel</Button>
                             <Button type="submit" disabled={isPending}>
                                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                {mode === 'edit' ? 'Save Changes' : 'Add Activity'}
+                                {mode === 'edit' ? 'Save Changes' : 'Add'}
                             </Button>
                         </DialogFooter>
                     </form>
