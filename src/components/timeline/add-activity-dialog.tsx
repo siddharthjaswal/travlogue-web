@@ -588,6 +588,11 @@ export function AddActivityDialog({
                                                             if (res?.data?.address) {
                                                                 form.setValue('location', res.data.address);
                                                             }
+                                                            if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
+                                                                const parsed = parseGoogleMapsLink(res.data.expanded_url);
+                                                                if (parsed?.lat && parsed?.lng) setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
+                                                                if (parsed?.name && !form.getValues('name')) form.setValue('name', parsed.name);
+                                                            }
                                                             if (!res?.data?.name && !res?.data?.lat) {
                                                                 toast.message('Could not extract details from this link');
                                                             }
@@ -650,6 +655,11 @@ export function AddActivityDialog({
                                                                     }
                                                                     if (res?.data?.address) {
                                                                         form.setValue('location', res.data.address);
+                                                                    }
+                                                                    if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
+                                                                        const parsed = parseGoogleMapsLink(res.data.expanded_url);
+                                                                        if (parsed?.lat && parsed?.lng) setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
+                                                                        if (parsed?.name && !form.getValues('name')) form.setValue('name', parsed.name);
                                                                     }
                                                                     if (!res?.data?.name && !res?.data?.lat) {
                                                                         toast.message('Could not extract details from this link');
