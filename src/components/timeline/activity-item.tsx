@@ -2,7 +2,7 @@
 
 import { Activity } from '@/services/activity-service';
 import { Badge } from '@/components/ui/badge';
-import { Plane, Hotel, Utensils, Camera, MapPin, Clock, DollarSign, Pencil } from 'lucide-react';
+import { Plane, Hotel, Utensils, Camera, MapPin, DollarSign, Pencil, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { AddActivityDialog } from './add-activity-dialog';
@@ -67,6 +67,8 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
         })();
     }, [activity.id, activity.location, activity.name, activity.latitude, activity.longitude, dayPlace, activity.photoUrl]);
 
+    const isMapLink = activity.location?.startsWith('http');
+
     return (
         <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
             {/* 1. Time Column */}
@@ -93,11 +95,11 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
             {/* 3. Content Card */}
             <div className="flex-1 pb-2">
                 <div
-                    className="relative bg-card hover:bg-muted/30 border border-border/40 hover:border-primary/20 rounded-xl p-4 transition-all duration-300 group-hover:shadow-sm overflow-hidden"
-                    style={photoUrl ? { backgroundImage: `url(${photoUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+                    className={`relative border border-border/40 hover:border-primary/20 rounded-xl p-4 transition-all duration-300 group-hover:shadow-sm overflow-hidden ${photoUrl ? 'bg-cover bg-center' : 'bg-card hover:bg-muted/30'}`}
+                    style={photoUrl ? { backgroundImage: `url(${photoUrl})` } : undefined}
                 >
-                    {photoUrl && <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/60 to-background/30" />}
-                    <div className="relative flex flex-col sm:flex-row justify-between items-start gap-4">
+                    {photoUrl && <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/70 to-background/40" />}
+                    <div className={`relative flex flex-col sm:flex-row justify-between items-start gap-4 ${photoUrl ? 'backdrop-blur-md rounded-lg p-3 bg-background/55 border border-border/40' : ''}`}>
                         <div className="min-w-0 flex-1">
 
                             <div className="flex items-center gap-2 mb-1.5">
@@ -109,11 +111,10 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
                                 </Badge>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted-foreground/80">
-                                {activity.location && (
-                                    <div className="flex items-center gap-1.5 min-w-0">
-                                        <MapPin className="h-3.5 w-3.5 flex-shrink-0 opacity-70" />
-                                        <span className="truncate">{activity.location}</span>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground/80">
+                                {activity.duration && (
+                                    <div className="flex items-center gap-1 text-foreground/70 bg-muted/50 px-1.5 rounded-md">
+                                        <span className="text-xs font-medium">{activity.duration}h</span>
                                     </div>
                                 )}
                                 {activity.cost && (
@@ -121,6 +122,16 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
                                         <DollarSign className="h-3 w-3" />
                                         <span className="text-xs font-medium">{activity.currency} {activity.cost}</span>
                                     </div>
+                                )}
+                                {isMapLink && (
+                                    <a
+                                        href={activity.location}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                                    >
+                                        <ExternalLink className="h-3 w-3" /> Open in Maps
+                                    </a>
                                 )}
                             </div>
 
@@ -130,15 +141,7 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
                                 </p>
                             )}
                         </div>
-
-                        {photoUrl && (
-                            <div className="hidden sm:block shrink-0 overflow-hidden rounded-lg border border-border/40">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={photoUrl} alt={activity.name} className="h-20 w-28 object-cover" />
-                            </div>
-                        )}
-
-                        {/* Edit Action - Visible on Hover */}
+{/* Edit Action - Visible on Hover */}
                         <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute top-2 right-2">
                             <AddActivityDialog
                                 tripId={tripId}
