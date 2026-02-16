@@ -132,7 +132,7 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
             <div className="absolute left-[-14px] top-0 bottom-0 w-px bg-border/50 md:hidden" />
             <div className="absolute left-[-18px] top-6 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-background md:hidden" />
 
-            <div className="grid grid-cols-[64px_1fr] md:grid-cols-[110px_1fr] gap-4 sm:gap-10 mb-10 sm:mb-16">
+            <div className="grid grid-cols-[40px_1fr] md:grid-cols-[70px_1fr] gap-2 sm:gap-4 mb-10 sm:mb-16">
                 {/* Day Header (Left Column) */}
                 <div className="relative mb-4 md:mb-0 pt-1">
                     <div className="md:sticky md:top-32 flex md:justify-start">
@@ -154,14 +154,14 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                 <div className="relative">
                     <div className="space-y-4">
                         {stayInfo && stayInfo.isStart && (
-                            <div className="mb-4 flex items-center justify-between rounded-md border border-border/30 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+                            <div className="group mb-4 flex items-center justify-between rounded-md border border-border/30 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
                                 <div>
                                     Stay · {stayInfo.name} · {stayInfo.nights} night{stayInfo.nights === 1 ? '' : 's'}
                                 </div>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-6 w-6 rounded-full"
+                                    className="h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                                     onClick={() => setEditStayOpen(true)}
                                 >
                                     <Pencil className="h-3 w-3" />
@@ -174,24 +174,7 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                             </div>
                         )}
 
-                        {/* Add */}
-                        <div className="flex items-center justify-end mb-6">
-                            <AddActivityDialog
-                                tripId={day.tripId}
-                                initialDate={dateObj}
-                                initialTime={nextTime}
-                                trigger={
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        className="gap-2 rounded-full"
-                                    >
-                                        <PlusCircle className="h-4 w-4" />
-                                        Add
-                                    </Button>
-                                }
-                            />
-                        </div>
+                        {/* Add button moved to bottom */}
 
                         {/* Transits */}
                         {transits && transits.length > 0 && (
