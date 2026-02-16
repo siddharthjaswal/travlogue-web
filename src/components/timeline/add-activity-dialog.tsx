@@ -594,6 +594,18 @@ export function AddActivityDialog({
                                                             if (res?.data?.photo_url) {
                                                                 setResolvedPhotoUrl(res.data.photo_url);
                                                                 toast.success('Photo found');
+                                                            } else if (res?.data?.name) {
+                                                                try {
+                                                                    const unsplash = await api.get('/activities/place-photo', { params: { query: res.data.name } });
+                                                                    if (unsplash?.data?.url) {
+                                                                        setResolvedPhotoUrl(unsplash.data.url);
+                                                                        toast.success('Photo found (Unsplash)');
+                                                                    } else {
+                                                                        toast.message('No photo found for this place');
+                                                                    }
+                                                                } catch {
+                                                                    toast.message('No photo found for this place');
+                                                                }
                                                             } else {
                                                                 toast.message('No photo found for this place');
                                                             }
@@ -668,6 +680,18 @@ export function AddActivityDialog({
                                                                     if (res?.data?.photo_url) {
                                                                         setResolvedPhotoUrl(res.data.photo_url);
                                                                         toast.success('Photo found');
+                                                                    } else if (res?.data?.name) {
+                                                                        try {
+                                                                            const unsplash = await api.get('/activities/place-photo', { params: { query: res.data.name } });
+                                                                            if (unsplash?.data?.url) {
+                                                                                setResolvedPhotoUrl(unsplash.data.url);
+                                                                                toast.success('Photo found (Unsplash)');
+                                                                            } else {
+                                                                                toast.message('No photo found for this place');
+                                                                            }
+                                                                        } catch {
+                                                                            toast.message('No photo found for this place');
+                                                                        }
                                                                     } else {
                                                                         toast.message('No photo found for this place');
                                                                     }
