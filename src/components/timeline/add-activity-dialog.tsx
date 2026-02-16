@@ -588,8 +588,11 @@ export function AddActivityDialog({
                                                             if (res?.data?.address) {
                                                                 form.setValue('location', res.data.address);
                                                             }
+                                                            if (!res?.data?.name && !res?.data?.lat) {
+                                                                toast.message('Could not extract details from this link');
+                                                            }
                                                         } catch {
-                                                            // ignore
+                                                            toast.message('Could not resolve this link');
                                                         } finally {
                                                             setIsExpanding(false);
                                                         }
@@ -648,6 +651,11 @@ export function AddActivityDialog({
                                                                     if (res?.data?.address) {
                                                                         form.setValue('location', res.data.address);
                                                                     }
+                                                                    if (!res?.data?.name && !res?.data?.lat) {
+                                                                        toast.message('Could not extract details from this link');
+                                                                    }
+                                                                } catch {
+                                                                    toast.message('Could not resolve this link');
                                                                 } finally {
                                                                     setIsExpanding(false);
                                                                 }
