@@ -251,8 +251,7 @@ export function AddActivityDialog({
                                                 <SelectItem value="cultural">Cultural</SelectItem>
                                                 <SelectItem value="shopping">Shopping</SelectItem>
                                                 <SelectItem value="adventure">Adventure</SelectItem>
-                                                <SelectItem value="accommodation">Accommodation</SelectItem>
-                                                <SelectItem value="other">Other</SelectItem>
+                                                <SelectItem value="other">Stay / Other</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />

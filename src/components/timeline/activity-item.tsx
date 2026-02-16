@@ -22,8 +22,8 @@ const photoCache = new Map<string, string>();
 export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemProps) {
     const getActivityIcon = (type: string) => {
         switch (type.toLowerCase()) {
-            case 'transit': return Plane;
-            case 'accommodation': return Hotel;
+            case 'transportation': return Plane;
+            case 'other': return Hotel;
             case 'dining': return Utensils;
             case 'sightseeing': return Camera;
             default: return MapPin;
