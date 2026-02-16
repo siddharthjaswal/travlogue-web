@@ -145,6 +145,25 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                     <div className="rounded-3xl overflow-hidden w-full aspect-square">
                         {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
                     </div>
+                    <div className="mt-4 rounded-2xl border border-border/30 bg-card/40 px-4 py-3 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <span className="inline-flex items-center gap-2">
+                                <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#8FA6C8]" /> Sightseeing
+                            </span>
+                            <span className="inline-flex items-center gap-2">
+                                <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#C8A38C]" /> Dining
+                            </span>
+                            <span className="inline-flex items-center gap-2">
+                                <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#7C97C9]" /> Transport
+                            </span>
+                            <span className="inline-flex items-center gap-2">
+                                <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#A5BBD6]" /> Stay
+                            </span>
+                            <span className="inline-flex items-center gap-2">
+                                <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#9AA8BC]" /> Other
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Right Column: Timeline Stream */}
