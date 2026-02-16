@@ -8,8 +8,16 @@ import { format } from 'date-fns';
 import { AddActivityDialog } from './add-activity-dialog';
 import { useTransits } from '@/hooks/use-transits';
 
+interface StayInfo {
+    name: string;
+    nights: number;
+    isStart: boolean;
+    isEnd: boolean;
+}
+
 interface TimelineDayProps {
     day: TripDay;
+    stayInfo?: StayInfo;
 }
 
 function getNextDefaultTime(activities: TripDay['activities']): string {
@@ -25,7 +33,7 @@ function getNextDefaultTime(activities: TripDay['activities']): string {
     return `${String(nextH).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`;
 }
 
-export function TimelineDay({ day }: TimelineDayProps) {
+export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
     const dateObj = new Date(day.date);
 
     // Format: "JAN, FRI"
@@ -64,6 +72,17 @@ export function TimelineDay({ day }: TimelineDayProps) {
                 {/* Content Column (Right) */}
                 <div className="relative">
                     <div className="rounded-2xl border border-border/40 bg-card/70 backdrop-blur-md p-6 shadow-sm hover:shadow-md transition-shadow">
+                        {stayInfo && stayInfo.isStart && (
+                            <div className="mb-4 rounded-full border border-border/30 bg-muted/40 px-4 py-2 text-sm font-medium text-foreground/90 shadow-sm">
+                                Stay • {stayInfo.name} • {stayInfo.nights} night{stayInfo.nights === 1 ? '' : 's'}
+                            </div>
+                        )}
+                        {stayInfo && !stayInfo.isStart && (
+                            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/30 bg-muted/30 px-3 py-1 text-xs text-muted-foreground">
+                                Continuing stay • {stayInfo.name}
+                            </div>
+                        )}
+
                         {/* Header */}
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">

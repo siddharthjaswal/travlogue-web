@@ -74,6 +74,32 @@ export function TimelineView({ tripId }: TimelineViewProps) {
             ? new Date(timeline.days[timeline.days.length - 1].date)
             : startDate;
 
+    const stayMap = new Map<number, { name: string; nights: number; isStart: boolean; isEnd: boolean }>();
+
+    // Build stay segments from accommodation activities with the same name across consecutive days
+    const stayByDayName = timeline.days.map((day) => {
+        const stay = day.activities.find(a => a.activityType?.toLowerCase() === 'accommodation');
+        return stay ? stay.name : null;
+    });
+
+    let i = 0;
+    while (i < stayByDayName.length) {
+        const name = stayByDayName[i];
+        if (!name) { i++; continue; }
+        let j = i + 1;
+        while (j < stayByDayName.length && stayByDayName[j] === name) j++;
+        const nights = Math.max(1, j - i);
+        for (let k = i; k < j; k++) {
+            stayMap.set(timeline.days[k].id, {
+                name,
+                nights,
+                isStart: k === i,
+                isEnd: k === j - 1,
+            });
+        }
+        i = j;
+    }
+
     return (
         <div className="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-12">
@@ -105,9 +131,9 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 {/* Right Column: Timeline Stream */}
                 <div className="relative pl-0 lg:pl-8 min-h-[400px]">
                     <div className="rounded-3xl border border-border/30 bg-card/30 backdrop-blur-sm p-4 sm:p-6 shadow-sm">
-                        {timeline.days.map((day) => (
+                        {timeline.days.map((day, index) => (
                             <div key={day.id} className="relative pb-12 sm:pb-16">
-                                <TimelineDay day={day} />
+                                <TimelineDay day={day} stayInfo={stayMap.get(day.id)} />
                             </div>
                         ))}
                     </div>
