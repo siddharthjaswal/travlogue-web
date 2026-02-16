@@ -540,68 +540,76 @@ export function AddActivityDialog({
                             control={form.control}
                             name="location"
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className="relative">
                                     <FormLabel>Location</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            placeholder="Address, coordinates, or Google Maps link"
-                                            {...field}
-                                            onChange={async (e) => {
-                                                field.onChange(e);
-                                                const value = e.target.value;
+                                        <div className="relative">
+                                            <Input
+                                                placeholder="Address, coordinates, or Google Maps link"
+                                                {...field}
+                                                onChange={async (e) => {
+                                                    field.onChange(e);
+                                                    const value = e.target.value;
 
-                                                const isShort = value?.includes('maps.app.goo.gl');
-                                                if (isShort && !isExpanding) {
-                                                    setIsExpanding(true);
-                                                    try {
-                                                        if (expandedCache.current.has(value)) {
-                                                            const expanded = expandedCache.current.get(value) || value;
-                                                            const parsed = parseGoogleMapsLink(expanded);
-                                                            if (parsed?.lat && parsed?.lng) {
-                                                                form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                    const isShort = value?.includes('maps.app.goo.gl');
+                                                    if (isShort && !isExpanding) {
+                                                        setIsExpanding(true);
+                                                        try {
+                                                            if (expandedCache.current.has(value)) {
+                                                                const expanded = expandedCache.current.get(value) || value;
+                                                                const parsed = parseGoogleMapsLink(expanded);
+                                                                if (parsed?.lat && parsed?.lng) {
+                                                                    form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                                }
+                                                                if (parsed?.name && !form.getValues('name')) {
+                                                                    form.setValue('name', parsed.name);
+                                                                }
+                                                            } else {
+                                                                const res = await api.get('/utils/expand-url', { params: { url: value } });
+                                                                const expanded = res?.data?.url || value;
+                                                                expandedCache.current.set(value, expanded);
+                                                                const parsed = parseGoogleMapsLink(expanded);
+                                                                if (parsed?.lat && parsed?.lng) {
+                                                                    form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                                }
+                                                                if (parsed?.name && !form.getValues('name')) {
+                                                                    form.setValue('name', parsed.name);
+                                                                }
                                                             }
-                                                            if (parsed?.name && !form.getValues('name')) {
-                                                                form.setValue('name', parsed.name);
-                                                            }
-                                                        } else {
-                                                            const res = await api.get('/utils/expand-url', { params: { url: value } });
-                                                            const expanded = res?.data?.url || value;
-                                                            expandedCache.current.set(value, expanded);
-                                                            const parsed = parseGoogleMapsLink(expanded);
-                                                            if (parsed?.lat && parsed?.lng) {
-                                                                form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
-                                                            }
-                                                            if (parsed?.name && !form.getValues('name')) {
-                                                                form.setValue('name', parsed.name);
-                                                            }
+                                                        } catch {
+                                                            // ignore
+                                                        } finally {
+                                                            setIsExpanding(false);
                                                         }
-                                                    } catch {
-                                                        // ignore
-                                                    } finally {
-                                                        setIsExpanding(false);
+                                                        return;
                                                     }
-                                                    return;
-                                                }
 
-                                                const parsed = value ? parseGoogleMapsLink(value) : null;
-                                                if (parsed?.lat && parsed?.lng) {
-                                                    form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
-                                                }
-                                            }}
-                                            onBlur={(e) => {
-                                                field.onBlur();
-                                                const value = e.target.value;
-                                                const parsed = value ? parseGoogleMapsLink(value) : null;
-                                                if (parsed) {
-                                                    if (parsed.lat && parsed.lng) {
+                                                    const parsed = value ? parseGoogleMapsLink(value) : null;
+                                                    if (parsed?.lat && parsed?.lng) {
                                                         form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
                                                     }
-                                                    if (parsed.name && !form.getValues('name')) {
-                                                        form.setValue('name', parsed.name);
+                                                }}
+                                                onBlur={(e) => {
+                                                    field.onBlur();
+                                                    const value = e.target.value;
+                                                    const parsed = value ? parseGoogleMapsLink(value) : null;
+                                                    if (parsed) {
+                                                        if (parsed.lat && parsed.lng) {
+                                                            form.setValue('location', `${parsed.lat.toFixed(5)}, ${parsed.lng.toFixed(5)}`);
+                                                        }
+                                                        if (parsed.name && !form.getValues('name')) {
+                                                            form.setValue('name', parsed.name);
+                                                        }
                                                     }
-                                                }
-                                            }}
-                                        />
+                                                }}
+                                            />
+                                            {isExpanding && (
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground flex items-center gap-2 text-xs">
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                    Expanding…
+                                                </div>
+                                            )}
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
