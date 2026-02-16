@@ -23,16 +23,18 @@ export function TripMap({ trip, height = 800, className }: TripMapProps) {
     const activityMarkers = (timeline?.days || [])
         .flatMap((day) => day.activities.map((a) => ({ activity: a, place: day.place })))
         .map(({ activity, place }) => {
-            const coords = (activity.latitude && activity.longitude)
-                ? { lat: activity.latitude, lng: activity.longitude }
+            const coords = (activity.latitude != null && activity.longitude != null)
+                ? { lat: Number(activity.latitude), lng: Number(activity.longitude) }
                 : parseLatLng(activity.location);
-            if (!coords) return null;
+            if (!coords || !Number.isFinite(coords.lat) || !Number.isFinite(coords.lng)) return null;
             return { ...coords, kind: 'activity' as const, type: activity.activityType, title: activity.name, subtitle: activity.location || place };
         })
         .filter(Boolean) as { lat: number; lng: number; kind: 'activity'; type?: string; title?: string; subtitle?: string }[];
 
     const stayMarkers = (accommodations || [])
-        .map((a) => (a.latitude && a.longitude ? { lat: a.latitude, lng: a.longitude, kind: 'stay' as const, type: 'stay', title: a.name, subtitle: a.address || '' } : null))
+        .map((a) => (a.latitude != null && a.longitude != null
+            ? { lat: Number(a.latitude), lng: Number(a.longitude), kind: 'stay' as const, type: 'stay', title: a.name, subtitle: a.address || '' }
+            : null))
         .filter(Boolean) as { lat: number; lng: number; kind: 'stay'; type?: string; title?: string; subtitle?: string }[];
 
     const markers = [...activityMarkers, ...stayMarkers];
