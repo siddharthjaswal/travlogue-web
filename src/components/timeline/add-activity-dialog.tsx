@@ -296,7 +296,7 @@ export function AddActivityDialog({
                             )}
                         />
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className={cn("grid gap-4", isStay ? "grid-cols-1" : "grid-cols-2")}>
                             <FormField
                                 control={form.control}
                                 name="activityType"
@@ -324,7 +324,7 @@ export function AddActivityDialog({
                                 )}
                             />
 
-                            {!isStay ? (
+                            {!isStay && (
                                 <FormField
                                     control={form.control}
                                     name="date"
@@ -366,106 +366,122 @@ export function AddActivityDialog({
                                         </FormItem>
                                     )}
                                 />
-                            ) : (
-                                <FormField
-                                    control={form.control}
-                                    name="checkinDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Check-in Date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>Pick a date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={field.onChange}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                             )}
                         </div>
 
-                        {isStay && (
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="checkoutDate"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <FormLabel>Check-out Date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
+                        {isStay ? (
+                            <div className="rounded-2xl border border-border/40 bg-muted/10 p-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-3">
+                                        <FormField
+                                            control={form.control}
+                                            name="checkinDate"
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-col">
+                                                    <FormLabel>Check-in Date</FormLabel>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button
+                                                                    variant={"outline"}
+                                                                    className={cn(
+                                                                        "w-full pl-3 text-left font-normal",
+                                                                        !field.value && "text-muted-foreground"
+                                                                    )}
+                                                                >
+                                                                    {field.value ? (
+                                                                        format(field.value, "PPP")
+                                                                    ) : (
+                                                                        <span>Pick a date</span>
+                                                                    )}
+                                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-auto p-0" align="start">
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={field.value}
+                                                                onSelect={field.onChange}
+                                                                initialFocus
+                                                            />
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="checkinTime"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Check-in Time</FormLabel>
                                                     <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-full pl-3 text-left font-normal",
-                                                                !field.value && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(field.value, "PPP")
-                                                            ) : (
-                                                                <span>Pick a date</span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                        </Button>
+                                                        <Input type="time" {...field} />
                                                     </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={field.onChange}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="checkinTime"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Check-in Time</FormLabel>
-                                            <FormControl>
-                                                <Input type="time" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <FormField
+                                            control={form.control}
+                                            name="checkoutDate"
+                                            render={({ field }) => (
+                                                <FormItem className="flex flex-col">
+                                                    <FormLabel>Check-out Date</FormLabel>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button
+                                                                    variant={"outline"}
+                                                                    className={cn(
+                                                                        "w-full pl-3 text-left font-normal",
+                                                                        !field.value && "text-muted-foreground"
+                                                                    )}
+                                                                >
+                                                                    {field.value ? (
+                                                                        format(field.value, "PPP")
+                                                                    ) : (
+                                                                        <span>Pick a date</span>
+                                                                    )}
+                                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-auto p-0" align="start">
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={field.value}
+                                                                onSelect={field.onChange}
+                                                                initialFocus
+                                                            />
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="checkoutTime"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Check-out Time</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="time" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-4">
-                            {!isStay && (
+                        ) : (
+                            <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="time"
@@ -479,38 +495,39 @@ export function AddActivityDialog({
                                         </FormItem>
                                     )}
                                 />
-                            )}
-
-                            {isStay && (
                                 <FormField
                                     control={form.control}
-                                    name="checkoutTime"
+                                    name="cost"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Check-out Time</FormLabel>
+                                            <FormLabel>Cost (Optional)</FormLabel>
                                             <FormControl>
-                                                <Input type="time" {...field} />
+                                                <Input type="number" placeholder="0.00" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                            )}
+                            </div>
+                        )}
 
-                            <FormField
-                                control={form.control}
-                                name="cost"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Cost (Optional)</FormLabel>
-                                        <FormControl>
-                                            <Input type="number" placeholder="0.00" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        {isStay && (
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="cost"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Cost (Optional)</FormLabel>
+                                            <FormControl>
+                                                <Input type="number" placeholder="0.00" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        )}
 
                         <FormField
                             control={form.control}
