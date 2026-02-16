@@ -66,7 +66,7 @@ export function StyledMap({ center, marker, height = 220, onClick, rounded = 'ro
     <div
       ref={mapRef}
       className={`${rounded} overflow-hidden border border-border/30 ${className || ''}`}
-      style={height ? { height } : undefined}
+      style={height ? { height } : { height: '100%', width: '100%' }}
     />
   );
 }
