@@ -224,6 +224,8 @@ export function AddActivityDialog({
             }
 
             try {
+                const stayNotes = `Check-in: ${format(values.checkinDate, 'PPP')} ${values.checkinTime || ''} • Check-out: ${format(values.checkoutDate, 'PPP')} ${values.checkoutTime || ''}`.trim();
+                const combinedNotes = [values.notes, stayNotes].filter(Boolean).join('\n');
                 await Promise.all(days.map((d, idx) => {
                     const time = idx === 0 ? (values.checkinTime || undefined)
                         : idx === days.length - 1 ? (values.checkoutTime || undefined)
@@ -236,7 +238,7 @@ export function AddActivityDialog({
                         time,
                         location: values.location,
                         cost: values.cost ? Number(values.cost) : undefined,
-                        notes: values.notes,
+                        notes: combinedNotes,
                     });
                 }));
                 toast.success('Stay added successfully');
