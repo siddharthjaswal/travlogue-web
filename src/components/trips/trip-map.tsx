@@ -19,12 +19,16 @@ export function TripMap({ trip }: TripMapProps) {
 
     const activityMarkers = (timeline?.days || [])
         .flatMap((day) => day.activities)
-        .map((a) => parseLatLng(a.location))
-        .filter(Boolean) as { lat: number; lng: number }[];
+        .map((a) => {
+            const coords = parseLatLng(a.location);
+            if (!coords) return null;
+            return { ...coords, kind: 'activity' as const, type: a.activityType };
+        })
+        .filter(Boolean) as { lat: number; lng: number; kind: 'activity'; type?: string }[];
 
     const stayMarkers = (accommodations || [])
-        .map((a) => (a.latitude && a.longitude ? { lat: a.latitude, lng: a.longitude } : null))
-        .filter(Boolean) as { lat: number; lng: number }[];
+        .map((a) => (a.latitude && a.longitude ? { lat: a.latitude, lng: a.longitude, kind: 'stay' as const, type: 'stay' } : null))
+        .filter(Boolean) as { lat: number; lng: number; kind: 'stay'; type?: string }[];
 
     const markers = [...activityMarkers, ...stayMarkers];
 
