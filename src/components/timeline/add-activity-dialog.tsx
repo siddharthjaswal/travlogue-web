@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { useCreateActivity, useUpdateActivity, useTrip, useTripTimeline } from '@/hooks/use-trips';
+import { useCreateAccommodation } from '@/hooks/use-accommodations';
 import { toast } from 'sonner';
 import { useEffect, useMemo, useState } from 'react';
 import { Activity } from '@/services/activity-service';
@@ -89,9 +90,10 @@ export function AddActivityDialog({
     const { data: trip } = useTrip(tripId);
     const { data: timeline } = useTripTimeline(tripId);
     const createActivity = useCreateActivity();
+    const createAccommodation = useCreateAccommodation();
     const updateActivity = useUpdateActivity();
 
-    const isPending = createActivity.isPending || updateActivity.isPending;
+    const isPending = createActivity.isPending || updateActivity.isPending || createAccommodation.isPending;
 
     // Internal state management if not controlled externally
     const show = open !== undefined ? open : isOpen;
@@ -214,33 +216,32 @@ export function AddActivityDialog({
                 return;
             }
 
-            const start = values.checkinDate;
-            const end = values.checkoutDate;
-            const days: Date[] = [];
-            let cursor = new Date(start);
-            while (cursor <= end) {
-                days.push(new Date(cursor));
-                cursor = addDays(cursor, 1);
-            }
+            const toUnix = (d?: Date, t?: string) => {
+                if (!d || !t) return null;
+                const [h, m] = t.split(':').map(Number);
+                const dt = new Date(d);
+                dt.setHours(h || 0, m || 0, 0, 0);
+                return Math.floor(dt.getTime() / 1000);
+            };
+
+            const stayNotes = `Check-in: ${format(values.checkinDate, 'PPP')} ${values.checkinTime || ''} • Check-out: ${format(values.checkoutDate, 'PPP')} ${values.checkoutTime || ''}`.trim();
+            const combinedNotes = [values.notes, stayNotes].filter(Boolean).join('\n');
 
             try {
-                const stayNotes = `Check-in: ${format(values.checkinDate, 'PPP')} ${values.checkinTime || ''} • Check-out: ${format(values.checkoutDate, 'PPP')} ${values.checkoutTime || ''}`.trim();
-                const combinedNotes = [values.notes, stayNotes].filter(Boolean).join('\n');
-                await Promise.all(days.map((d, idx) => {
-                    const time = idx === 0 ? (values.checkinTime || undefined)
-                        : idx === days.length - 1 ? (values.checkoutTime || undefined)
-                        : undefined;
-                    return createActivity.mutateAsync({
-                        tripId,
-                        activityDate: format(d, 'yyyy-MM-dd'),
-                        name: values.name,
-                        activityType: values.activityType.toLowerCase(),
-                        time,
-                        location: values.location,
-                        cost: values.cost ? Number(values.cost) : undefined,
-                        notes: combinedNotes,
-                    });
-                }));
+                await createAccommodation.mutateAsync({
+                    tripId,
+                    checkInDate: format(values.checkinDate, 'yyyy-MM-dd'),
+                    checkOutDate: format(values.checkoutDate, 'yyyy-MM-dd'),
+                    checkInTime: toUnix(values.checkinDate, values.checkinTime),
+                    checkOutTime: toUnix(values.checkoutDate, values.checkoutTime),
+                    name: values.name,
+                    address: values.location,
+                    latitude: parsedLocation?.lat ?? undefined,
+                    longitude: parsedLocation?.lng ?? undefined,
+                    cost: values.cost ? Number(values.cost) : undefined,
+                    notes: combinedNotes,
+                });
+
                 toast.success('Stay added successfully');
                 setShow(false);
                 form.reset();

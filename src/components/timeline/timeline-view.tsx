@@ -2,6 +2,7 @@
 
 import { showError } from '@/lib/toast-helper';
 import { useTripTimeline, useCreateTripDay, useTrip } from '@/hooks/use-trips';
+import { useAccommodationsByTrip } from '@/hooks/use-accommodations';
 import { TimelineDay } from './timeline-day';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ interface TimelineViewProps {
 export function TimelineView({ tripId }: TimelineViewProps) {
     const { data: timeline, isLoading, isError } = useTripTimeline(tripId);
     const { data: trip } = useTrip(tripId);
+    const { data: accommodations } = useAccommodationsByTrip(tripId);
     const createTripDay = useCreateTripDay();
 
     const handleAddDay = async () => {
@@ -76,9 +78,9 @@ export function TimelineView({ tripId }: TimelineViewProps) {
 
     const stayMap = new Map<number, { name: string; nights: number; isStart: boolean; isEnd: boolean }>();
 
-    // Build stay segments from accommodation activities with the same name across consecutive days
     const stayByDayName = timeline.days.map((day) => {
-        const stay = day.activities.find(a => a.activityType?.toLowerCase() === 'accommodation');
+        const accForDay = accommodations?.filter(a => a.tripDayId === day.id) || [];
+        const stay = accForDay[0];
         return stay ? stay.name : null;
     });
 
