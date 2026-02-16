@@ -19,16 +19,16 @@ export function TripMap({ trip }: TripMapProps) {
 
     return (
         <Card className="col-span-full overflow-hidden animate-fade-in rounded-3xl p-0 gap-0">
-            <CardHeader className="flex flex-row items-center justify-between px-5 py-4">
-                <CardTitle className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    Map Preview
-                </CardTitle>
-                <span className="text-sm text-muted-foreground">{location}</span>
-            </CardHeader>
             <CardContent className="p-0">
-                <div className="aspect-square w-full">
+                <div className="relative aspect-square w-full">
                     <StyledMap center={center} marker={center} rounded="rounded-3xl" className="h-full w-full" />
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between rounded-2xl border border-white/10 bg-black/30 backdrop-blur-md px-3 py-2 text-white/90">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                            <MapPin className="h-4 w-4 text-white/80" />
+                            Map Preview
+                        </div>
+                        <span className="text-xs text-white/70 truncate">{location}</span>
+                    </div>
                 </div>
             </CardContent>
         </Card>
