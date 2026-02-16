@@ -28,9 +28,9 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     const isMapLink = activity.location?.startsWith('http');
 
     return (
-        <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-6 mb-3">
+        <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-4 mb-3">
             {/* 1. Time Column */}
-            <div className="hidden sm:flex w-full sm:w-[60px] pt-1 flex-col items-end justify-start">
+            <div className="hidden sm:flex w-full sm:w-[48px] pt-1 flex-col items-end justify-start">
                 <span className="text-sm font-bold text-foreground tabular-nums">
                     {activity.time || 'Any'}
                 </span>
@@ -42,14 +42,21 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
             {/* 2. Timeline Track */}
             <div className="relative flex flex-col items-center pt-1 sm:pt-1">
                 <div className="absolute top-8 bottom-[-24px] w-px bg-border/40 group-last:hidden hidden sm:block" />
-                <div className="relative z-10 h-8 w-8 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground shadow-sm group-hover:border-primary group-hover:text-primary transition-colors duration-300">
+                <div className="relative z-10 h-7 w-7 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground shadow-sm">
                     <Icon className="h-4 w-4" />
                 </div>
             </div>
 
             {/* 3. Content Card */}
             <div className="flex-1 pb-2">
-                <div className="relative border border-border/30 rounded-xl p-3 bg-background">
+                <div className={`relative border border-border/30 rounded-xl p-3 ${(() => {
+                    const t = activity.activityType.toLowerCase();
+                    if (t.includes('sightseeing')) return 'bg-[#8FA6C8]/18';
+                    if (t.includes('dining')) return 'bg-[#C8A38C]/18';
+                    if (t.includes('transport')) return 'bg-[#7C97C9]/18';
+                    if (t.includes('other')) return 'bg-[#A5BBD6]/18';
+                    return 'bg-[#9AA8BC]/18';
+                })()}`}>
                     <div className="relative flex flex-col sm:flex-row justify-between items-start gap-3">
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between gap-2 mb-1">
