@@ -73,9 +73,9 @@ export function StyledMap({ center, marker, markers, height = 220, onClick, roun
     const t = (type || '').toLowerCase();
     const isStay = kind === 'stay';
 
-    const stroke = '#3E4A5A';
-    const ring = '#D7DEE8';
-    const fill = '#F4F6FA';
+    const stroke = '#FFFFFF';
+    const ring = '#233041';
+    const fill = '#233041';
 
     const iconPaths = (() => {
       if (isStay || t.includes('other')) {
@@ -117,8 +117,8 @@ export function StyledMap({ center, marker, markers, height = 220, onClick, roun
     })();
 
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
-      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10.5" fill="${fill}" stroke="${ring}" />
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" fill="${fill}" stroke="${ring}" />
         <g transform="translate(0,0)">
           ${iconPaths}
         </g>
@@ -147,8 +147,8 @@ export function StyledMap({ center, marker, markers, height = 220, onClick, roun
         map: mapInstanceRef.current,
         icon: {
           url: iconUrl,
-          scaledSize: new google.maps.Size(30, 30),
-          anchor: new google.maps.Point(15, 15),
+          scaledSize: new google.maps.Size(15, 15),
+          anchor: new google.maps.Point(7.5, 7.5),
         },
       });
 
