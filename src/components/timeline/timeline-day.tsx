@@ -77,35 +77,19 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                         {stayInfo && stayInfo.isStart && (
                             <div className="mb-4 rounded-full border border-border/30 bg-muted/40 px-4 py-2 text-sm font-medium text-foreground/90 shadow-sm">
                                 Stay • {stayInfo.name} • {stayInfo.nights} night{stayInfo.nights === 1 ? '' : 's'}
+                                {stayInfo.checkInTime && (
+                                    <span className="ml-2 text-xs text-muted-foreground">• Check-in {new Date(stayInfo.checkInTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                )}
                             </div>
                         )}
                         {stayInfo && !stayInfo.isStart && (
                             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border/30 bg-muted/30 px-3 py-1 text-xs text-muted-foreground">
                                 Continuing stay • {stayInfo.name}
-                            </div>
-                        )}
-                        {stayInfo && (stayInfo.checkInTime || stayInfo.checkOutTime) && (
-                            <div className="mb-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                                {stayInfo.checkInTime && (
-                                    <span className="inline-flex items-center gap-2 rounded-full border border-border/30 bg-muted/30 px-3 py-1">
-                                        Check-in · {new Date(stayInfo.checkInTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
-                                )}
                                 {stayInfo.checkOutTime && (
-                                    <span className="inline-flex items-center gap-2 rounded-full border border-border/30 bg-muted/30 px-3 py-1">
-                                        Check-out · {new Date(stayInfo.checkOutTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
+                                    <span>• Check-out {new Date(stayInfo.checkOutTime * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 )}
                             </div>
                         )}
-
-                        {/* Header */}
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <span className="px-2 py-0.5 rounded-full bg-muted/60 border border-border/40">Day {day.dayNumber}</span>
-                                <span>{day.activities.length} activities</span>
-                            </div>
-                        </div>
 
                         {/* Location + Add */}
                         <div className="flex items-center justify-between mb-6">
