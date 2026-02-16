@@ -18,8 +18,8 @@ export function TripMap({ trip }: TripMapProps) {
     const center = guessCenter(trip.primaryDestinationCity, trip.primaryDestinationCountry);
 
     return (
-        <Card className="col-span-full overflow-hidden animate-fade-in rounded-3xl">
-            <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="col-span-full overflow-hidden animate-fade-in rounded-3xl p-0 gap-0">
+            <CardHeader className="flex flex-row items-center justify-between px-5 py-4">
                 <CardTitle className="flex items-center gap-2">
                     <MapPin className="h-5 w-5 text-primary" />
                     Map Preview
