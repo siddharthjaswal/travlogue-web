@@ -593,6 +593,9 @@ export function AddActivityDialog({
                                                             }
                                                             if (res?.data?.photo_url) {
                                                                 setResolvedPhotoUrl(res.data.photo_url);
+                                                                toast.success('Photo found');
+                                                            } else {
+                                                                toast.message('No photo found for this place');
                                                             }
                                                             if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
                                                                 const parsed = parseGoogleMapsLink(res.data.expanded_url);
@@ -664,6 +667,9 @@ export function AddActivityDialog({
                                                                     }
                                                                     if (res?.data?.photo_url) {
                                                                         setResolvedPhotoUrl(res.data.photo_url);
+                                                                        toast.success('Photo found');
+                                                                    } else {
+                                                                        toast.message('No photo found for this place');
                                                                     }
                                                                     if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
                                                                         const parsed = parseGoogleMapsLink(res.data.expanded_url);
