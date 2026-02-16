@@ -181,9 +181,11 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                 </div>
 
                 <Dialog open={mapOpen} onOpenChange={setMapOpen}>
-                    <DialogContent className="w-[100vw] h-[100vh] max-w-none p-0 overflow-hidden rounded-3xl">
+                    <DialogContent className="w-[100vw] h-[100vh] max-w-none p-0 overflow-hidden rounded-3xl flex flex-col">
                         <div className="relative w-full h-full">
-                            {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
+                            <div className="absolute inset-0">
+                                {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
+                            </div>
                             <div className="absolute left-5 top-4 rounded-2xl border border-border/30 bg-card/70 backdrop-blur px-3 py-2 text-sm font-medium">
                                 Trip Map
                             </div>
