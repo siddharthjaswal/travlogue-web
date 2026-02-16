@@ -39,9 +39,6 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
             return;
         }
 
-        const coords = (activity.latitude && activity.longitude)
-            ? { lat: activity.latitude, lng: activity.longitude }
-            : parseLatLng(activity.location || '');
         if (!activity.name) return;
 
         const cacheKey = `${activity.id}-${activity.name}-${dayPlace || ''}`;
@@ -52,7 +49,7 @@ export function ActivityItem({ activity, tripId, date, dayPlace }: ActivityItemP
 
         (async () => {
             try {
-                const query = [activity.name, dayPlace].filter(Boolean).join(' ');
+                const query = activity.name;
                 const res = await api.get('/activities/place-photo', {
                     params: { query }
                 });
