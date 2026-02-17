@@ -165,6 +165,7 @@ export function AddActivityDialog({
     const [resolvedCoords, setResolvedCoords] = useState<{ lat: number; lng: number } | null>(null);
     const [startCoords, setStartCoords] = useState<{ lat: number; lng: number } | null>(null);
     const [endCoords, setEndCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const didAutoResolveRef = useRef<Record<number, boolean>>({});
     async function resolveLocationInput(value: string, setCoords: (c: {lat:number; lng:number} | null)=>void) {
         if (!value) return null;
         if (resolvedCache.current.has(value)) {
@@ -248,6 +249,34 @@ export function AddActivityDialog({
                 });
                 setStartCoords(activity.startLatitude != null && activity.startLongitude != null ? { lat: Number(activity.startLatitude), lng: Number(activity.startLongitude) } : null);
                 setEndCoords(activity.endLatitude != null && activity.endLongitude != null ? { lat: Number(activity.endLatitude), lng: Number(activity.endLongitude) } : null);
+                if (activity.activityType?.toLowerCase() === 'transportation' && !didAutoResolveRef.current[activity.id]) {
+                    didAutoResolveRef.current[activity.id] = true;
+                    const startLink = (activity.location?.split('→')[0] || '').trim().split('•')[0].trim();
+                    const endLink = (activity.location?.split('→')[1] || '').trim().split('•')[0].trim();
+                    const isLink = (v: string) => v.includes('maps.app.goo.gl') || v.includes('google.com/maps');
+                    (async () => {
+                        let resolvedStart = activity.startLatitude != null && activity.startLongitude != null ? { lat: Number(activity.startLatitude), lng: Number(activity.startLongitude) } : null;
+                        let resolvedEnd = activity.endLatitude != null && activity.endLongitude != null ? { lat: Number(activity.endLatitude), lng: Number(activity.endLongitude) } : null;
+                        if (!resolvedStart && isLink(startLink)) {
+                            resolvedStart = await resolveLocationInput(startLink, setStartCoords);
+                        }
+                        if (!resolvedEnd && isLink(endLink)) {
+                            resolvedEnd = await resolveLocationInput(endLink, setEndCoords);
+                        }
+                        if ((resolvedStart || resolvedEnd) && tripId) {
+                            updateActivity.mutate({
+                                id: activity.id,
+                                tripId,
+                                data: {
+                                    startLatitude: resolvedStart?.lat ?? null,
+                                    startLongitude: resolvedStart?.lng ?? null,
+                                    endLatitude: resolvedEnd?.lat ?? null,
+                                    endLongitude: resolvedEnd?.lng ?? null,
+                                }
+                            });
+                        }
+                    })();
+                }
             } else {
                 form.reset({
                     name: '',
