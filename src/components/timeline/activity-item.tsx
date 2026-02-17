@@ -88,7 +88,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                             </div>
                             <div className="flex items-center gap-2">
                                 {activity.cost && (
-                                    <div className="rounded-full border border-border/40 bg-background/70 px-4 py-2 leading-none text-xl font-semibold text-foreground self-center flex items-center justify-center">
+                                    <div className="rounded-full border border-border/40 bg-background/70 px-4 py-1.5 leading-[1] text-xl font-semibold text-foreground self-center flex items-center justify-center translate-y-[-1px]">
                                         {currencySymbol(activity.currency)} {activity.cost}
                                     </div>
                                 )}
