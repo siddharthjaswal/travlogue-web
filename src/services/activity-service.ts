@@ -6,6 +6,7 @@ export interface Activity {
     name: string;
     activityType: string;
     time?: string;
+    endTime?: string;
     duration?: number;
     location?: string;
     latitude?: number;
@@ -44,6 +45,7 @@ const mapActivity = (data: any): Activity => ({
     name: data.name,
     activityType: data.activity_type,
     time: data.time,
+    endTime: data.end_time,
     duration: data.duration,
     location: data.location,
     latitude: data.latitude,
@@ -104,6 +106,7 @@ export const activityService = {
             name: data.name,
             activity_type: data.activityType,
             time: data.time,
+            end_time: data.endTime,
             cost: data.cost,
             currency: data.currency || 'USD',
             location: data.location,
@@ -124,6 +127,7 @@ export const activityService = {
         if (data.name) payload.name = data.name;
         if (data.activityType) payload.activity_type = data.activityType;
         if (data.time !== undefined) payload.time = data.time;
+        if (data.endTime !== undefined) payload.end_time = data.endTime;
         if (data.cost !== undefined) payload.cost = data.cost;
         if (data.currency) payload.currency = data.currency;
         if (data.location !== undefined) payload.location = data.location;
