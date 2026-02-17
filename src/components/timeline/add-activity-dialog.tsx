@@ -55,6 +55,10 @@ const formSchema = z.object({
     date: z.date(),
     time: z.string().optional(),
     location: z.string().optional(),
+    startLocation: z.string().optional(),
+    endLocation: z.string().optional(),
+    startTime: z.string().optional(),
+    endTime: z.string().optional(),
     cost: z.string().refine((val) => !val || !isNaN(Number(val)), {
         message: 'Must be a valid number',
     }).optional(),
@@ -109,6 +113,10 @@ export function AddActivityDialog({
             date: initialDate || new Date(),
             time: initialTime || '',
             location: '',
+            startLocation: '',
+            endLocation: '',
+            startTime: '',
+            endTime: '',
             cost: '',
             notes: '',
             checkinDate: initialDate || new Date(),
@@ -119,6 +127,7 @@ export function AddActivityDialog({
     });
 
     const isStay = form.watch('activityType') === 'other';
+    const isTransport = form.watch('activityType') === 'transportation';
 
     const lastActivityCoords = useMemo(() => {
         if (!timeline?.days) return null;
@@ -171,6 +180,10 @@ export function AddActivityDialog({
                     date: initialDate || new Date(),
                     time: activity.time || '',
                     location: activity.location || '',
+                    startLocation: activity.location?.split('→')[0]?.trim() || activity.location || '',
+                    endLocation: activity.location?.split('→')[1]?.trim() || '',
+                    startTime: activity.time || '',
+                    endTime: (activity.notes || '').match(/End time:\s*([0-9]{2}:[0-9]{2})/)?.[1] || '',
                     cost: activity.cost ? String(activity.cost) : '',
                     notes: activity.notes || '',
                 });
@@ -181,6 +194,10 @@ export function AddActivityDialog({
                     date: initialDate || new Date(),
                     time: initialTime || '',
                     location: '',
+                    startLocation: '',
+                    endLocation: '',
+                    startTime: '',
+                    endTime: '',
                     cost: '',
                     notes: '',
                     checkinDate: initialDate || new Date(),
@@ -193,6 +210,15 @@ export function AddActivityDialog({
     }, [show, mode, activity, initialDate, form]);
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
+        const isTransport = values.activityType === 'transportation';
+        const route = isTransport
+            ? [values.startLocation, values.endLocation].filter(Boolean).join(' → ')
+            : values.location;
+        const startTime = isTransport ? (values.startTime || values.time) : values.time;
+        const notes = isTransport && values.endTime
+            ? [values.notes, `End time: ${values.endTime}`].filter(Boolean).join('\n')
+            : values.notes;
+
         if (mode === 'edit' && activity) {
             updateActivity.mutate({
                 id: activity.id,
@@ -200,12 +226,12 @@ export function AddActivityDialog({
                 data: {
                     name: values.name,
                     activityType: values.activityType,
-                    time: values.time || undefined,
-                    location: values.location,
+                    time: startTime || undefined,
+                    location: route,
                     latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
                     longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
                     cost: values.cost === '' ? null : values.cost ? Number(values.cost) : undefined,
-                    notes: values.notes,
+                    notes: notes,
                 }
             }, {
                 onSuccess: () => {
@@ -266,12 +292,12 @@ export function AddActivityDialog({
             activityDate: format(values.date, 'yyyy-MM-dd'),
             name: values.name,
             activityType: values.activityType.toLowerCase(),
-            time: values.time || undefined,
-            location: values.location,
+            time: startTime || undefined,
+            location: route,
             latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
             longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
             cost: values.cost === '' ? null : values.cost ? Number(values.cost) : undefined,
-            notes: values.notes,
+            notes: notes,
         }, {
             onSuccess: () => {
                 toast.success('Activity added successfully');
@@ -497,19 +523,50 @@ export function AddActivityDialog({
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="time"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Time (Optional)</FormLabel>
-                                            <FormControl>
-                                                <Input type="time" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                {isTransport ? (
+                                    <>
+                                        <FormField
+                                            control={form.control}
+                                            name="startTime"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Start time</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="time" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="endTime"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>End time</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="time" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </>
+                                ) : (
+                                    <FormField
+                                        control={form.control}
+                                        name="time"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Time (Optional)</FormLabel>
+                                                <FormControl>
+                                                    <Input type="time" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
                                 <FormField
                                     control={form.control}
                                     name="cost"
@@ -544,146 +601,198 @@ export function AddActivityDialog({
                             </div>
                         )}
 
-                        <FormField
-                            control={form.control}
-                            name="location"
-                            render={({ field }) => (
-                                <FormItem className="relative">
-                                    <FormLabel>Location</FormLabel>
-                                    <FormControl>
-                                        <div className="relative">
-                                            <Input
-                                                placeholder="Address, coordinates, or Google Maps link"
-                                                {...field}
-                                                onChange={async (e) => {
-                                                    field.onChange(e);
-                                                    const value = e.target.value;
+                        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-4">
+                            <div className="space-y-4">
+                                {isTransport ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="startLocation"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Start location</FormLabel>
+                                                    <FormControl>
+                                                        <Input
+                                                            placeholder="Starting point"
+                                                            {...field}
+                                                            onChange={(e) => {
+                                                                field.onChange(e);
+                                                                form.setValue('location', e.target.value);
+                                                            }}
+                                                        />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="endLocation"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>End location</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Destination" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                ) : (
+                                    <FormField
+                                        control={form.control}
+                                        name="location"
+                                        render={({ field }) => (
+                                            <FormItem className="relative">
+                                                <FormLabel>Location</FormLabel>
+                                                <FormControl>
+                                                    <div className="relative">
+                                                        <Input
+                                                            placeholder="Address, coordinates, or Google Maps link"
+                                                            {...field}
+                                                            onChange={async (e) => {
+                                                                field.onChange(e);
+                                                                const value = e.target.value;
+                                                                const isGoogleLink = value?.includes('maps.app.goo.gl') || value?.includes('google.com/maps');
+                                                                const resolveLink = async () => {
+                                                                    if (!value) return;
+                                                                    if (resolvedCache.current.has(value)) {
+                                                                        const cached = resolvedCache.current.get(value);
+                                                                        if (cached?.lat && cached?.lng) {
+                                                                            setResolvedCoords({ lat: cached.lat, lng: cached.lng });
+                                                                        }
+                                                                        if (cached?.name && !form.getValues('name')) {
+                                                                            form.setValue('name', cached.name);
+                                                                        }
+                                                                        if (cached?.address) {
+                                                                            form.setValue('location', cached.address);
+                                                                        }
+                                                                        return;
+                                                                    }
+                                                                    setIsExpanding(true);
+                                                                    try {
+                                                                        const res = await api.get('/utils/resolve-map-link', { params: { url: value } });
+                                                                        resolvedCache.current.set(value, res?.data || {});
+                                                                        if (res?.data?.lat && res?.data?.lng) {
+                                                                            setResolvedCoords({ lat: res.data.lat, lng: res.data.lng });
+                                                                        }
+                                                                        if (res?.data?.name && !form.getValues('name')) {
+                                                                            form.setValue('name', res.data.name);
+                                                                        }
+                                                                        if (res?.data?.address) {
+                                                                            form.setValue('location', res.data.address);
+                                                                        }
+                                                                        if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
+                                                                            const parsed = parseGoogleMapsLink(res.data.expanded_url);
+                                                                            if (parsed?.lat && parsed?.lng) setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
+                                                                            if (parsed?.name && !form.getValues('name')) form.setValue('name', parsed.name);
+                                                                        }
+                                                                        if (!res?.data?.name && !res?.data?.lat) {
+                                                                            toast.message('Could not extract details from this link');
+                                                                        }
+                                                                    } catch {
+                                                                        toast.message('Could not resolve this link');
+                                                                    } finally {
+                                                                        setIsExpanding(false);
+                                                                    }
+                                                                };
 
-                                                    const isGoogleLink = value?.includes('maps.app.goo.gl') || value?.includes('google.com/maps');
-                                                    const resolveLink = async () => {
-                                                        if (!value) return;
-                                                        if (resolvedCache.current.has(value)) {
-                                                            const cached = resolvedCache.current.get(value);
-                                                            if (cached?.lat && cached?.lng) {
-                                                                setResolvedCoords({ lat: cached.lat, lng: cached.lng });
-                                                            }
-                                                            if (cached?.name && !form.getValues('name')) {
-                                                                form.setValue('name', cached.name);
-                                                            }
-                                                            if (cached?.address) {
-                                                                form.setValue('location', cached.address);
-                                                            }
-                                                            return;
-                                                        }
-                                                        setIsExpanding(true);
-                                                        try {
-                                                            const res = await api.get('/utils/resolve-map-link', { params: { url: value } });
-                                                                    resolvedCache.current.set(value, res?.data || {});
-                                                                    if (res?.data?.lat && res?.data?.lng) {
-                                                                        setResolvedCoords({ lat: res.data.lat, lng: res.data.lng });
-                                                                    }
-                                                                    if (res?.data?.name && !form.getValues('name')) {
-                                                                        form.setValue('name', res.data.name);
-                                                                    }
-                                                                    if (res?.data?.address) {
-                                                                        form.setValue('location', res.data.address);
-                                                                    }
-                                                                    if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url)if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
-                                                                const parsed = parseGoogleMapsLink(res.data.expanded_url);
-                                                                if (parsed?.lat && parsed?.lng) setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
-                                                                if (parsed?.name && !form.getValues('name')) form.setValue('name', parsed.name);
-                                                            }
-                                                            if (!res?.data?.name && !res?.data?.lat) {
-                                                                toast.message('Could not extract details from this link');
-                                                            }
-                                                        } catch {
-                                                            toast.message('Could not resolve this link');
-                                                        } finally {
-                                                            setIsExpanding(false);
-                                                        }
-                                                    };
+                                                                if (isGoogleLink && !isExpanding) {
+                                                                    resolveLink();
+                                                                    return;
+                                                                }
 
-                                                    if (isGoogleLink && !isExpanding) {
-                                                        resolveLink();
-                                                        return;
-                                                    }
-
-                                                    const parsed = value ? parseGoogleMapsLink(value) : null;
-                                                    if (parsed?.lat && parsed?.lng) {
-                                                        setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
-                                                    }
-                                                }}
-                                                onBlur={(e) => {
-                                                    field.onBlur();
-                                                    const value = e.target.value;
-                                                    const parsed = value ? parseGoogleMapsLink(value) : null;
-                                                    if (parsed) {
-                                                        if (parsed.lat && parsed.lng) {
-                                                            setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
-                                                        }
-                                                        if (parsed.name && !form.getValues('name')) {
-                                                            form.setValue('name', parsed.name);
-                                                        }
-                                                    }
-                                                }}
-                                            />
-                                            {isExpanding ? (
-                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground flex items-center gap-2 text-xs">
-                                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                                    Resolving…
-                                                </div>
-                                            ) : (
-                                                <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs">
-                                                    {locationValue?.includes('maps.app.goo.gl') || locationValue?.includes('google.com/maps') ? (
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="h-7 px-2"
-                                                            onClick={async () => {
-                                                                const value = form.getValues('location');
-                                                                if (!value) return;
-                                                                setIsExpanding(true);
-                                                                try {
-                                                                    const res = await api.get('/utils/resolve-map-link', { params: { url: value } });
-                                                                    resolvedCache.current.set(value, res?.data || {});
-                                                                    if (res?.data?.lat && res?.data?.lng) {
-                                                                        setResolvedCoords({ lat: res.data.lat, lng: res.data.lng });
-                                                                    }
-                                                                    if (res?.data?.name && !form.getValues('name')) {
-                                                                        form.setValue('name', res.data.name);
-                                                                    }
-                                                                    if (res?.data?.address) {
-                                                                        form.setValue('location', res.data.address);
-                                                                    }
-                                                                    if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
-                                                                        const parsed = parseGoogleMapsLink(res.data.expanded_url);
-                                                                        if (parsed?.lat && parsed?.lng) setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
-                                                                        if (parsed?.name && !form.getValues('name')) form.setValue('name', parsed.name);
-                                                                    }
-                                                                    if (!res?.data?.name && !res?.data?.lat) {
-                                                                        toast.message('Could not extract details from this link');
-                                                                    }
-                                                                } catch {
-                                                                    toast.message('Could not resolve this link');
-                                                                } finally {
-                                                                    setIsExpanding(false);
+                                                                const parsed = value ? parseGoogleMapsLink(value) : null;
+                                                                if (parsed?.lat && parsed?.lng) {
+                                                                    setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
                                                                 }
                                                             }}
-                                                        >
-                                                            Resolve
-                                                        </Button>
-                                                    ) : null}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                                            onBlur={(e) => {
+                                                                field.onBlur();
+                                                                const value = e.target.value;
+                                                                const parsed = value ? parseGoogleMapsLink(value) : null;
+                                                                if (parsed) {
+                                                                    if (parsed.lat && parsed.lng) {
+                                                                        setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
+                                                                    }
+                                                                    if (parsed.name && !form.getValues('name')) {
+                                                                        form.setValue('name', parsed.name);
+                                                                    }
+                                                                }
+                                                            }}
+                                                        />
+                                                        {isExpanding ? (
+                                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground flex items-center gap-2 text-xs">
+                                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                                Resolving…
+                                                            </div>
+                                                        ) : (
+                                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 text-xs">
+                                                                {locationValue?.includes('maps.app.goo.gl') || locationValue?.includes('google.com/maps') ? (
+                                                                    <Button
+                                                                        type="button"
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="h-7 px-2"
+                                                                        onClick={async () => {
+                                                                            const value = form.getValues('location');
+                                                                            if (!value) return;
+                                                                            setIsExpanding(true);
+                                                                            try {
+                                                                                const res = await api.get('/utils/resolve-map-link', { params: { url: value } });
+                                                                                resolvedCache.current.set(value, res?.data || {});
+                                                                                if (res?.data?.lat && res?.data?.lng) {
+                                                                                    setResolvedCoords({ lat: res.data.lat, lng: res.data.lng });
+                                                                                }
+                                                                                if (res?.data?.name && !form.getValues('name')) {
+                                                                                    form.setValue('name', res.data.name);
+                                                                                }
+                                                                                if (res?.data?.address) {
+                                                                                    form.setValue('location', res.data.address);
+                                                                                }
+                                                                                if (!res?.data?.name && !res?.data?.lat && res?.data?.expanded_url) {
+                                                                                    const parsed = parseGoogleMapsLink(res.data.expanded_url);
+                                                                                    if (parsed?.lat && parsed?.lng) setResolvedCoords({ lat: parsed.lat, lng: parsed.lng });
+                                                                                    if (parsed?.name && !form.getValues('name')) form.setValue('name', parsed.name);
+                                                                                }
+                                                                                if (!res?.data?.name && !res?.data?.lat) {
+                                                                                    toast.message('Could not extract details from this link');
+                                                                                }
+                                                                            } catch {
+                                                                                toast.message('Could not resolve this link');
+                                                                            } finally {
+                                                                                setIsExpanding(false);
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        Resolve
+                                                                    </Button>
+                                                                ) : null}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                )}
 
-                        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="notes"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Notes</FormLabel>
+                                            <FormControl>
+                                                <Textarea placeholder="Any extra details..." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
                                 <div className="flex items-center justify-between mb-3">
                                     <div>
@@ -711,7 +820,6 @@ export function AddActivityDialog({
                                 )}
                             </div>
                         </div>
-
                         <FormField
                             control={form.control}
                             name="notes"
