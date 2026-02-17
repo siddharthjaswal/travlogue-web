@@ -380,7 +380,7 @@ export function AddActivityDialog({
                                     control={form.control}
                                     name="date"
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-col">
+                                        <FormItem className="flex flex-col md:mr-8">
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
