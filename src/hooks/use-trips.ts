@@ -79,6 +79,7 @@ export function useCreateActivity() {
         mutationFn: (data: any) => activityService.create(data),
         onSuccess: (activity, variables) => {
             queryClient.invalidateQueries({ queryKey: ['trip-timeline', variables.tripId] });
+            queryClient.invalidateQueries({ queryKey: ['expenses', variables.tripId] });
             trackEvent('activity_added', {
                 trip_id: variables.tripId,
                 activity_id: activity?.id,
@@ -96,6 +97,7 @@ export function useUpdateActivity() {
         mutationFn: ({ id, data, tripId }: { id: number; data: any; tripId: number }) => activityService.update(id, data),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['trip-timeline', variables.tripId] });
+            queryClient.invalidateQueries({ queryKey: ['expenses', variables.tripId] });
             trackEvent('activity_updated', { trip_id: variables.tripId, activity_id: variables.id });
         },
     });
@@ -108,6 +110,7 @@ export function useDeleteActivity() {
         mutationFn: ({ id }: { id: number }) => activityService.delete(id),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['trip-timeline'] });
+            queryClient.invalidateQueries({ queryKey: ['expenses'] });
         },
     });
 }
