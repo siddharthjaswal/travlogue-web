@@ -145,6 +145,25 @@ export function AddActivityDialog({
     const expandedCache = useRef(new Map<string, string>());
     const resolvedCache = useRef(new Map<string, any>());
     const [resolvedCoords, setResolvedCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const [startCoords, setStartCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const [endCoords, setEndCoords] = useState<{ lat: number; lng: number } | null>(null);
+    async function resolveLocationInput(value: string, setCoords: (c: {lat:number; lng:number} | null)=>void) {
+        if (!value) return;
+        if (resolvedCache.current.has(value)) {
+            const cached = resolvedCache.current.get(value);
+            if (cached?.lat && cached?.lng) setCoords({ lat: cached.lat, lng: cached.lng });
+            return;
+        }
+        setIsExpanding(true);
+        try {
+            const res = await api.get('/utils/resolve-map-link', { params: { url: value } });
+            resolvedCache.current.set(value, res?.data || {});
+            if (res?.data?.lat && res?.data?.lng) setCoords({ lat: res.data.lat, lng: res.data.lng });
+        } finally {
+            setIsExpanding(false);
+        }
+    }
+
     const parsedLocation = useMemo(() => {
         const coords = parseLatLng(locationValue);
         if (coords) return coords;
@@ -154,8 +173,15 @@ export function AddActivityDialog({
         return null;
     }, [locationValue, resolvedCoords]);
 
+    const transportCenter = useMemo(() => {
+        if (startCoords) return startCoords;
+        if (endCoords) return endCoords;
+        return null;
+    }, [startCoords, endCoords]);
+
     const mapCenter = useMemo(() => {
         // Priority: parsed location -> activity location -> last activity coords -> trip city/country
+        if (transportCenter) return transportCenter;
         if (parsedLocation) return parsedLocation;
         const actCoords = parseLatLng(activity?.location);
         if (actCoords) return actCoords;
@@ -164,6 +190,11 @@ export function AddActivityDialog({
     }, [parsedLocation, activity?.location, lastActivityCoords, trip?.primaryDestinationCity, trip?.primaryDestinationCountry]);
 
     const marker = parsedLocation || null;
+    const transportMarkers = [
+        startCoords ? { ...startCoords, kind: 'activity' as const, type: 'transportation' } : null,
+        endCoords ? { ...endCoords, kind: 'activity' as const, type: 'transportation' } : null,
+    ].filter(Boolean) as {lat:number; lng:number; kind: 'activity'; type?: string}[];
+    const transportPath = startCoords && endCoords ? [startCoords, endCoords] : [];
 
     const onMapClick = (lat: number, lng: number) => {
         setResolvedCoords({ lat, lng });
@@ -615,9 +646,19 @@ export function AddActivityDialog({
                                                         <Input
                                                             placeholder="Starting point"
                                                             {...field}
-                                                            onChange={(e) => {
+                                                            onChange={async (e) => {
                                                                 field.onChange(e);
-                                                                form.setValue('location', e.target.value);
+                                                                const value = e.target.value;
+                                                                form.setValue('location', value);
+                                                                if (value?.includes('maps.app.goo.gl') || value?.includes('google.com/maps')) {
+                                                                    await resolveLocationInput(value, setStartCoords);
+                                                                }
+                                                            }}
+                                                            onBlur={async (e) => {
+                                                                const value = e.target.value;
+                                                                if (value?.includes('maps.app.goo.gl') || value?.includes('google.com/maps')) {
+                                                                    await resolveLocationInput(value, setStartCoords);
+                                                                }
                                                             }}
                                                         />
                                                     </FormControl>
@@ -632,7 +673,23 @@ export function AddActivityDialog({
                                                 <FormItem>
                                                     <FormLabel>End location</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Destination" {...field} />
+                                                        <Input
+                                                            placeholder="Destination"
+                                                            {...field}
+                                                            onChange={async (e) => {
+                                                                field.onChange(e);
+                                                                const value = e.target.value;
+                                                                if (value?.includes('maps.app.goo.gl') || value?.includes('google.com/maps')) {
+                                                                    await resolveLocationInput(value, setEndCoords);
+                                                                }
+                                                            }}
+                                                            onBlur={async (e) => {
+                                                                const value = e.target.value;
+                                                                if (value?.includes('maps.app.goo.gl') || value?.includes('google.com/maps')) {
+                                                                    await resolveLocationInput(value, setEndCoords);
+                                                                }
+                                                            }}
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>

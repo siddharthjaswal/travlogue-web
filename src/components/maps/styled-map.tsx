@@ -8,18 +8,20 @@ interface StyledMapProps {
   center: { lat: number; lng: number };
   marker?: { lat: number; lng: number } | null;
   markers?: { lat: number; lng: number; kind?: 'activity' | 'stay'; type?: string; title?: string; subtitle?: string }[];
+  path?: { lat: number; lng: number }[];
   height?: number;
   onClick?: (lat: number, lng: number) => void;
   rounded?: string;
   className?: string;
 }
 
-export function StyledMap({ center, marker, markers, height, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
+export function StyledMap({ center, marker, markers, path, height, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
   const [mapReady, setMapReady] = useState(false);
   const markerRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+  const pathRef = useRef<any>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -99,43 +101,68 @@ export function StyledMap({ center, marker, markers, height, onClick, rounded = 
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
 
-    if (!markers || markers.length === 0) return;
-
     const bounds = new google.maps.LatLngBounds();
     const infoWindow = new google.maps.InfoWindow();
 
-    markers.forEach((m) => {
-      const iconUrl = getMarkerSvg(m.kind, m.type);
-      const marker = new google.maps.Marker({
-        position: { lat: m.lat, lng: m.lng },
-        map: mapInstanceRef.current,
-        icon: {
-          url: iconUrl,
-          scaledSize: new google.maps.Size(12, 12),
-          anchor: new google.maps.Point(6, 6),
-        },
-      });
-
-      if (m.title || m.subtitle) {
-        marker.addListener('click', () => {
-          const title = m.title ? `<div style="font-weight:600; margin-bottom:4px;">${m.title}</div>` : '';
-          const subtitle = m.subtitle ? `<div style="color:#6b7280; font-size:12px;">${m.subtitle}</div>` : '';
-          infoWindow.setContent(`<div style="font-family:Inter,system-ui; padding:4px 2px;">${title}${subtitle}</div>`);
-          infoWindow.open({ anchor: marker, map: mapInstanceRef.current });
+    if (markers && markers.length > 0) {
+      markers.forEach((m) => {
+        const iconUrl = getMarkerSvg(m.kind, m.type);
+        const marker = new google.maps.Marker({
+          position: { lat: m.lat, lng: m.lng },
+          map: mapInstanceRef.current,
+          icon: {
+            url: iconUrl,
+            scaledSize: new google.maps.Size(12, 12),
+            anchor: new google.maps.Point(6, 6),
+          },
         });
-      }
 
-      markersRef.current.push(marker);
-      bounds.extend({ lat: m.lat, lng: m.lng });
-    });
+        if (m.title || m.subtitle) {
+          marker.addListener('click', () => {
+            const title = m.title ? `<div style="font-weight:600; margin-bottom:4px;">${m.title}</div>` : '';
+            const subtitle = m.subtitle ? `<div style="color:#6b7280; font-size:12px;">${m.subtitle}</div>` : '';
+            infoWindow.setContent(`<div style="font-family:Inter,system-ui; padding:4px 2px;">${title}${subtitle}</div>`);
+            infoWindow.open({ anchor: marker, map: mapInstanceRef.current });
+          });
+        }
 
-    if (markers.length === 1) {
-      mapInstanceRef.current.setCenter({ lat: markers[0].lat, lng: markers[0].lng });
-      mapInstanceRef.current.setZoom(15);
-    } else {
-      mapInstanceRef.current.fitBounds(bounds, 80);
+        markersRef.current.push(marker);
+        bounds.extend({ lat: m.lat, lng: m.lng });
+      });
     }
-  }, [markers?.length, JSON.stringify(markers), mapReady]);
+
+    if (pathRef.current) {
+      pathRef.current.setMap(null);
+      pathRef.current = null;
+    }
+    if (path && path.length >= 2) {
+      pathRef.current = new google.maps.Polyline({
+        path,
+        geodesic: true,
+        strokeColor: '#7C97C9',
+        strokeOpacity: 0.7,
+        strokeWeight: 2,
+        icons: [
+          {
+            icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 2 },
+            offset: '0',
+            repeat: '8px',
+          },
+        ],
+      });
+      pathRef.current.setMap(mapInstanceRef.current);
+      path.forEach((p) => bounds.extend(p));
+    }
+
+    if (!bounds.isEmpty()) {
+      if ((markers?.length || 0) + (path?.length || 0) <= 1) {
+        mapInstanceRef.current.setCenter(bounds.getCenter());
+        mapInstanceRef.current.setZoom(15);
+      } else {
+        mapInstanceRef.current.fitBounds(bounds, 80);
+      }
+    }
+  }, [markers?.length, JSON.stringify(markers), JSON.stringify(path), mapReady]);
 
   return (
     <div
