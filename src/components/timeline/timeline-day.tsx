@@ -253,9 +253,9 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                                 initialTime={nextTime}
                                 trigger={
                                     <Button
-                                        variant="secondary"
+                                        variant="outline"
                                         size="sm"
-                                        className="gap-2 rounded-full"
+                                        className="gap-2 rounded-full text-muted-foreground"
                                     >
                                         <PlusCircle className="h-4 w-4" />
                                         Add
