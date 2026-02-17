@@ -3,6 +3,9 @@
 import { Trip } from '@/services/trip-service';
 import { Button } from '@/components/ui/button';
 import { Calendar, MapPin, MoreVertical, Edit, Trash, Share2 } from 'lucide-react';
+import { collectDayPlaces } from '@/lib/places';
+import { useTripTimeline } from '@/hooks/use-trips';
+import { useAccommodationsByTrip } from '@/hooks/use-accommodations';
 import { format } from 'date-fns';
 import {
     DropdownMenu,
@@ -32,6 +35,17 @@ interface TripHeaderProps {
 }
 
 export function TripHeader({ trip }: TripHeaderProps) {
+    const { data: timeline } = useTripTimeline(trip.id);
+    const { data: accommodations } = useAccommodationsByTrip(trip.id);
+    const derivedPlaces = collectDayPlaces({
+        dayPlace: undefined,
+        activityLocations: (timeline?.days || []).flatMap((d) => d.activities.map((a) => a.location)),
+        transitLocations: [],
+        stayLocations: (accommodations || []).map((a) => a.address || a.name),
+    });
+    const placeText = derivedPlaces.length > 0
+        ? derivedPlaces.slice(0, 3).join(', ') + (derivedPlaces.length > 3 ? ` +${derivedPlaces.length - 3}` : '')
+        : [trip.primaryDestinationCity, trip.primaryDestinationCountry].filter(Boolean).join(', ');
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const deleteTrip = useDeleteTrip();
     const router = useRouter();
@@ -120,7 +134,7 @@ export function TripHeader({ trip }: TripHeaderProps) {
                                 <div className="flex items-center gap-2">
                                     <MapPin className="h-4 w-4 text-white/70 flex-shrink-0" />
                                     <span>
-                                        {[trip.primaryDestinationCity, trip.primaryDestinationCountry].filter(Boolean).join(', ')}
+                                        {placeText || [trip.primaryDestinationCity, trip.primaryDestinationCountry].filter(Boolean).join(', ')}
                                     </span>
                                 </div>
                             )}

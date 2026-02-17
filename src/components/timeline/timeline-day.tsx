@@ -5,6 +5,7 @@ import { ActivityItem } from './activity-item';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MapPin, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
+import { collectDayPlaces } from '@/lib/places';
 import { AddActivityDialog } from './add-activity-dialog';
 import { useTransits } from '@/hooks/use-transits';
 import {
@@ -236,16 +237,17 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                         {/* City Labels + Add */}
                         <div className="mt-6 flex items-center justify-between">
                             <div className="flex flex-wrap justify-center gap-2">
-                                {day.place
-                                    .split('→')
-                                    .map((p) => p.trim())
-                                    .filter(Boolean)
-                                    .map((place, idx) => (
-                                        <div key={`${place}-${idx}`} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/50 border border-border/50 text-xs font-medium text-muted-foreground">
-                                            <MapPin className="h-3.5 w-3.5" />
-                                            <span>{place}</span>
-                                        </div>
-                                    ))}
+                                {collectDayPlaces({
+                                    dayPlace: day.place,
+                                    activityLocations: day.activities.map((a) => a.location),
+                                    transitLocations: (transits || []).flatMap((t) => [t.fromLocation, t.toLocation]),
+                                    stayLocations: stayInfo?.accommodations?.map((a) => a.address || a.name) || [],
+                                }).map((place, idx) => (
+                                    <div key={`${place}-${idx}`} className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/50 border border-border/50 text-xs font-medium text-muted-foreground">
+                                        <MapPin className="h-3.5 w-3.5" />
+                                        <span>{place}</span>
+                                    </div>
+                                ))}
                             </div>
                             <AddActivityDialog
                                 tripId={day.tripId}
