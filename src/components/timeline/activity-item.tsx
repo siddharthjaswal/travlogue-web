@@ -28,7 +28,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     const isMapLink = activity.location?.startsWith('http');
 
     return (
-        <div className="group relative flex flex-col sm:flex-row gap-4 sm:gap-4 mb-3">
+        <div className="group relative flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3">
             {/* 1. Time Column */}
             <div className="hidden sm:flex w-full sm:w-[48px] pt-1 flex-col items-end justify-start">
                 <span className="text-sm font-bold text-foreground tabular-nums">
@@ -39,9 +39,9 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                 </span>
             </div>
 
-            {/* 2. Timeline Track */}
-            <div className="relative flex flex-col items-center pt-1 sm:pt-1">
-                <div className="absolute top-8 bottom-[-24px] w-px bg-border/40 group-last:hidden hidden sm:block" />
+            {/* 2. Timeline Track (desktop only) */}
+            <div className="relative hidden sm:flex flex-col items-center pt-1">
+                <div className="absolute top-8 bottom-[-24px] w-px bg-border/40 group-last:hidden" />
                 <div className="relative z-10 h-7 w-7 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground shadow-sm">
                     <Icon className="h-4 w-4" />
                 </div>

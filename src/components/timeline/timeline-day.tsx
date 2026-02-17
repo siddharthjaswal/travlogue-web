@@ -127,30 +127,28 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
     };
 
     return (
-        <div className="relative pl-6 md:pl-0">
-            {/* Mobile Timeline Line */}
-            <div className="absolute left-[-14px] top-0 bottom-0 w-px bg-border/50 md:hidden" />
-            <div className="absolute left-[-18px] top-6 w-2.5 h-2.5 rounded-full bg-primary ring-4 ring-background md:hidden" />
-
-            <div className="grid grid-cols-[40px_1fr] md:grid-cols-[70px_1fr] gap-2 sm:gap-4 mb-10 sm:mb-16">
-                {/* Day Header (Left Column) */}
-                <div className="relative mb-4 md:mb-0 pt-1">
+        <div className="relative">
+            <div className="grid grid-cols-1 md:grid-cols-[70px_1fr] gap-4 md:gap-4 mb-10 sm:mb-16">
+                {/* Day Header */}
+                <div className="relative mb-2 md:mb-0 pt-1">
                     <div className="md:sticky md:top-32 flex md:justify-start">
-                        <div className="flex flex-col items-center md:items-start gap-1">
+                        <div className="flex items-center md:flex-col md:items-start gap-3 md:gap-1">
                             <div className="h-10 w-10 rounded-full bg-muted/60 border border-border/50 flex items-center justify-center text-foreground font-semibold">
                                 {format(dateObj, 'd')}
                             </div>
-                            <span className="text-[10px] font-semibold text-primary uppercase tracking-widest">
-                                {monthName}
-                            </span>
-                            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                                {dayName.slice(0,3)}
-                            </span>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-semibold text-primary uppercase tracking-widest">
+                                    {monthName}
+                                </span>
+                                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                                    {dayName.slice(0,3)}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Content Column (Right) */}
+                {/* Content Column */}
                 <div className="relative">
                     <div className="space-y-4">
                         {stayInfo && stayInfo.isStart && (
