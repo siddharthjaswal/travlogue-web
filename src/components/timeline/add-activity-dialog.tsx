@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, addDays } from 'date-fns';
+import { format, addDays, differenceInMinutes } from 'date-fns';
 import { CalendarIcon, Loader2, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -130,6 +130,22 @@ export function AddActivityDialog({
 
     const isStay = form.watch('activityType') === 'other';
     const isTransport = form.watch('activityType') === 'transportation';
+
+    const startTimeValue = form.watch('startTime');
+    const endTimeValue = form.watch('endTime');
+    const transportDuration = useMemo(() => {
+        if (!startTimeValue || !endTimeValue) return '';
+        const [sh, sm] = startTimeValue.split(':').map(Number);
+        const [eh, em] = endTimeValue.split(':').map(Number);
+        if ([sh, sm, eh, em].some((v) => Number.isNaN(v))) return '';
+        const start = new Date(0, 0, 0, sh, sm, 0);
+        const end = new Date(0, 0, 0, eh, em, 0);
+        const mins = differenceInMinutes(end, start);
+        if (mins <= 0) return '';
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return `${h ? `${h}h ` : ''}${m ? `${m}m` : ''}`.trim();
+    }, [startTimeValue, endTimeValue]);
 
     const lastActivityCoords = useMemo(() => {
         if (!timeline?.days) return null;
@@ -350,15 +366,59 @@ export function AddActivityDialog({
         <Dialog open={show} onOpenChange={setShow}>
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
             <DialogContent className="sm:max-w-[900px] w-[95vw] overflow-y-auto max-h-[92vh]">
-                <DialogHeader>
-                    <DialogTitle>{mode === 'edit' ? 'Edit Activity' : 'Add Activity'}</DialogTitle>
-                    <DialogDescription>
-                        {mode === 'edit' ? 'Update the details of your activity.' : 'Add a new activity to your itinerary.'}
-                    </DialogDescription>
-                </DialogHeader>
-
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div>
+                                <h2 className="text-xl font-semibold">{mode === 'edit' ? 'Edit Activity' : 'Add Activity'}</h2>
+                                <p className="text-sm text-muted-foreground">
+                                    {mode === 'edit' ? 'Update the details of your activity.' : 'Add a new activity to your itinerary.'}
+                                </p>
+                            </div>
+                            {!isStay && (
+                                <FormField
+                                    control={form.control}
+                                    name="date"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Date</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant={"outline"}
+                                                            className={cn(
+                                                                "w-full pl-3 text-left font-normal",
+                                                                !field.value && "text-muted-foreground"
+                                                            )}
+                                                            disabled={mode === 'edit'}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP")
+                                                            ) : (
+                                                                <span>Pick a date</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                {mode !== 'edit' && (
+                                                    <PopoverContent className="w-auto p-0" align="start">
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value}
+                                                            onSelect={field.onChange}
+                                                            initialFocus
+                                                        />
+                                                    </PopoverContent>
+                                                )}
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                        </div>
                         <FormField
                             control={form.control}
                             name="name"
@@ -373,6 +433,7 @@ export function AddActivityDialog({
                             )}
                         />
 
+                        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Basic Info</div>
                         <div className={cn("grid gap-4", isStay ? "grid-cols-1" : "grid-cols-2")}>
                             <FormField
                                 control={form.control}
@@ -446,6 +507,7 @@ export function AddActivityDialog({
                             )}
                         </div>
 
+                        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Type</div>
                         {isStay ? (
                             <div className="rounded-2xl border border-border/40 bg-muted/10 p-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -662,7 +724,8 @@ export function AddActivityDialog({
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-4">
+                        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Location</div>
+                        <div className="grid grid-cols-1 gap-4">
                             <div className="space-y-4">
                                 {isTransport ? (
                                     <>
@@ -929,6 +992,7 @@ export function AddActivityDialog({
                                 </div>
                             )}
                         </div>
+                        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Map</div>
                         {isTransport && (
                             <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
                                 <div className="flex items-center justify-between mb-3">

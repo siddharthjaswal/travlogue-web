@@ -2,7 +2,7 @@
 
 import { Activity } from '@/services/activity-service';
 import { Badge } from '@/components/ui/badge';
-import { Plane, Hotel, Utensils, Camera, MapPin, DollarSign, Pencil, ExternalLink } from 'lucide-react';
+import { Plane, Hotel, Utensils, Camera, MapPin, DollarSign, Pencil, ExternalLink, Train, Bus, Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AddActivityDialog } from './add-activity-dialog';
 
@@ -14,8 +14,16 @@ interface ActivityItemProps {
 }
 
 export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
-    const getActivityIcon = (type: string) => {
-        switch (type.toLowerCase()) {
+    const getActivityIcon = (type: string, location?: string) => {
+        const t = type.toLowerCase();
+        if (t === 'transportation' && location?.includes('•')) {
+            const mode = location.split('•')[1].trim().toLowerCase();
+            if (mode.includes('train')) return Train;
+            if (mode.includes('bus')) return Bus;
+            if (mode.includes('car')) return Car;
+            if (mode.includes('flight')) return Plane;
+        }
+        switch (t) {
             case 'transportation': return Plane;
             case 'other': return Hotel;
             case 'dining': return Utensils;
@@ -24,7 +32,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
         }
     };
 
-    const Icon = getActivityIcon(activity.activityType);
+    const Icon = getActivityIcon(activity.activityType, activity.location);
     const isMapLink = activity.location?.startsWith('http');
 
     return (
