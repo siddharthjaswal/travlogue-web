@@ -1,8 +1,7 @@
 'use client';
 
 import { Activity } from '@/services/activity-service';
-import { Badge } from '@/components/ui/badge';
-import { Plane, Hotel, Utensils, Camera, MapPin, DollarSign, Pencil, ExternalLink, Train, Bus, Car } from 'lucide-react';
+import { Plane, Hotel, Utensils, Camera, MapPin, Pencil, ExternalLink, Train, Bus, Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AddActivityDialog } from './add-activity-dialog';
 
@@ -34,6 +33,18 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
 
     const Icon = getActivityIcon(activity.activityType, activity.location);
     const isMapLink = activity.location?.startsWith('http');
+    const currencySymbol = (code?: string) => {
+        if (!code) return '$';
+        const c = code.toUpperCase();
+        if (c === 'USD') return '$';
+        if (c === 'EUR') return '€';
+        if (c === 'GBP') return '£';
+        if (c === 'INR') return '₹';
+        if (c === 'JPY') return '¥';
+        if (c === 'AUD') return 'A$';
+        if (c === 'CAD') return 'C$';
+        return c;
+    };
 
     return (
         <div className="group relative flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3">
@@ -66,14 +77,19 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                     return 'bg-[#C5B8A5]/18';
                 })()}`}>
                     <div className="relative flex flex-col gap-3">
-                        <div className="flex items-start justify-between gap-3">
-                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                                {activity.activityType}
-                            </span>
+                        <div className="flex items-center justify-between gap-3">
+                            <div className="flex flex-col justify-center gap-1">
+                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                                    {activity.activityType}
+                                </span>
+                                <h4 className="text-left text-lg font-semibold text-foreground break-words">
+                                    {activity.name}
+                                </h4>
+                            </div>
                             <div className="flex items-center gap-2">
                                 {activity.cost && (
                                     <div className="rounded-full border border-border/40 bg-background/70 px-3 py-1 text-sm font-semibold text-foreground">
-                                        {activity.currency} {activity.cost}
+                                        {currencySymbol(activity.currency)} {activity.cost}
                                     </div>
                                 )}
                                 <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
@@ -91,10 +107,6 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                                 </div>
                             </div>
                         </div>
-
-                        <h4 className="text-center text-lg font-semibold text-foreground break-words">
-                            {activity.name}
-                        </h4>
 
                         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground/80">
                             {activity.duration && (
