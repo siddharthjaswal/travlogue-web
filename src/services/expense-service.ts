@@ -29,7 +29,7 @@ const mapExpense = (data: any): Expense => ({
   tripDayId: data.trip_day_id,
   activityId: data.activity_id,
   description: data.description,
-  amount: data.amount,
+  amount: typeof data.amount === 'string' ? parseFloat(data.amount) : data.amount,
   category: data.category,
   date: data.expense_date || data.date,
   currency: data.currency,
