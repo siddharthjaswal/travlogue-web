@@ -59,6 +59,7 @@ const formSchema = z.object({
     endLocation: z.string().optional(),
     startTime: z.string().optional(),
     endTime: z.string().optional(),
+    transportMode: z.string().optional(),
     cost: z.string().refine((val) => !val || !isNaN(Number(val)), {
         message: 'Must be a valid number',
     }).optional(),
@@ -117,6 +118,7 @@ export function AddActivityDialog({
             endLocation: '',
             startTime: '',
             endTime: '',
+            transportMode: 'train',
             cost: '',
             notes: '',
             checkinDate: initialDate || new Date(),
@@ -214,7 +216,8 @@ export function AddActivityDialog({
                     startLocation: activity.location?.split('→')[0]?.trim() || activity.location || '',
                     endLocation: activity.location?.split('→')[1]?.trim() || '',
                     startTime: activity.time || '',
-                    endTime: (activity.notes || '').match(/End time:\s*([0-9]{2}:[0-9]{2})/)?.[1] || '',
+                    endTime: '',
+                    transportMode: (activity.location || '').split('•')[1]?.trim().toLowerCase() || 'train',
                     cost: activity.cost ? String(activity.cost) : '',
                     notes: activity.notes || '',
                 });
@@ -229,6 +232,7 @@ export function AddActivityDialog({
                     endLocation: '',
                     startTime: '',
                     endTime: '',
+                    transportMode: 'train',
                     cost: '',
                     notes: '',
                     checkinDate: initialDate || new Date(),
@@ -242,13 +246,14 @@ export function AddActivityDialog({
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const isTransport = values.activityType === 'transportation';
-        const route = isTransport
+        const routeBase = isTransport
             ? [values.startLocation, values.endLocation].filter(Boolean).join(' → ')
             : values.location;
+        const route = isTransport && values.transportMode
+            ? `${routeBase} • ${values.transportMode}`
+            : routeBase;
         const startTime = isTransport ? (values.startTime || values.time) : values.time;
-        const notes = isTransport && values.endTime
-            ? [values.notes, `End time: ${values.endTime}`].filter(Boolean).join('\n')
-            : values.notes;
+        const notes = values.notes;
 
         if (mode === 'edit' && activity) {
             updateActivity.mutate({
@@ -582,6 +587,31 @@ export function AddActivityDialog({
                                                 </FormItem>
                                             )}
                                         />
+                                        <FormField
+                                            control={form.control}
+                                            name="transportMode"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Mode</FormLabel>
+                                                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                                        <FormControl>
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Select mode" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            <SelectItem value="flight">Flight</SelectItem>
+                                                            <SelectItem value="train">Train</SelectItem>
+                                                            <SelectItem value="bus">Bus</SelectItem>
+                                                            <SelectItem value="car">Car</SelectItem>
+                                                            <SelectItem value="ferry">Ferry</SelectItem>
+                                                            <SelectItem value="other">Other</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
                                     </>
                                 ) : (
                                     <FormField
@@ -635,7 +665,8 @@ export function AddActivityDialog({
                         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-4">
                             <div className="space-y-4">
                                 {isTransport ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <FormField
                                             control={form.control}
                                             name="startLocation"
@@ -695,7 +726,25 @@ export function AddActivityDialog({
                                                 </FormItem>
                                             )}
                                         />
-                                    </div>
+                                        </div>
+                                        {(form.watch('startLocation') && form.watch('endLocation')) && (
+                                            <div className="flex justify-end">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={async () => {
+                                                        const start = form.getValues('startLocation');
+                                                        const endLoc = form.getValues('endLocation');
+                                                        if (start) await resolveLocationInput(start, setStartCoords);
+                                                        if (endLoc) await resolveLocationInput(endLoc, setEndCoords);
+                                                    }}
+                                                >
+                                                    Resolve
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </>
                                 ) : (
                                     <FormField
                                         control={form.control}
@@ -850,6 +899,38 @@ export function AddActivityDialog({
                                     )}
                                 />
                             </div>
+                            {!isTransport && (
+                                <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div>
+                                            <p className="text-sm font-medium">Map</p>
+                                            <p className="text-xs text-muted-foreground">Paste a Google Maps link or click to set coordinates</p>
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant={showMap ? 'secondary' : 'outline'}
+                                            size="sm"
+                                            onClick={() => setShowMap(!showMap)}
+                                        >
+                                            {showMap ? 'Hide Map' : 'Show Map'}
+                                        </Button>
+                                    </div>
+
+                                    {showMap && (
+                                        <StyledMap
+                                            center={mapCenter}
+                                            marker={marker}
+                                            markers={isTransport ? transportMarkers : undefined}
+                                            path={isTransport ? transportPath : undefined}
+                                            height={260}
+                                            onClick={onMapClick}
+                                            rounded="rounded-2xl"
+                                        />
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                        {isTransport && (
                             <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
                                 <div className="flex items-center justify-between mb-3">
                                     <div>
@@ -865,18 +946,19 @@ export function AddActivityDialog({
                                         {showMap ? 'Hide Map' : 'Show Map'}
                                     </Button>
                                 </div>
-
                                 {showMap && (
                                     <StyledMap
                                         center={mapCenter}
                                         marker={marker}
+                                        markers={isTransport ? transportMarkers : undefined}
+                                        path={isTransport ? transportPath : undefined}
                                         height={260}
                                         onClick={onMapClick}
                                         rounded="rounded-2xl"
                                     />
                                 )}
                             </div>
-                        </div>
+                        )}
                         <FormField
                             control={form.control}
                             name="notes"
