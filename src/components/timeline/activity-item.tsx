@@ -68,9 +68,24 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                                         {activity.activityType}
                                     </span>
                                 </div>
-                                <span className="sm:hidden text-xs font-semibold text-muted-foreground">
-                                    {activity.time || 'Any'} {activity.time ? (parseInt(activity.time) >= 12 ? 'PM' : 'AM') : ''}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className="sm:hidden text-xs font-semibold text-muted-foreground">
+                                        {activity.time || 'Any'} {activity.time ? (parseInt(activity.time) >= 12 ? 'PM' : 'AM') : ''}
+                                    </span>
+                                    <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                        <AddActivityDialog
+                                            tripId={tripId}
+                                            initialDate={date}
+                                            mode="edit"
+                                            activity={activity}
+                                            trigger={
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg">
+                                                    <Pencil className="h-3.5 w-3.5" />
+                                                </Button>
+                                            }
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground/80">
@@ -104,19 +119,6 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                             )}
                         </div>
 
-                        <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute top-2 right-2 sm:static sm:ml-2">
-                            <AddActivityDialog
-                                tripId={tripId}
-                                initialDate={date}
-                                mode="edit"
-                                activity={activity}
-                                trigger={
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg">
-                                        <Pencil className="h-3.5 w-3.5" />
-                                    </Button>
-                                }
-                            />
-                        </div>
                     </div>
                 </div>
             </div>
