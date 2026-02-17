@@ -721,7 +721,7 @@ export function AddActivityDialog({
                                             control={form.control}
                                             name="endLocation"
                                             render={({ field }) => (
-                                                <FormItem className="relative">
+                                                <FormItem>
                                                     <FormLabel>End location</FormLabel>
                                                     <FormControl>
                                                         <Input
@@ -742,26 +742,29 @@ export function AddActivityDialog({
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    {(form.watch('startLocation') && form.watch('endLocation')) && (
-                                                        <Button
-                                                            type="button"
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8"
-                                                            onClick={async () => {
-                                                                const start = form.getValues('startLocation');
-                                                                const endLoc = form.getValues('endLocation');
-                                                                if (start) await resolveLocationInput(start, setStartCoords);
-                                                                if (endLoc) await resolveLocationInput(endLoc, setEndCoords);
-                                                            }}
-                                                        >
-                                                            Resolve
-                                                        </Button>
-                                                    )}
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
+                                    </div>
+                                    {(form.watch('startLocation') && form.watch('endLocation')) && (
+                                        <div className="flex justify-end">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={async () => {
+                                                    const start = form.getValues('startLocation');
+                                                    const endLoc = form.getValues('endLocation');
+                                                    if (start) await resolveLocationInput(start, setStartCoords);
+                                                    if (endLoc) await resolveLocationInput(endLoc, setEndCoords);
+                                                }}
+                                            >
+                                                Resolve
+                                            </Button>
+                                        </div>
+                                    )}
+                                    <div>
                                         </div>
                                     </>
                                 ) : (
