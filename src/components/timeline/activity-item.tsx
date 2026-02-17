@@ -86,14 +86,14 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                                     <h4 className="text-left text-lg font-semibold text-foreground break-words">
                                         {activity.name}
                                     </h4>
-                                    {activity.cost && (
-                                        <div className="rounded-full border border-border/40 bg-background/70 px-4 py-1.5 leading-[1] text-xl font-semibold text-foreground flex items-center justify-center translate-y-[-1px]">
-                                            {currencySymbol(activity.currency)} {activity.cost}
-                                        </div>
-                                    )}
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
+                                {activity.cost && (
+                                    <div className="rounded-full border border-border/40 bg-background/70 px-4 py-1.5 leading-[1] text-xl font-semibold text-foreground flex items-center justify-center translate-y-[-1px] mt-[14px]">
+                                        {currencySymbol(activity.currency)} {activity.cost}
+                                    </div>
+                                )}
                                 <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                     <AddActivityDialog
                                         tripId={tripId}
