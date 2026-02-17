@@ -154,6 +154,9 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                                     <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#7C97C9]" /> Transport
                                 </span>
                                 <span className="inline-flex items-center gap-2">
+                                    <span className="h-0.5 w-5 border-t-2 border-dashed border-[#7C97C9]" /> Route
+                                </span>
+                                <span className="inline-flex items-center gap-2">
                                     <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#A5BBD6]" /> Stay
                                 </span>
                                 <span className="inline-flex items-center gap-2">
@@ -193,6 +196,9 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                                     </span>
                                     <span className="inline-flex items-center gap-2">
                                         <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#7C97C9]" /> Transport
+                                    </span>
+                                    <span className="inline-flex items-center gap-2">
+                                        <span className="h-0.5 w-5 border-t-2 border-dashed border-[#7C97C9]" /> Route
                                     </span>
                                     <span className="inline-flex items-center gap-2">
                                         <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#A5BBD6]" /> Stay
