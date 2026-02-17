@@ -467,6 +467,27 @@ export function AddActivityDialog({
                                     control={form.control}
                                     name="transportMode"
                                     render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Mode</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select mode" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="flight">Flight</SelectItem>
+                                                    <SelectItem value="train">Train</SelectItem>
+                                                    <SelectItem value="bus">Bus</SelectItem>
+                                                    <SelectItem value="car">Car</SelectItem>
+                                                    <SelectItem value="ferry">Ferry</SelectItem>
+                                                    <SelectItem value="other">Other</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             ) : (
                                 <div />
                             )}
@@ -912,19 +933,6 @@ export function AddActivityDialog({
                                     />
                                 )}
 
-                                <FormField
-                                    control={form.control}
-                                    name="notes"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Notes</FormLabel>
-                                            <FormControl>
-                                                <Textarea placeholder="Any extra details..." {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
                             </div>
                             {!isTransport && (
                                 <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
