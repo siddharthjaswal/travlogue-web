@@ -145,22 +145,22 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                             <div className="flex items-start justify-between gap-3">
                                 <div className="flex flex-wrap items-center gap-3">
                                 <span className="inline-flex items-center gap-2">
-                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#8FA6C8]" /> Sightseeing
+                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#7FD1C8]" /> Sightseeing
                                 </span>
                                 <span className="inline-flex items-center gap-2">
-                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#C8A38C]" /> Dining
+                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#F2A477]" /> Dining
                                 </span>
                                 <span className="inline-flex items-center gap-2">
-                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#7C97C9]" /> Transport
+                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#A8A4F2]" /> Transport
                                 </span>
                                 <span className="inline-flex items-center gap-2">
-                                    <span className="h-0.5 w-5 border-t-2 border-dashed border-[#7C97C9]" /> Route
+                                    <span className="h-0.5 w-5 border-t-2 border-dashed border-[#A8A4F2]" /> Route
                                 </span>
                                 <span className="inline-flex items-center gap-2">
-                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#A5BBD6]" /> Stay
+                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#8FB7FF]" /> Stay
                                 </span>
                                 <span className="inline-flex items-center gap-2">
-                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#9AA8BC]" /> Other
+                                    <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#C5B8A5]" /> Other
                                 </span>
                                 </div>
                                 <Button
@@ -189,22 +189,22 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                             <div className="absolute right-5 bottom-5 rounded-2xl border border-border/30 bg-card/70 backdrop-blur px-4 py-3 text-xs text-muted-foreground">
                                 <div className="flex flex-wrap items-center gap-3">
                                     <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#8FA6C8]" /> Sightseeing
+                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#7FD1C8]" /> Sightseeing
                                     </span>
                                     <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#C8A38C]" /> Dining
+                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#F2A477]" /> Dining
                                     </span>
                                     <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#7C97C9]" /> Transport
+                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#A8A4F2]" /> Transport
                                     </span>
                                     <span className="inline-flex items-center gap-2">
-                                        <span className="h-0.5 w-5 border-t-2 border-dashed border-[#7C97C9]" /> Route
+                                        <span className="h-0.5 w-5 border-t-2 border-dashed border-[#A8A4F2]" /> Route
                                     </span>
                                     <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#A5BBD6]" /> Stay
+                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#8FB7FF]" /> Stay
                                     </span>
                                     <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#9AA8BC]" /> Other
+                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#C5B8A5]" /> Other
                                     </span>
                                 </div>
                             </div>

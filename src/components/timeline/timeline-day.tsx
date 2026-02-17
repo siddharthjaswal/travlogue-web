@@ -153,7 +153,7 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                 <div className="relative">
                     <div className="space-y-4">
                         {stayInfo && stayInfo.isStart && (
-                            <div className="group mb-4 flex items-center justify-between rounded-md border border-border/30 bg-[#A5BBD6]/18 px-3 py-2 text-xs text-muted-foreground">
+                            <div className="group mb-4 flex items-center justify-between rounded-md border border-border/30 bg-[#8FB7FF]/18 px-3 py-2 text-xs text-muted-foreground">
                                 <div>
                                     Stay · {stayInfo.name} · {stayInfo.nights} night{stayInfo.nights === 1 ? '' : 's'}
                                 </div>
@@ -168,7 +168,7 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                             </div>
                         )}
                         {stayInfo && !stayInfo.isStart && (
-                            <div className="mb-3 inline-flex rounded-full border border-border/30 bg-[#A5BBD6]/18 px-3 py-1 text-[11px] text-muted-foreground">
+                            <div className="mb-3 inline-flex rounded-full border border-border/30 bg-[#8FB7FF]/18 px-3 py-1 text-[11px] text-muted-foreground">
                                 Continuing stay · {stayInfo.name}
                             </div>
                         )}

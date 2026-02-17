@@ -59,11 +59,11 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
             <div className="flex-1 pb-2">
                 <div className={`relative border border-border/30 rounded-xl p-3 ${(() => {
                     const t = activity.activityType.toLowerCase();
-                    if (t.includes('sightseeing')) return 'bg-[#8FA6C8]/18';
-                    if (t.includes('dining')) return 'bg-[#C8A38C]/18';
-                    if (t.includes('transport')) return 'bg-[#7C97C9]/18';
-                    if (t.includes('other')) return 'bg-[#A5BBD6]/18';
-                    return 'bg-[#9AA8BC]/18';
+                    if (t.includes('sightseeing')) return 'bg-[#7FD1C8]/18';
+                    if (t.includes('dining')) return 'bg-[#F2A477]/18';
+                    if (t.includes('transport')) return 'bg-[#A8A4F2]/18';
+                    if (t.includes('other')) return 'bg-[#8FB7FF]/18';
+                    return 'bg-[#C5B8A5]/18';
                 })()}`}>
                     <div className="relative flex flex-col sm:flex-row justify-between items-start gap-3">
                         <div className="min-w-0 flex-1">

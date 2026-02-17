@@ -77,12 +77,12 @@ export function StyledMap({ center, marker, markers, path, paths, height, onClic
     const isStay = kind === 'stay';
 
     let fill = '#9BB6D4';
-    if (isStay) fill = '#A5BBD6';
-    else if (t.includes('sightseeing')) fill = '#8FA6C8';
-    else if (t.includes('dining')) fill = '#C8A38C';
-    else if (t.includes('transport')) fill = '#7C97C9';
-    else if (t.includes('other')) fill = '#A5BBD6';
-    else fill = '#9AA8BC';
+    if (isStay) fill = '#8FB7FF';
+    else if (t.includes('sightseeing')) fill = '#7FD1C8';
+    else if (t.includes('dining')) fill = '#F2A477';
+    else if (t.includes('transport')) fill = '#A8A4F2';
+    else if (t.includes('other')) fill = '#8FB7FF';
+    else fill = '#C5B8A5';
 
     const stroke = '#5F6E84';
 
@@ -144,7 +144,7 @@ export function StyledMap({ center, marker, markers, path, paths, height, onClic
         const poly = new google.maps.Polyline({
           path: pathItem,
           geodesic: true,
-          strokeColor: '#7C97C9',
+          strokeColor: '#A8A4F2',
           strokeOpacity: 0.7,
           strokeWeight: 2,
           icons: [
