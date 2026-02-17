@@ -65,68 +65,60 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                     if (t.includes('other')) return 'bg-[#8FB7FF]/18';
                     return 'bg-[#C5B8A5]/18';
                 })()}`}>
-                    <div className="relative flex flex-col sm:flex-row justify-between items-start gap-3">
-                        <div className="min-w-0 flex-1">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 mb-1">
-                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
-                                    <h4 className="font-medium text-sm text-foreground break-words">
-                                        {activity.name}
-                                    </h4>
-                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                                        {activity.activityType}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="sm:hidden text-xs font-semibold text-muted-foreground">
-                                        {activity.time || 'Any'} {activity.time ? (parseInt(activity.time) >= 12 ? 'PM' : 'AM') : ''}
-                                    </span>
-                                    <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                                        <AddActivityDialog
-                                            tripId={tripId}
-                                            initialDate={date}
-                                            mode="edit"
-                                            activity={activity}
-                                            trigger={
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg">
-                                                    <Pencil className="h-3.5 w-3.5" />
-                                                </Button>
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground/80">
-                                {activity.duration && (
-                                    <div className="flex items-center gap-1 text-foreground/70 bg-muted/50 px-1.5 rounded-md">
-                                        <span className="text-xs font-medium">{activity.duration}h</span>
-                                    </div>
-                                )}
+                    <div className="relative flex flex-col gap-3">
+                        <div className="flex items-start justify-between gap-3">
+                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                                {activity.activityType}
+                            </span>
+                            <div className="flex items-center gap-2">
                                 {activity.cost && (
-                                    <div className="flex items-center gap-1 text-foreground/70 bg-muted/50 px-1.5 rounded-md">
-                                        <DollarSign className="h-3 w-3" />
-                                        <span className="text-xs font-medium">{activity.currency} {activity.cost}</span>
+                                    <div className="rounded-full border border-border/40 bg-background/70 px-3 py-1 text-sm font-semibold text-foreground">
+                                        {activity.currency} {activity.cost}
                                     </div>
                                 )}
-                                {isMapLink && (
-                                    <a
-                                        href={activity.location}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-                                    >
-                                        <ExternalLink className="h-3 w-3" /> Open in Maps
-                                    </a>
-                                )}
+                                <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                    <AddActivityDialog
+                                        tripId={tripId}
+                                        initialDate={date}
+                                        mode="edit"
+                                        activity={activity}
+                                        trigger={
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg">
+                                                <Pencil className="h-3.5 w-3.5" />
+                                            </Button>
+                                        }
+                                    />
+                                </div>
                             </div>
+                        </div>
 
-                            {activity.notes && (
-                                <p className="mt-3 text-sm text-muted-foreground italic border-l-2 border-primary/20 pl-3 py-0.5">
-                                    {activity.notes}
-                                </p>
+                        <h4 className="text-center text-lg font-semibold text-foreground break-words">
+                            {activity.name}
+                        </h4>
+
+                        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground/80">
+                            {activity.duration && (
+                                <div className="flex items-center gap-1 text-foreground/70 bg-muted/50 px-1.5 rounded-md">
+                                    <span className="text-xs font-medium">{activity.duration}h</span>
+                                </div>
+                            )}
+                            {isMapLink && (
+                                <a
+                                    href={activity.location}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                                >
+                                    <ExternalLink className="h-3 w-3" /> Open in Maps
+                                </a>
                             )}
                         </div>
 
+                        {activity.notes && (
+                            <p className="mt-2 text-sm text-muted-foreground italic border-l-2 border-primary/20 pl-3 py-0.5">
+                                {activity.notes}
+                            </p>
+                        )}
                     </div>
                 </div>
             </div>
