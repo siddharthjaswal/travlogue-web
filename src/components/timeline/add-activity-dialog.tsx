@@ -166,20 +166,29 @@ export function AddActivityDialog({
     const [startCoords, setStartCoords] = useState<{ lat: number; lng: number } | null>(null);
     const [endCoords, setEndCoords] = useState<{ lat: number; lng: number } | null>(null);
     async function resolveLocationInput(value: string, setCoords: (c: {lat:number; lng:number} | null)=>void) {
-        if (!value) return;
+        if (!value) return null;
         if (resolvedCache.current.has(value)) {
             const cached = resolvedCache.current.get(value);
-            if (cached?.lat && cached?.lng) setCoords({ lat: cached.lat, lng: cached.lng });
-            return;
+            if (cached?.lat && cached?.lng) {
+                const coords = { lat: cached.lat, lng: cached.lng };
+                setCoords(coords);
+                return coords;
+            }
+            return null;
         }
         setIsExpanding(true);
         try {
             const res = await api.get('/utils/resolve-map-link', { params: { url: value } });
             resolvedCache.current.set(value, res?.data || {});
-            if (res?.data?.lat && res?.data?.lng) setCoords({ lat: res.data.lat, lng: res.data.lng });
+            if (res?.data?.lat && res?.data?.lng) {
+                const coords = { lat: res.data.lat, lng: res.data.lng };
+                setCoords(coords);
+                return coords;
+            }
         } finally {
             setIsExpanding(false);
         }
+        return null;
     }
 
     const parsedLocation = useMemo(() => {
@@ -266,6 +275,16 @@ export function AddActivityDialog({
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const isTransport = values.activityType === 'transportation';
+        let resolvedStart = startCoords;
+        let resolvedEnd = endCoords;
+        if (isTransport) {
+            if (!resolvedStart && values.startLocation && (values.startLocation.includes('maps.app.goo.gl') || values.startLocation.includes('google.com/maps'))) {
+                resolvedStart = await resolveLocationInput(values.startLocation, setStartCoords);
+            }
+            if (!resolvedEnd && values.endLocation && (values.endLocation.includes('maps.app.goo.gl') || values.endLocation.includes('google.com/maps'))) {
+                resolvedEnd = await resolveLocationInput(values.endLocation, setEndCoords);
+            }
+        }
         const cleanLocation = (val?: string) => (val ? val.split('•')[0].trim() : val);
         const routeBase = isTransport
             ? [cleanLocation(values.startLocation), cleanLocation(values.endLocation)].filter(Boolean).join(' → ')
@@ -289,10 +308,10 @@ export function AddActivityDialog({
                     location: route,
                     latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
                     longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
-                    startLatitude: isTransport ? (startCoords?.lat ?? null) : null,
-                    startLongitude: isTransport ? (startCoords?.lng ?? null) : null,
-                    endLatitude: isTransport ? (endCoords?.lat ?? null) : null,
-                    endLongitude: isTransport ? (endCoords?.lng ?? null) : null,
+                    startLatitude: isTransport ? (resolvedStart?.lat ?? null) : null,
+                    startLongitude: isTransport ? (resolvedStart?.lng ?? null) : null,
+                    endLatitude: isTransport ? (resolvedEnd?.lat ?? null) : null,
+                    endLongitude: isTransport ? (resolvedEnd?.lng ?? null) : null,
                     cost: values.cost === '' ? null : values.cost ? Number(values.cost) : undefined,
                     notes: notes,
                 }
@@ -359,10 +378,10 @@ export function AddActivityDialog({
             location: route,
             latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
             longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
-            startLatitude: isTransport ? (startCoords?.lat ?? null) : undefined,
-            startLongitude: isTransport ? (startCoords?.lng ?? null) : undefined,
-            endLatitude: isTransport ? (endCoords?.lat ?? null) : undefined,
-            endLongitude: isTransport ? (endCoords?.lng ?? null) : undefined,
+            startLatitude: isTransport ? (resolvedStart?.lat ?? null) : undefined,
+            startLongitude: isTransport ? (resolvedStart?.lng ?? null) : undefined,
+            endLatitude: isTransport ? (resolvedEnd?.lat ?? null) : undefined,
+            endLongitude: isTransport ? (resolvedEnd?.lng ?? null) : undefined,
             cost: values.cost === '' ? null : values.cost ? Number(values.cost) : undefined,
             notes: notes,
         }, {
