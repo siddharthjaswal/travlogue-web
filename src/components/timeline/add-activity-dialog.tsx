@@ -935,7 +935,6 @@ export function AddActivityDialog({
                                 <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
                                     <div className="flex items-center justify-between mb-3">
                                         <div>
-                                            <p className="text-sm font-medium">Map</p>
                                             <p className="text-xs text-muted-foreground">Paste a Google Maps link or click to set coordinates</p>
                                         </div>
                                         <Button
@@ -962,12 +961,10 @@ export function AddActivityDialog({
                                 </div>
                             )}
                         </div>
-                        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Map</div>
                         {isTransport && (
                             <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
                                 <div className="flex items-center justify-between mb-3">
                                     <div>
-                                        <p className="text-sm font-medium">Map</p>
                                         <p className="text-xs text-muted-foreground">Paste a Google Maps link or click to set coordinates</p>
                                     </div>
                                     <Button
@@ -997,7 +994,6 @@ export function AddActivityDialog({
                             name="notes"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Notes</FormLabel>
                                     <FormControl>
                                         <Textarea placeholder="Any extra details..." {...field} />
                                     </FormControl>
