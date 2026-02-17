@@ -433,7 +433,6 @@ export function AddActivityDialog({
                             )}
                         />
 
-                        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Basic Info</div>
                         <div className={cn("grid gap-4", isStay ? "grid-cols-1" : "grid-cols-2")}>
                             <FormField
                                 control={form.control}
@@ -493,7 +492,6 @@ export function AddActivityDialog({
                             )}
                         </div>
 
-                        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Type</div>
                         {isStay ? (
                             <div className="rounded-2xl border border-border/40 bg-muted/10 p-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -710,7 +708,6 @@ export function AddActivityDialog({
                             </div>
                         )}
 
-                        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Location</div>
                         <div className="grid grid-cols-1 gap-4">
                             <div className="space-y-4">
                                 {isTransport ? (
