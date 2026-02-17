@@ -269,9 +269,10 @@ export function AddActivityDialog({
         const routeBase = isTransport
             ? [values.startLocation, values.endLocation].filter(Boolean).join(' → ')
             : values.location;
+        const cleanedRouteBase = routeBase ? routeBase.split('•')[0].trim() : routeBase;
         const route = isTransport && values.transportMode
-            ? `${routeBase} • ${values.transportMode}`
-            : routeBase;
+            ? `${cleanedRouteBase} • ${values.transportMode}`
+            : cleanedRouteBase;
         const startTime = isTransport ? (values.startTime || values.time) : values.time;
         const notes = values.notes;
 
