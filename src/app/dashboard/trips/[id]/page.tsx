@@ -48,7 +48,7 @@ export default function TripDetailsPage() {
 
             <Tabs defaultValue="itinerary" className="mt-10">
                 <div className="md:hidden fixed bottom-4 left-0 right-0 z-20 px-4">
-                    <div className="mx-auto max-w-md rounded-full border border-border/30 bg-card/70 backdrop-blur-xl shadow-lg">
+                    <div className="mx-auto max-w-md rounded-full border border-border/30 bg-muted/60 backdrop-blur-xl shadow-lg">
                         <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-2 px-2.5 gap-2">
                             <TabsTrigger value="itinerary" className="text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-11 min-w-[96px] leading-none text-muted-foreground data-[state=active]:text-foreground data-[state=active]:font-semibold">
                                 <Map className="h-5 w-5" />
