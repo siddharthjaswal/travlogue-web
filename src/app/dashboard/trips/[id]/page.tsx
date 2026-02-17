@@ -48,17 +48,17 @@ export default function TripDetailsPage() {
 
             <Tabs defaultValue="itinerary" className="mt-10">
                 <div className="md:hidden fixed bottom-4 left-0 right-0 z-20 px-4">
-                    <div className="mx-auto max-w-md rounded-full border border-border/30 bg-foreground/10 backdrop-blur-xl shadow-lg">
-                        <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-2 px-2.5 gap-1">
-                            <TabsTrigger value="itinerary" className="rounded-full text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-12 min-w-[96px] leading-none overflow-hidden text-foreground/70 data-[state=active]:bg-foreground/15 data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:my-0.5">
+                    <div className="mx-auto max-w-md rounded-full border border-border/30 bg-card/70 backdrop-blur-xl shadow-lg">
+                        <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-2 px-2.5 gap-2">
+                            <TabsTrigger value="itinerary" className="text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-11 min-w-[96px] leading-none text-muted-foreground data-[state=active]:text-foreground data-[state=active]:font-semibold">
                                 <Map className="h-5 w-5" />
                                 Itinerary
                             </TabsTrigger>
-                            <TabsTrigger value="budget" className="rounded-full text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-12 min-w-[96px] leading-none overflow-hidden text-foreground/70 data-[state=active]:bg-foreground/15 data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:my-0.5">
+                            <TabsTrigger value="budget" className="text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-11 min-w-[96px] leading-none text-muted-foreground data-[state=active]:text-foreground data-[state=active]:font-semibold">
                                 <Wallet className="h-5 w-5" />
                                 Expenses
                             </TabsTrigger>
-                            <TabsTrigger value="settings" className="rounded-full text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-12 min-w-[96px] leading-none overflow-hidden text-foreground/70 data-[state=active]:bg-foreground/15 data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:my-0.5">
+                            <TabsTrigger value="settings" className="text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-11 min-w-[96px] leading-none text-muted-foreground data-[state=active]:text-foreground data-[state=active]:font-semibold">
                                 <Settings className="h-5 w-5" />
                                 Settings
                             </TabsTrigger>
