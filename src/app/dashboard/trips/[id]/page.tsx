@@ -48,17 +48,17 @@ export default function TripDetailsPage() {
 
             <Tabs defaultValue="itinerary" className="mt-10">
                 <div className="md:hidden fixed bottom-4 left-0 right-0 z-20 px-4">
-                    <div className="mx-auto max-w-md rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl shadow-lg">
+                    <div className="mx-auto max-w-md rounded-full border border-border/30 bg-foreground/10 backdrop-blur-xl shadow-lg">
                         <TabsList className="w-full flex-nowrap justify-around overflow-x-auto py-2 px-2.5 gap-1">
-                            <TabsTrigger value="itinerary" className="rounded-full text-[11px] flex flex-col items-center justify-center gap-1 px-3 py-2 h-12 min-w-[90px] leading-none overflow-hidden data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary/20 data-[state=active]:ring-offset-2 data-[state=active]:ring-offset-card">
+                            <TabsTrigger value="itinerary" className="rounded-full text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-12 min-w-[96px] leading-none overflow-hidden text-foreground/70 data-[state=active]:bg-foreground/15 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                                 <Map className="h-5 w-5" />
                                 Itinerary
                             </TabsTrigger>
-                            <TabsTrigger value="budget" className="rounded-full text-[11px] flex flex-col items-center justify-center gap-1 px-3 py-2 h-12 min-w-[90px] leading-none overflow-hidden data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary/20 data-[state=active]:ring-offset-2 data-[state=active]:ring-offset-card">
+                            <TabsTrigger value="budget" className="rounded-full text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-12 min-w-[96px] leading-none overflow-hidden text-foreground/70 data-[state=active]:bg-foreground/15 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                                 <Wallet className="h-5 w-5" />
                                 Expenses
                             </TabsTrigger>
-                            <TabsTrigger value="settings" className="rounded-full text-[11px] flex flex-col items-center justify-center gap-1 px-3 py-2 h-12 min-w-[90px] leading-none overflow-hidden data-[state=active]:bg-primary/20 data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary/20 data-[state=active]:ring-offset-2 data-[state=active]:ring-offset-card">
+                            <TabsTrigger value="settings" className="rounded-full text-[11px] flex flex-col items-center justify-center gap-1 px-4 py-2 h-12 min-w-[96px] leading-none overflow-hidden text-foreground/70 data-[state=active]:bg-foreground/15 data-[state=active]:text-foreground data-[state=active]:shadow-sm">
                                 <Settings className="h-5 w-5" />
                                 Settings
                             </TabsTrigger>
