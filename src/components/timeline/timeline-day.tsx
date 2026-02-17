@@ -234,7 +234,7 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                         </div>
 
                         {/* City Labels + Add */}
-                        <div className="mt-6 flex items-center justify-between">
+                        <div className="mt-6 flex items-center justify-center">
                             <div className="flex flex-wrap justify-center gap-2">
                                 {day.place
                                     .split('→')
@@ -247,21 +247,6 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                                         </div>
                                     ))}
                             </div>
-                            <AddActivityDialog
-                                tripId={day.tripId}
-                                initialDate={dateObj}
-                                initialTime={nextTime}
-                                trigger={
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="gap-2 rounded-full text-muted-foreground"
-                                    >
-                                        <PlusCircle className="h-4 w-4" />
-                                        Add
-                                    </Button>
-                                }
-                            />
                         </div>
                     </div>
                 </div>
