@@ -126,12 +126,6 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                     <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">Itinerary</h2>
                     <p className="text-muted-foreground text-base sm:text-lg">Your trip schedule at a glance.</p>
                 </div>
-                <AddActivityDialog tripId={tripId} trigger={
-                    <Button className="w-full sm:w-auto shadow-sm gap-2" title="Add Activity">
-                        <Plus className="h-5 w-5" />
-                        Add
-                    </Button>
-                } />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-10 lg:gap-16 items-start">
