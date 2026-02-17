@@ -77,7 +77,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                     return 'bg-[#C5B8A5]/18';
                 })()}`}>
                     <div className="relative flex flex-col gap-3">
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-stretch justify-between gap-3">
                             <div className="flex flex-col justify-center gap-1">
                                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                                     {activity.activityType}
@@ -88,7 +88,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                             </div>
                             <div className="flex items-center gap-2">
                                 {activity.cost && (
-                                    <div className="rounded-full border border-border/40 bg-background/70 px-3 py-1 text-sm font-semibold text-foreground">
+                                    <div className="rounded-full border border-border/40 bg-background/70 px-4 py-2 text-xl font-semibold text-foreground self-center">
                                         {currencySymbol(activity.currency)} {activity.cost}
                                     </div>
                                 )}
