@@ -78,6 +78,7 @@ export interface CreateActivityData {
     name: string;
     activityType: string;
     time?: string;
+    endTime?: string;
     cost?: number;
     currency?: string;
     location?: string;
