@@ -632,31 +632,6 @@ export function AddActivityDialog({
                                                 </FormItem>
                                             )}
                                         />
-                                        <FormField
-                                            control={form.control}
-                                            name="transportMode"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Mode</FormLabel>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Select mode" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            <SelectItem value="flight">Flight</SelectItem>
-                                                            <SelectItem value="train">Train</SelectItem>
-                                                            <SelectItem value="bus">Bus</SelectItem>
-                                                            <SelectItem value="car">Car</SelectItem>
-                                                            <SelectItem value="ferry">Ferry</SelectItem>
-                                                            <SelectItem value="other">Other</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
                                     </>
                                 ) : (
                                     <FormField
