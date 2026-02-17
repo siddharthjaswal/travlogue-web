@@ -59,9 +59,9 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                 })()}`}>
                     <div className="relative flex flex-col sm:flex-row justify-between items-start gap-3">
                         <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                                <div className="flex items-center gap-2 min-w-0">
-                                    <h4 className="font-medium text-sm truncate pr-2 text-foreground">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 mb-1">
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+                                    <h4 className="font-medium text-sm text-foreground break-words">
                                         {activity.name}
                                     </h4>
                                     <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -104,7 +104,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                             )}
                         </div>
 
-                        <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute top-2 right-2">
+                        <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity absolute top-2 right-2 sm:static sm:ml-2">
                             <AddActivityDialog
                                 tripId={tripId}
                                 initialDate={date}
