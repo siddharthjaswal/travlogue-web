@@ -31,7 +31,7 @@ const mapExpense = (data: any): Expense => ({
   description: data.description,
   amount: data.amount,
   category: data.category,
-  date: data.date,
+  date: data.expense_date || data.date,
   currency: data.currency,
   notes: data.notes,
 });
@@ -48,7 +48,7 @@ export const expenseService = {
       description: data.description,
       amount: data.amount,
       category: data.category,
-      date: data.date,
+      expense_date: data.date,
       notes: data.notes,
       currency: data.currency || 'USD',
     };
