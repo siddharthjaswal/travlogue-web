@@ -266,8 +266,9 @@ export function AddActivityDialog({
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         const isTransport = values.activityType === 'transportation';
+        const cleanLocation = (val?: string) => (val ? val.split('•')[0].trim() : val);
         const routeBase = isTransport
-            ? [values.startLocation, values.endLocation].filter(Boolean).join(' → ')
+            ? [cleanLocation(values.startLocation), cleanLocation(values.endLocation)].filter(Boolean).join(' → ')
             : values.location;
         const cleanedRouteBase = routeBase ? routeBase.split('•')[0].trim() : routeBase;
         const route = isTransport && values.transportMode
