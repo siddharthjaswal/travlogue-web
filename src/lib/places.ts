@@ -27,6 +27,16 @@ export function extractPlaceTokens(input?: string | null): string[] {
   return Array.from(new Set(normalized));
 }
 
+export function cleanPlaceTokens(tokens: string[]): string[] {
+  const cleaned = tokens
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .filter((t) => !/\d/.test(t))
+    .filter((t) => t.length > 2)
+    .filter((t) => !/^[A-Z]{1,3}$/.test(t));
+  return Array.from(new Set(cleaned));
+}
+
 export function collectDayPlaces(args: {
   dayPlace?: string | null;
   activityLocations?: (string | null | undefined)[];
