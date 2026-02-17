@@ -37,13 +37,51 @@ export function TripMap({ trip, height = 800, className }: TripMapProps) {
             : null))
         .filter(Boolean) as { lat: number; lng: number; kind: 'stay'; type?: string; title?: string; subtitle?: string }[];
 
-    const markers = [...activityMarkers, ...stayMarkers];
+    const transportMarkers = (timeline?.days || [])
+        .flatMap((day) => day.activities)
+        .flatMap((activity) => {
+            const points = [] as { lat: number; lng: number; kind: 'activity'; type?: string; title?: string; subtitle?: string }[];
+            if (activity.startLatitude != null && activity.startLongitude != null) {
+                points.push({
+                    lat: Number(activity.startLatitude),
+                    lng: Number(activity.startLongitude),
+                    kind: 'activity',
+                    type: 'transportation',
+                    title: activity.name,
+                    subtitle: activity.location || undefined,
+                });
+            }
+            if (activity.endLatitude != null && activity.endLongitude != null) {
+                points.push({
+                    lat: Number(activity.endLatitude),
+                    lng: Number(activity.endLongitude),
+                    kind: 'activity',
+                    type: 'transportation',
+                    title: activity.name,
+                    subtitle: activity.location || undefined,
+                });
+            }
+            return points;
+        });
+
+    const transportPaths = (timeline?.days || [])
+        .flatMap((day) => day.activities)
+        .map((activity) => {
+            if (activity.startLatitude == null || activity.startLongitude == null || activity.endLatitude == null || activity.endLongitude == null) return null;
+            return [
+                { lat: Number(activity.startLatitude), lng: Number(activity.startLongitude) },
+                { lat: Number(activity.endLatitude), lng: Number(activity.endLongitude) },
+            ];
+        })
+        .filter(Boolean) as { lat: number; lng: number }[][];
+
+    const markers = [...activityMarkers, ...stayMarkers, ...transportMarkers];
 
     return (
         <div className={`col-span-full overflow-hidden animate-fade-in rounded-3xl ${className || ''} h-full`}>
             <CardContent className="p-0 h-full">
                 <div className="w-full h-full">
-                    <StyledMap center={center} markers={markers} rounded="rounded-3xl" className="w-full h-full" height={useHeight} />
+                    <StyledMap center={center} markers={markers} paths={transportPaths} rounded="rounded-3xl" className="w-full h-full" height={useHeight} />
                 </div>
             </CardContent>
         </div>

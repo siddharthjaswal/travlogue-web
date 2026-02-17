@@ -237,6 +237,8 @@ export function AddActivityDialog({
                     cost: activity.cost ? String(activity.cost) : '',
                     notes: activity.notes || '',
                 });
+                setStartCoords(activity.startLatitude != null && activity.startLongitude != null ? { lat: Number(activity.startLatitude), lng: Number(activity.startLongitude) } : null);
+                setEndCoords(activity.endLatitude != null && activity.endLongitude != null ? { lat: Number(activity.endLatitude), lng: Number(activity.endLongitude) } : null);
             } else {
                 form.reset({
                     name: '',
@@ -256,6 +258,8 @@ export function AddActivityDialog({
                     checkinTime: '',
                     checkoutTime: '',
                 });
+                setStartCoords(null);
+                setEndCoords(null);
             }
         }
     }, [show, mode, activity, initialDate, form]);
@@ -282,6 +286,10 @@ export function AddActivityDialog({
                     location: route,
                     latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
                     longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
+                    startLatitude: isTransport ? (startCoords?.lat ?? null) : null,
+                    startLongitude: isTransport ? (startCoords?.lng ?? null) : null,
+                    endLatitude: isTransport ? (endCoords?.lat ?? null) : null,
+                    endLongitude: isTransport ? (endCoords?.lng ?? null) : null,
                     cost: values.cost === '' ? null : values.cost ? Number(values.cost) : undefined,
                     notes: notes,
                 }
@@ -348,6 +356,10 @@ export function AddActivityDialog({
             location: route,
             latitude: (resolvedCoords || parsedLocation)?.lat ?? undefined,
             longitude: (resolvedCoords || parsedLocation)?.lng ?? undefined,
+            startLatitude: isTransport ? (startCoords?.lat ?? null) : undefined,
+            startLongitude: isTransport ? (startCoords?.lng ?? null) : undefined,
+            endLatitude: isTransport ? (endCoords?.lat ?? null) : undefined,
+            endLongitude: isTransport ? (endCoords?.lng ?? null) : undefined,
             cost: values.cost === '' ? null : values.cost ? Number(values.cost) : undefined,
             notes: notes,
         }, {

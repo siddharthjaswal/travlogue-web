@@ -9,19 +9,20 @@ interface StyledMapProps {
   marker?: { lat: number; lng: number } | null;
   markers?: { lat: number; lng: number; kind?: 'activity' | 'stay'; type?: string; title?: string; subtitle?: string }[];
   path?: { lat: number; lng: number }[];
+  paths?: { lat: number; lng: number }[][];
   height?: number;
   onClick?: (lat: number, lng: number) => void;
   rounded?: string;
   className?: string;
 }
 
-export function StyledMap({ center, marker, markers, path, height, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
+export function StyledMap({ center, marker, markers, path, paths, height, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
   const [mapReady, setMapReady] = useState(false);
   const markerRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
-  const pathRef = useRef<any>(null);
+  const pathRef = useRef<any[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -131,38 +132,45 @@ export function StyledMap({ center, marker, markers, path, height, onClick, roun
       });
     }
 
-    if (pathRef.current) {
-      pathRef.current.setMap(null);
-      pathRef.current = null;
+    if (pathRef.current.length) {
+      pathRef.current.forEach((p) => p.setMap(null));
+      pathRef.current = [];
     }
-    if (path && path.length >= 2) {
-      pathRef.current = new google.maps.Polyline({
-        path,
-        geodesic: true,
-        strokeColor: '#7C97C9',
-        strokeOpacity: 0.7,
-        strokeWeight: 2,
-        icons: [
-          {
-            icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 2 },
-            offset: '0',
-            repeat: '8px',
-          },
-        ],
+
+    const allPaths = paths && paths.length ? paths : (path && path.length ? [path] : []);
+    if (allPaths.length) {
+      allPaths.forEach((pathItem) => {
+        if (pathItem.length < 2) return;
+        const poly = new google.maps.Polyline({
+          path: pathItem,
+          geodesic: true,
+          strokeColor: '#7C97C9',
+          strokeOpacity: 0.7,
+          strokeWeight: 2,
+          icons: [
+            {
+              icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 2 },
+              offset: '0',
+              repeat: '8px',
+            },
+          ],
+        });
+        poly.setMap(mapInstanceRef.current);
+        pathItem.forEach((p) => bounds.extend(p));
+        pathRef.current.push(poly);
       });
-      pathRef.current.setMap(mapInstanceRef.current);
-      path.forEach((p) => bounds.extend(p));
     }
 
     if (!bounds.isEmpty()) {
-      if ((markers?.length || 0) + (path?.length || 0) <= 1) {
+      const pathPointCount = allPaths.reduce((acc, p) => acc + p.length, 0);
+      if ((markers?.length || 0) + pathPointCount <= 1) {
         mapInstanceRef.current.setCenter(bounds.getCenter());
         mapInstanceRef.current.setZoom(15);
       } else {
         mapInstanceRef.current.fitBounds(bounds, 80);
       }
     }
-  }, [markers?.length, JSON.stringify(markers), JSON.stringify(path), mapReady]);
+  }, [markers?.length, JSON.stringify(markers), JSON.stringify(path), JSON.stringify(paths), mapReady]);
 
   return (
     <div

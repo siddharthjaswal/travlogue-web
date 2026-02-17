@@ -10,6 +10,10 @@ export interface Activity {
     location?: string;
     latitude?: number;
     longitude?: number;
+    startLatitude?: number;
+    startLongitude?: number;
+    endLatitude?: number;
+    endLongitude?: number;
     cost?: number;
     currency: string;
     status: string;
@@ -44,6 +48,10 @@ const mapActivity = (data: any): Activity => ({
     location: data.location,
     latitude: data.latitude,
     longitude: data.longitude,
+    startLatitude: data.start_latitude,
+    startLongitude: data.start_longitude,
+    endLatitude: data.end_latitude,
+    endLongitude: data.end_longitude,
     cost: data.cost,
     currency: data.currency,
     status: data.status,
@@ -73,6 +81,10 @@ export interface CreateActivityData {
     location?: string;
     latitude?: number;
     longitude?: number;
+    startLatitude?: number;
+    startLongitude?: number;
+    endLatitude?: number;
+    endLongitude?: number;
     notes?: string;
 }
 
@@ -97,6 +109,10 @@ export const activityService = {
             location: data.location,
             latitude: data.latitude,
             longitude: data.longitude,
+            start_latitude: data.startLatitude,
+            start_longitude: data.startLongitude,
+            end_latitude: data.endLatitude,
+            end_longitude: data.endLongitude,
             notes: data.notes,
         };
         const response = await api.post('/activities/', payload);
