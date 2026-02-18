@@ -79,7 +79,10 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                     <div className="relative flex flex-col gap-3">
                         <div className="flex items-stretch justify-between gap-3">
                             <div className="flex flex-col justify-center gap-1">
-                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
+                                    {activity.activityType === 'transportation' && (
+                                        <Icon className="h-3 w-3" />
+                                    )}
                                     {activity.activityType}
                                 </span>
                                 <div className="flex flex-wrap items-center gap-3">
