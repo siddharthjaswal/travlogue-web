@@ -46,6 +46,14 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
         return c;
     };
 
+    const formatTimeLabel = (time?: string) => {
+        if (!time) return '';
+        const [h, m] = time.split(':').map(Number);
+        if (Number.isNaN(h) || Number.isNaN(m)) return time;
+        const hour12 = ((h + 11) % 12) + 1;
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        return `${hour12}:${m.toString().padStart(2, '0')} ${ampm}`;
+    };
     return (
         <div className="group relative flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3">
             {/* 1. Time Column */}
@@ -77,6 +85,14 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                     return 'bg-[#C5B8A5]/18';
                 })()}`}>
                     <div className="relative flex flex-col gap-3">
+                        <div className="sm:hidden">
+                            {activity.time && (
+                                <div className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-background/70 px-3 py-1 text-xs font-semibold text-foreground">
+                                    {formatTimeLabel(activity.time)}{activity.endTime ? ` – ${formatTimeLabel(activity.endTime)}` : ''}
+                                </div>
+                            )}
+                        </div>
+
                         <div className="flex items-stretch justify-between gap-3">
                             <div className="flex flex-col justify-center gap-1">
                                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
