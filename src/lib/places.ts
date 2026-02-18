@@ -28,12 +28,27 @@ export function extractPlaceTokens(input?: string | null): string[] {
 }
 
 export function cleanPlaceTokens(tokens: string[]): string[] {
+  const transportNoise = new Set([
+    'train',
+    'bus',
+    'flight',
+    'car',
+    'ferry',
+    'tram',
+    'metro',
+    'subway',
+    'walk',
+    'drive',
+  ]);
+
   const cleaned = tokens
     .map((t) => t.trim())
     .filter(Boolean)
     .filter((t) => !/\d/.test(t))
     .filter((t) => t.length > 2)
-    .filter((t) => !/^[A-Z]{1,3}$/.test(t));
+    .filter((t) => !/^[A-Z]{1,3}$/.test(t))
+    .filter((t) => !transportNoise.has(t.toLowerCase()));
+
   return Array.from(new Set(cleaned));
 }
 
