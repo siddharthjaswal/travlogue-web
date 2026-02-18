@@ -57,7 +57,7 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
     return (
         <div className="group relative flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3">
             {/* 1. Time Column */}
-            <div className="hidden sm:flex w-full sm:w-[48px] pt-1 flex-col items-end justify-start">
+            <div className="flex w-[44px] sm:w-[48px] pt-1 flex-col items-end justify-start">
                 <span className="text-sm font-bold text-foreground tabular-nums">
                     {activity.time || 'Any'}
                 </span>
@@ -76,16 +76,16 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
 
             {/* 3. Content Card */}
             <div className="flex-1 pb-2">
-                <div className={`relative border border-border/30 rounded-xl p-3 ${(() => {
+                <div className={`relative p-0 sm:border sm:border-border/30 sm:rounded-xl sm:p-3 ${(() => {
                     const t = activity.activityType.toLowerCase();
-                    if (t.includes('sightseeing')) return 'bg-[#7FD1C8]/18';
-                    if (t.includes('dining')) return 'bg-[#F2A477]/18';
-                    if (t.includes('transport')) return 'bg-[#A8A4F2]/18';
-                    if (t.includes('other')) return 'bg-[#8FB7FF]/18';
-                    return 'bg-[#C5B8A5]/18';
+                    if (t.includes('sightseeing')) return 'sm:bg-[#7FD1C8]/18';
+                    if (t.includes('dining')) return 'sm:bg-[#F2A477]/18';
+                    if (t.includes('transport')) return 'sm:bg-[#A8A4F2]/18';
+                    if (t.includes('other')) return 'sm:bg-[#8FB7FF]/18';
+                    return 'sm:bg-[#C5B8A5]/18';
                 })()}`}>
                     <div className="relative flex flex-col gap-3">
-                        <div className="sm:hidden">
+                        <div className="hidden sm:hidden">
                             {activity.time && (
                                 <div className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-background/70 px-3 py-1 text-xs font-semibold text-foreground">
                                     {formatTimeLabel(activity.time)}{activity.endTime ? ` – ${formatTimeLabel(activity.endTime)}` : ''}
