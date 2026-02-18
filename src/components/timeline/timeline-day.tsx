@@ -238,12 +238,14 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                         <div className="mt-6 flex items-center justify-between">
                             <div className="flex flex-wrap justify-center gap-2">
                                 {(() => {
+                                    const hasActivities = day.activities.length > 0;
                                     const places = cleanPlaceTokens(collectDayPlaces({
-                                        dayPlace: day.place,
+                                        dayPlace: hasActivities ? day.place : null,
                                         activityLocations: day.activities.map((a) => a.location),
                                         transitLocations: (transits || []).flatMap((t) => [t.fromLocation, t.toLocation]),
                                         stayLocations: stayInfo?.accommodations?.map((a) => a.address || a.name) || [],
                                     }));
+                                    if (!hasActivities && places.length === 0) return null;
                                     const visible = places.slice(0, 3);
                                     const extra = places.length - visible.length;
                                     return (
