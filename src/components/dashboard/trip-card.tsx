@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Calendar, MapPin, Users, MoreVertical, Trash2, Edit, Sparkles, Loader2, Clock } from 'lucide-react';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Trip } from '@/services/trip-service';
 import { cn } from '@/lib/utils';
+import { collectDayPlaces, cleanPlaceTokens } from '@/lib/places';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +26,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useDeleteTrip, useRegenerateCover } from '@/hooks/use-trips';
+import { useDeleteTrip, useRegenerateCover, useTripTimeline } from '@/hooks/use-trips';
 import { toast } from 'sonner';
 import { showError } from '@/lib/toast-helper';
 
@@ -39,6 +40,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
     const [isHovered, setIsHovered] = useState(false);
     const { mutate: deleteTrip, isPending: isDeleting } = useDeleteTrip();
     const { mutate: regenerateCover, isPending: isRegenerating } = useRegenerateCover();
+    const { data: timeline } = useTripTimeline(trip.id);
 
     const coverQuery = [
         trip.primaryDestinationCity,
@@ -81,7 +83,16 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
         });
     };
 
-    // Format dates
+        const derivedPlaces = useMemo(() => {
+        if (!timeline?.days) return [] as string[];
+        const tokens = timeline.days.flatMap((day) => collectDayPlaces({
+            dayPlace: day.place,
+            activityLocations: day.activities.map((a) => a.location),
+        }));
+        return cleanPlaceTokens(tokens).slice(0, 3);
+    }, [timeline]);
+
+// Format dates
     const dateDisplay = trip.startDateTimestamp && trip.endDateTimestamp
         ? `${format(new Date(trip.startDateTimestamp * 1000), 'MMM d')} - ${format(new Date(trip.endDateTimestamp * 1000), 'MMM d, yyyy')}`
         : 'Dates TBD';
@@ -206,6 +217,15 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                                                 {trip.primaryDestinationCity || trip.primaryDestinationCountry || 'Destination Unknown'}
                                             </span>
                                         </div>
+                                        {derivedPlaces.length > 0 && (
+                                            <div className="mt-1 flex flex-wrap gap-1.5">
+                                                {derivedPlaces.map((place) => (
+                                                    <span key={place} className="px-2 py-0.5 rounded-full bg-white/15 text-white/80 text-[10px] uppercase tracking-wide">
+                                                        {place}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Details */}

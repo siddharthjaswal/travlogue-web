@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Plus, DollarSign, Wallet, TrendingUp, CreditCard } from "lucide-react";
 import { Trip } from "@/services/trip-service";
 import { AddExpenseDialog } from "./add-expense-dialog";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useExpenses } from "@/hooks/use-expenses";
+import { useTripTimeline } from '@/hooks/use-trips';
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { collectDayPlaces, cleanPlaceTokens } from '@/lib/places';
 
 interface BudgetViewProps {
     tripId: number;
@@ -19,8 +21,18 @@ interface BudgetViewProps {
 
 export function BudgetView({ tripId, trip }: BudgetViewProps) {
     const { data: expenses, isLoading } = useExpenses(tripId);
+    const { data: timeline } = useTripTimeline(tripId);
     
-    // Mock budget for now (will be added to trip model later)
+        const derivedPlaces = useMemo(() => {
+        if (!timeline?.days) return [] as string[];
+        const tokens = timeline.days.flatMap((day) => collectDayPlaces({
+            dayPlace: day.place,
+            activityLocations: day.activities.map((a) => a.location),
+        }));
+        return cleanPlaceTokens(tokens).slice(0, 4);
+    }, [timeline]);
+
+// Mock budget for now (will be added to trip model later)
     const totalBudget = 5000; 
     
     // Calculate total spent
@@ -38,6 +50,15 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Trip Budget</h2>
                     <p className="text-muted-foreground">Track your expenses and stay on budget.</p>
+                    {derivedPlaces.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-2">
+                            {derivedPlaces.map((place) => (
+                                <span key={place} className="px-2.5 py-1 rounded-full bg-muted/40 border border-border/40 text-xs font-medium text-muted-foreground">
+                                    {place}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
                 <AddExpenseDialog tripId={tripId} trigger={
                     <Button className="gap-2 shadow-lg shadow-primary/20">
