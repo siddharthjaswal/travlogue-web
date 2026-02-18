@@ -133,11 +133,11 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                 {/* Day Header */}
                 <div className="relative mb-2 md:mb-0 pt-1">
                     <div className="md:sticky md:top-32 flex md:justify-start">
-                        <div className="flex items-center md:flex-col md:items-start gap-3 md:gap-1">
+                        <div className="flex items-center md:flex-col md:items-center gap-3 md:gap-1">
                             <div className="h-10 w-10 rounded-full bg-muted/60 border border-border/50 flex items-center justify-center text-foreground font-semibold">
                                 {format(dateObj, 'd')}
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col justify-center leading-none">
                                 <span className="text-[10px] font-semibold text-primary uppercase tracking-widest">
                                     {monthName}
                                 </span>
