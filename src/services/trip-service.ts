@@ -5,6 +5,7 @@ export interface Trip {
     name: string;
     description?: string;
     coverPhotoUrl?: string;
+    bannerPhotoUrl?: string;
 
     // Dates
     startDateTimestamp?: number;
@@ -37,6 +38,7 @@ const mapTripResponse = (data: any): Trip => ({
     name: data.name,
     description: data.description,
     coverPhotoUrl: data.cover_photo_url,
+    bannerPhotoUrl: data.banner_photo_url,
     startDateTimestamp: data.start_date_timestamp,
     endDateTimestamp: data.end_date_timestamp,
     primaryDestinationCountry: data.primary_destination_country,
@@ -86,6 +88,11 @@ export const tripService = {
 
     regenerateCover: async (id: number, query?: string) => {
         const url = `/trips/${id}/cover${query ? `?query=${query}` : ''}`;
+        const response = await api.patch(url);
+        return mapTripResponse(response.data);
+    },
+    regenerateBanner: async (id: number, query?: string) => {
+        const url = `/trips/${id}/banner${query ? `?query=${query}` : ''}`;
         const response = await api.patch(url);
         return mapTripResponse(response.data);
     }

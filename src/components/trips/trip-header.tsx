@@ -4,7 +4,7 @@ import { Trip } from '@/services/trip-service';
 import { Button } from '@/components/ui/button';
 import { Calendar, MapPin, MoreVertical, Edit, Trash, Share2 } from 'lucide-react';
 import { collectDayPlaces } from '@/lib/places';
-import { useTripTimeline } from '@/hooks/use-trips';
+import { useTripTimeline, useRegenerateBanner } from '@/hooks/use-trips';
 import { useAccommodationsByTrip } from '@/hooks/use-accommodations';
 import { format } from 'date-fns';
 import {
@@ -14,7 +14,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -37,18 +37,34 @@ interface TripHeaderProps {
 export function TripHeader({ trip }: TripHeaderProps) {
     const { data: timeline } = useTripTimeline(trip.id);
     const { data: accommodations } = useAccommodationsByTrip(trip.id);
+    const { mutate: regenerateBanner } = useRegenerateBanner();
     const derivedPlaces = collectDayPlaces({
         dayPlace: undefined,
         activityLocations: (timeline?.days || []).flatMap((d) => d.activities.map((a) => a.location)),
         transitLocations: [],
         stayLocations: (accommodations || []).map((a) => a.address || a.name),
     });
+    const bannerQuery = [
+        trip.primaryDestinationCity,
+        trip.primaryDestinationCountry,
+        trip.name,
+        'scenic',
+        'wide',
+        'landscape'
+    ].filter(Boolean).join(' ');
+
     const placeText = derivedPlaces.length > 0
         ? derivedPlaces.slice(0, 3).join(', ') + (derivedPlaces.length > 3 ? ` +${derivedPlaces.length - 3}` : '')
         : [trip.primaryDestinationCity, trip.primaryDestinationCountry].filter(Boolean).join(', ');
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const deleteTrip = useDeleteTrip();
     const router = useRouter();
+
+    useEffect(() => {
+        if (!trip.bannerPhotoUrl) {
+            regenerateBanner({ id: trip.id, query: bannerQuery });
+        }
+    }, [trip.bannerPhotoUrl, trip.id, bannerQuery, regenerateBanner]);
 
     const handleDelete = () => {
         deleteTrip.mutate(trip.id, {
@@ -84,10 +100,10 @@ export function TripHeader({ trip }: TripHeaderProps) {
         <div className="relative animate-fade-in">
             {/* Elegant Cover Image */}
             <div className="h-56 sm:h-72 w-full bg-gradient-to-br from-primary/20 via-accent/15 to-secondary/10 rounded-3xl relative overflow-hidden group">
-                {trip.coverPhotoUrl && (
+                {(trip.bannerPhotoUrl || trip.coverPhotoUrl) && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                        src={trip.coverPhotoUrl}
+                        src={trip.bannerPhotoUrl || trip.coverPhotoUrl}
                         alt={trip.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />

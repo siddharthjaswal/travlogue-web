@@ -114,3 +114,14 @@ export function useDeleteActivity() {
         },
     });
 }
+
+export function useRegenerateBanner() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ id, query }: { id: number; query?: string }) => tripService.regenerateBanner(id, query),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['trips'] });
+        },
+    });
+}
