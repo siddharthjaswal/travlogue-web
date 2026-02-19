@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, Plus, Shield, User, Trash2 } from "lucide-react";
 import { Trip } from "@/services/trip-service";
 import { InviteMemberDialog } from "./invite-member-dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -66,6 +66,7 @@ interface TripSettingsProps {
 
 export function TripSettings({ tripId, trip }: TripSettingsProps) {
     const [members, setMembers] = useState<TripMember[]>(MOCK_MEMBERS);
+    const [inviteLink, setInviteLink] = useState('');
 
     // Explicitly type the arguments
     const handleInvite = (email: string, role: string) => {
@@ -90,6 +91,12 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
         setMembers(members.map(m => m.id === memberId ? { ...m, role: newRole } : m));
         toast.success("Role updated");
     };
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setInviteLink(`${window.location.origin}/dashboard/trips/${tripId}?invite=true`);
+        }
+    }, [tripId]);
 
     return (
         <div className="max-w-5xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8 space-y-8">
@@ -126,7 +133,7 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                         <CardTitle>Collaborators</CardTitle>
                         <CardDescription>Invite friends to plan this trip with you.</CardDescription>
                     </div>
-                    <InviteMemberDialog onInvite={handleInvite} trigger={
+                    <InviteMemberDialog inviteLink={inviteLink} onInvite={handleInvite} trigger={
                         <Button variant="outline" size="sm" className="gap-2">
                             <Plus className="h-4 w-4" /> Invite
                         </Button>

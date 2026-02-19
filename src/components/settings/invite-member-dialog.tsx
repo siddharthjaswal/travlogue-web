@@ -35,17 +35,27 @@ import {
 } from '@/components/ui/select';
 
 const formSchema = z.object({
-    email: z.string().email("Please enter a valid email"),
+    email: z.string().min(3, "Please enter at least one email"),
     role: z.enum(['owner', 'editor', 'viewer']),
     message: z.string().optional(),
+}).refine((data) => {
+    const emails = data.email
+        .split(/[,\s]+/)
+        .map((e) => e.trim())
+        .filter(Boolean);
+    return emails.every((e) => /.+@.+\..+/.test(e));
+}, {
+    message: "Please enter valid email(s)",
+    path: ["email"],
 });
 
 interface InviteMemberDialogProps {
     trigger?: React.ReactNode;
     onInvite?: (email: string, role: 'owner' | 'editor' | 'viewer') => void;
+    inviteLink?: string;
 }
 
-export function InviteMemberDialog({ trigger, onInvite }: InviteMemberDialogProps) {
+export function InviteMemberDialog({ trigger, onInvite, inviteLink }: InviteMemberDialogProps) {
     const [open, setOpen] = useState(false);
     const [isInviting, setIsInviting] = useState(false);
 
@@ -60,14 +70,19 @@ export function InviteMemberDialog({ trigger, onInvite }: InviteMemberDialogProp
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         setIsInviting(true);
+
+        const emails = values.email
+            .split(/[,\s]+/)
+            .map((e) => e.trim())
+            .filter(Boolean);
         
         // Simulate invite delay
         setTimeout(() => {
             if (onInvite) {
-                onInvite(values.email, values.role);
+                emails.forEach((email) => onInvite(email, values.role));
             }
 
-            toast.success("Invitation sent successfully!");
+            toast.success(`Invitation sent to ${emails.length} collaborator${emails.length > 1 ? 's' : ''}!`);
             setIsInviting(false);
             setOpen(false);
             form.reset();
@@ -96,7 +111,7 @@ export function InviteMemberDialog({ trigger, onInvite }: InviteMemberDialogProp
                                     <FormControl>
                                         <div className="relative">
                                             <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                            <Input className="pl-9" placeholder="friend@example.com" {...field} />
+                                            <Input className="pl-9" placeholder="friend@example.com, friend2@example.com" {...field} />
                                         </div>
                                     </FormControl>
                                     <FormMessage />
@@ -139,6 +154,26 @@ export function InviteMemberDialog({ trigger, onInvite }: InviteMemberDialogProp
                                 </FormItem>
                             )}
                         />
+
+                        {inviteLink && (
+                            <div className="rounded-lg border border-border/40 bg-muted/30 px-3 py-2 text-xs">
+                                <div className="font-medium text-foreground mb-1">Invite link</div>
+                                <div className="flex items-center gap-2">
+                                    <Input value={inviteLink} readOnly className="h-8 text-xs" />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(inviteLink);
+                                            toast.success('Invite link copied');
+                                        }}
+                                    >
+                                        Copy
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
 
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
