@@ -51,7 +51,7 @@ const formSchema = z.object({
 
 interface InviteMemberDialogProps {
     trigger?: React.ReactNode;
-    onInvite?: (email: string, role: 'owner' | 'editor' | 'viewer') => void;
+    onInvite?: (email: string, role: 'owner' | 'editor' | 'viewer', message?: string) => void;
     inviteLink?: string;
 }
 
@@ -79,7 +79,7 @@ export function InviteMemberDialog({ trigger, onInvite, inviteLink }: InviteMemb
         // Simulate invite delay
         setTimeout(() => {
             if (onInvite) {
-                emails.forEach((email) => onInvite(email, values.role));
+                emails.forEach((email) => onInvite(email, values.role, values.message));
             }
 
             toast.success(`Invitation sent to ${emails.length} collaborator${emails.length > 1 ? 's' : ''}!`);

@@ -8,6 +8,8 @@ import { MoreHorizontal, Plus, Shield, User, Trash2 } from "lucide-react";
 import { Trip } from "@/services/trip-service";
 import { InviteMemberDialog } from "./invite-member-dialog";
 import { useState, useEffect } from "react";
+import { useCurrentUser } from "@/hooks/use-auth";
+import { useTripMembers, useTripInvitations, useInviteTripMember, useUpdateTripMemberRole, useRemoveTripMember, useCancelInvitation } from "@/hooks/use-collaboration";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -65,31 +67,32 @@ interface TripSettingsProps {
 }
 
 export function TripSettings({ tripId, trip }: TripSettingsProps) {
-    const [members, setMembers] = useState<TripMember[]>(MOCK_MEMBERS);
     const [inviteLink, setInviteLink] = useState('');
+    const { data: me } = useCurrentUser();
+    const { data: members = [] } = useTripMembers(tripId);
+    const { data: invitations = [] } = useTripInvitations(tripId);
+    const inviteMutation = useInviteTripMember();
+    const updateRoleMutation = useUpdateTripMemberRole();
+    const removeMemberMutation = useRemoveTripMember();
+    const cancelInvitationMutation = useCancelInvitation();
 
     // Explicitly type the arguments
-    const handleInvite = (email: string, role: string) => {
-        const newMember: TripMember = {
-            id: Date.now(),
-            name: email.split('@')[0], 
-            email,
-            role: role as 'owner' | 'editor' | 'viewer', // Cast string to union type
-            status: 'pending',
-            avatar: ''
-        };
-        setMembers([...members, newMember]);
-        toast.success(`Invitation sent to ${email}`);
+    const handleInvite = (email: string, role: string, message?: string) => {
+        inviteMutation.mutate({ tripId, email, role: role as 'owner' | 'editor' | 'viewer', message });
     };
 
     const handleRemoveMember = (memberId: number) => {
-        setMembers(members.filter(m => m.id !== memberId));
-        toast.success("Member removed");
+        removeMemberMutation.mutate({ tripId, userId: memberId }, {
+            onSuccess: () => toast.success("Member removed"),
+            onError: () => toast.error("Failed to remove member"),
+        });
     };
 
     const handleRoleChange = (memberId: number, newRole: 'owner' | 'editor' | 'viewer') => {
-        setMembers(members.map(m => m.id === memberId ? { ...m, role: newRole } : m));
-        toast.success("Role updated");
+        updateRoleMutation.mutate({ tripId, userId: memberId, role: newRole }, {
+            onSuccess: () => toast.success("Role updated"),
+            onError: () => toast.error("Failed to update role"),
+        });
     };
 
     useEffect(() => {
@@ -145,20 +148,16 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                             <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <Avatar>
-                                        <AvatarImage src={member.avatar} />
-                                        <AvatarFallback>{member.name.charAt(0).toUpperCase()}</AvatarFallback>
+                                        <AvatarFallback>{(member.userName || member.userEmail || '').charAt(0).toUpperCase()}</AvatarFallback>
                                     </Avatar>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <p className="font-medium text-sm">{member.name}</p>
-                                            {member.status === 'pending' && (
-                                                <Badge variant="outline" className="text-[10px] h-4 px-1 text-muted-foreground">Pending</Badge>
-                                            )}
-                                            {member.id === 1 && ( 
+                                            <p className="font-medium text-sm">{member.userName || member.userEmail}</p>
+                                            {me?.email && member.userEmail === me.email && (
                                                 <Badge variant="secondary" className="text-[10px] h-4 px-1">You</Badge>
                                             )}
                                         </div>
-                                        <p className="text-xs text-muted-foreground">{member.email}</p>
+                                        <p className="text-xs text-muted-foreground">{member.userEmail}</p>
                                     </div>
                                 </div>
 
@@ -174,25 +173,52 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Change Role</DropdownMenuLabel>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem onClick={() => handleRoleChange(member.id, 'owner')}>
+                                            <DropdownMenuItem onClick={() => handleRoleChange(member.userId, 'owner')}>
                                                 Owner
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleRoleChange(member.id, 'editor')}>
+                                            <DropdownMenuItem onClick={() => handleRoleChange(member.userId, 'editor')}>
                                                 Editor
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleRoleChange(member.id, 'viewer')}>
+                                            <DropdownMenuItem onClick={() => handleRoleChange(member.userId, 'viewer')}>
                                                 Viewer
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem 
                                                 className="text-destructive focus:text-destructive"
-                                                onClick={() => handleRemoveMember(member.id)}
+                                                onClick={() => handleRemoveMember(member.userId)}
                                             >
                                                 <Trash2 className="h-4 w-4 mr-2" />
                                                 Remove
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
+                                </div>
+                            </div>
+                        ))}
+                        {invitations.filter((inv) => inv.status === 'pending').map((inv) => (
+                            <div key={`inv-${inv.id}`} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 rounded-xl bg-muted/30 border border-border/40">
+                                <div className="flex items-center gap-4">
+                                    <Avatar>
+                                        <AvatarFallback>{inv.inviteeEmail.charAt(0).toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-medium text-sm">{inv.inviteeEmail}</p>
+                                            <Badge variant="outline" className="text-[10px] h-4 px-1 text-muted-foreground">Pending</Badge>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Invitation</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Badge variant="secondary" className="text-[10px] h-5">{inv.role}</Badge>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-destructive"
+                                        onClick={() => cancelInvitationMutation.mutate({ tripId, invitationId: inv.id })}
+                                    >
+                                        Cancel
+                                    </Button>
                                 </div>
                             </div>
                         ))}
