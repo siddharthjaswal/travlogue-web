@@ -120,8 +120,9 @@ export function useRegenerateBanner() {
 
     return useMutation({
         mutationFn: ({ id, query }: { id: number; query?: string }) => tripService.regenerateBanner(id, query),
-        onSuccess: () => {
+        onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: ['trips'] });
+            queryClient.invalidateQueries({ queryKey: ['trips', variables.id] });
         },
     });
 }
