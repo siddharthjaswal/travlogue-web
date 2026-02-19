@@ -148,6 +148,7 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                             <div key={member.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
                                 <div className="flex items-center gap-4">
                                     <Avatar>
+                                        {member.userAvatar && <AvatarImage src={member.userAvatar} />}
                                         <AvatarFallback>{(member.userName || member.userEmail || '').charAt(0).toUpperCase()}</AvatarFallback>
                                     </Avatar>
                                     <div>

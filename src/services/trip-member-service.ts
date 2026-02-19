@@ -7,6 +7,7 @@ export interface TripMember {
     role: 'owner' | 'editor' | 'viewer';
     userEmail?: string | null;
     userName?: string | null;
+    userAvatar?: string | null;
 }
 
 const mapMember = (data: any): TripMember => ({
@@ -16,6 +17,7 @@ const mapMember = (data: any): TripMember => ({
     role: (data.role || '').toLowerCase(),
     userEmail: data.user_email,
     userName: data.user_name,
+    userAvatar: data.user_avatar,
 });
 
 export const tripMemberService = {
