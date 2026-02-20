@@ -98,6 +98,7 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                                 onClick={() => updateTripMutation.mutate({ id: tripId, data: { visibility: 'private' } }, { onSuccess: () => toast.success('Trip set to private'), onError: () => toast.error('Failed to update visibility') })}
                             >
                                 <Lock className="h-4 w-4" /> Private
+                                {trip?.visibility === 'private' && <span className="text-xs">✓</span>}
                             </Button>
                             <Button
                                 type="button"
@@ -107,6 +108,7 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                                 onClick={() => updateTripMutation.mutate({ id: tripId, data: { visibility: 'public' } }, { onSuccess: () => toast.success('Trip set to public'), onError: () => toast.error('Failed to update visibility') })}
                             >
                                 <Globe className="h-4 w-4" /> Public
+                                {trip?.visibility === 'public' && <span className="text-xs">✓</span>}
                             </Button>
                         </div>
                         <p className="text-xs text-muted-foreground">Public trips are visible in discovery and can be viewed by anyone with the link.</p>
