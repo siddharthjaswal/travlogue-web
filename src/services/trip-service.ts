@@ -82,6 +82,12 @@ export const tripService = {
         return mapTripResponse(response.data);
     },
 
+    getPublic: async () => {
+        const response = await api.get(`/trips/public`);
+        if (Array.isArray(response.data)) return response.data.map(mapTripResponse);
+        return [];
+    },
+
     delete: async (id: number) => {
         await api.delete(`/trips/${id}`);
     },

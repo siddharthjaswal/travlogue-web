@@ -3,6 +3,7 @@
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
+import { PublicTrips } from "@/components/landing/public-trips";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <PublicTrips />
         <Features />
       </main>
       <footer className="py-12 border-t border-border/50">
