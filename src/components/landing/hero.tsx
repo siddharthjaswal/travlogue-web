@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, MapPin, Calendar } from 'lucide-react';
+import { PublicTrips } from '@/components/landing/public-trips';
 import Link from 'next/link';
 
 export function Hero() {
@@ -99,12 +100,9 @@ export function Hero() {
                         
                         {/* Public Trips Preview */}
                         <div className="absolute inset-0 bg-gradient-to-br from-background/95 to-muted/50" />
-                        <div className="absolute top-20 left-6 right-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            {[1,2,3].map((i) => (
-                                <div key={i} className="h-32 rounded-2xl border border-border/40 bg-card/70 backdrop-blur-sm shadow-sm" />
-                            ))}
+                        <div className="absolute top-16 left-4 right-4">
+                            <PublicTrips />
                         </div>
-                        <div className="absolute bottom-8 left-6 right-6 h-10 rounded-full border border-border/40 bg-card/60" />
                     </div>
                 </motion.div>
             </div>

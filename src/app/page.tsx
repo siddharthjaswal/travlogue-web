@@ -11,7 +11,6 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
-        <PublicTrips />
         <Features />
       </main>
       <footer className="py-12 border-t border-border/50">
