@@ -82,7 +82,7 @@ export function Hero() {
                     ))}
                 </motion.div>
 
-                {/* Dashboard Preview */}
+                {/* Trip Showcase Preview */}
                 <motion.div
                     initial={{ rotateX: 20, opacity: 0 }}
                     animate={{ rotateX: 0, opacity: 1 }}
@@ -90,18 +90,19 @@ export function Hero() {
                     className="relative mt-24 h-[300px] md:h-[400px] w-full max-w-5xl mx-auto"
                     style={{ perspective: '1000px' }}
                 >
-                    <div className="relative w-full h-full bg-card border border-border/40 rounded-2xl shadow-2xl overflow-hidden">
-                        {/* Mock Browser Chrome */}
-                        <div className="absolute top-4 left-4 right-4 h-8 bg-muted/30 rounded-lg flex items-center px-4 gap-2">
-                            <div className="w-3 h-3 rounded-full bg-destructive/60" />
-                            <div className="w-3 h-3 rounded-full bg-warning/60" />
-                            <div className="w-3 h-3 rounded-full bg-accent/60" />
-                        </div>
-                        
-                        {/* Public Trips Preview */}
+                    <div className="relative w-full h-full rounded-3xl overflow-hidden border border-border/40 shadow-2xl">
                         <div className="absolute inset-0 bg-gradient-to-br from-background/95 to-muted/50" />
-                        <div className="absolute top-16 left-4 right-4">
+                        <div className="absolute inset-0">
                             <PublicTrips />
+                        </div>
+                        <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md px-4 py-3">
+                            <div className="text-sm font-semibold">Summer in Italy</div>
+                            <div className="mt-1 text-xs text-muted-foreground">Feb 12 – Feb 19, 2026 • 7 days</div>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                <span className="px-2.5 py-1 rounded-full bg-muted/40 border border-border/40 text-[10px]">Rome</span>
+                                <span className="px-2.5 py-1 rounded-full bg-muted/40 border border-border/40 text-[10px]">Naples</span>
+                                <span className="px-2.5 py-1 rounded-full bg-muted/40 border border-border/40 text-[10px]">Amalfi</span>
+                            </div>
                         </div>
                     </div>
                 </motion.div>
