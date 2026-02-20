@@ -4,12 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Plus, Shield, User, Trash2 } from "lucide-react";
+import { MoreHorizontal, Plus, Shield, User, Trash2, Globe, Lock } from "lucide-react";
 import { Trip } from "@/services/trip-service";
 import { InviteMemberDialog } from "./invite-member-dialog";
 import { useState, useEffect } from "react";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { useTripMembers, useTripInvitations, useInviteTripMember, useUpdateTripMemberRole, useRemoveTripMember, useCancelInvitation } from "@/hooks/use-collaboration";
+import { useUpdateTrip } from "@/hooks/use-trips";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,44 +23,6 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-// Mock User Type
-export interface TripMember {
-    id: number;
-    name: string;
-    email: string;
-    avatar?: string;
-    role: 'owner' | 'editor' | 'viewer';
-    status: 'active' | 'pending';
-}
-
-// Mock Data
-const MOCK_MEMBERS: TripMember[] = [
-    {
-        id: 1,
-        name: "Siddharth Jaswal",
-        email: "sid@example.com",
-        role: "owner",
-        status: "active",
-        avatar: "https://github.com/shadcn.png"
-    },
-    {
-        id: 2,
-        name: "Luffy Bot",
-        email: "luffy@example.com",
-        role: "editor",
-        status: "active",
-        avatar: ""
-    },
-    {
-        id: 3,
-        name: "Pending User",
-        email: "friend@example.com",
-        role: "viewer",
-        status: "pending",
-        avatar: ""
-    }
-];
 
 interface TripSettingsProps {
     tripId: number;
@@ -75,6 +38,7 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
     const updateRoleMutation = useUpdateTripMemberRole();
     const removeMemberMutation = useRemoveTripMember();
     const cancelInvitationMutation = useCancelInvitation();
+    const updateTripMutation = useUpdateTrip();
 
     // Explicitly type the arguments
     const handleInvite = (email: string, role: string, message?: string) => {
@@ -122,6 +86,30 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                     <div className="grid gap-2">
                         <Label htmlFor="description">Description</Label>
                         <Textarea id="description" placeholder="Add a description..." defaultValue={trip?.description || ""} />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label>Visibility</Label>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                type="button"
+                                variant={trip?.visibility === 'private' ? 'secondary' : 'outline'}
+                                size="sm"
+                                className="gap-2"
+                                onClick={() => updateTripMutation.mutate({ id: tripId, data: { visibility: 'private' } }, { onSuccess: () => toast.success('Trip set to private'), onError: () => toast.error('Failed to update visibility') })}
+                            >
+                                <Lock className="h-4 w-4" /> Private
+                            </Button>
+                            <Button
+                                type="button"
+                                variant={trip?.visibility === 'public' ? 'secondary' : 'outline'}
+                                size="sm"
+                                className="gap-2"
+                                onClick={() => updateTripMutation.mutate({ id: tripId, data: { visibility: 'public' } }, { onSuccess: () => toast.success('Trip set to public'), onError: () => toast.error('Failed to update visibility') })}
+                            >
+                                <Globe className="h-4 w-4" /> Public
+                            </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Public trips are visible in discovery and can be viewed by anyone with the link.</p>
                     </div>
                     <div className="flex justify-end">
                         <Button onClick={() => toast.success("Changes saved")}>Save Changes</Button>

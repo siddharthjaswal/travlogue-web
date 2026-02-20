@@ -86,6 +86,19 @@ export const tripService = {
         await api.delete(`/trips/${id}`);
     },
 
+    update: async (id: number, data: Partial<CreateTripData> & { visibility?: string }) => {
+        const payload: any = {};
+        if (data.name !== undefined) payload.name = data.name;
+        if (data.description !== undefined) payload.description = data.description;
+        if (data.startDateTimestamp !== undefined) payload.start_date_timestamp = data.startDateTimestamp;
+        if (data.endDateTimestamp !== undefined) payload.end_date_timestamp = data.endDateTimestamp;
+        if (data.primaryDestinationCountry !== undefined) payload.primary_destination_country = data.primaryDestinationCountry;
+        if (data.primaryDestinationCity !== undefined) payload.primary_destination_city = data.primaryDestinationCity;
+        if (data.visibility !== undefined) payload.visibility = data.visibility;
+        const response = await api.put(`/trips/${id}`, payload);
+        return mapTripResponse(response.data);
+    },
+
     regenerateCover: async (id: number, query?: string) => {
         const url = `/trips/${id}/cover${query ? `?query=${query}` : ''}`;
         const response = await api.patch(url);
