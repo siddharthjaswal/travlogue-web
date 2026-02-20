@@ -97,16 +97,14 @@ export function Hero() {
                             <div className="w-3 h-3 rounded-full bg-accent/60" />
                         </div>
                         
-                        {/* Mock Dashboard Content */}
+                        {/* Public Trips Preview */}
                         <div className="absolute inset-0 bg-gradient-to-br from-background/95 to-muted/50" />
-                        <div className="absolute top-20 left-6 w-64 h-36 bg-primary/10 border border-primary/20 rounded-2xl p-4 backdrop-blur-sm">
-                            <div className="h-5 w-28 bg-primary/20 rounded-lg mb-3" />
-                            <div className="space-y-2">
-                                <div className="h-3 w-full bg-muted/50 rounded" />
-                                <div className="h-3 w-3/4 bg-muted/50 rounded" />
-                            </div>
+                        <div className="absolute top-20 left-6 right-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {[1,2,3].map((i) => (
+                                <div key={i} className="h-32 rounded-2xl border border-border/40 bg-card/70 backdrop-blur-sm shadow-sm" />
+                            ))}
                         </div>
-                        <div className="absolute top-24 right-10 w-56 h-56 bg-accent/5 rounded-full blur-3xl" />
+                        <div className="absolute bottom-8 left-6 right-6 h-10 rounded-full border border-border/40 bg-card/60" />
                     </div>
                 </motion.div>
             </div>
