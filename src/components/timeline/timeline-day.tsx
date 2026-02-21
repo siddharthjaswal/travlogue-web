@@ -35,6 +35,7 @@ interface StayInfo {
 interface TimelineDayProps {
     day: TripDay;
     stayInfo?: StayInfo;
+    readOnly?: boolean;
 }
 
 function getNextDefaultTime(activities: TripDay['activities']): string {
@@ -50,7 +51,7 @@ function getNextDefaultTime(activities: TripDay['activities']): string {
     return `${String(nextH).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`;
 }
 
-export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
+export function TimelineDay({ day, stayInfo, readOnly }: TimelineDayProps) {
     const dateObj = new Date(day.date);
     const updateAccommodation = useUpdateAccommodation();
     const [editStayOpen, setEditStayOpen] = useState(false);
@@ -157,14 +158,16 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                                 <div>
                                     Stay · {stayInfo.name} · {stayInfo.nights} night{stayInfo.nights === 1 ? '' : 's'}
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => setEditStayOpen(true)}
-                                >
-                                    <Pencil className="h-3 w-3" />
-                                </Button>
+                                {!readOnly && (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={() => setEditStayOpen(true)}
+                                    >
+                                        <Pencil className="h-3 w-3" />
+                                    </Button>
+                                )}
                             </div>
                         )}
                         {stayInfo && !stayInfo.isStart && (
@@ -221,6 +224,7 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                                             tripId={day.tripId}
                                             date={dateObj}
                                             dayPlace={day.place}
+                                            readOnly={readOnly}
                                         />
                                     ))
                             ) : (
@@ -265,21 +269,23 @@ export function TimelineDay({ day, stayInfo }: TimelineDayProps) {
                                     );
                                 })()}
                             </div>
-                            <AddActivityDialog
-                                tripId={day.tripId}
-                                initialDate={dateObj}
-                                initialTime={nextTime}
-                                trigger={
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="gap-2 rounded-full text-muted-foreground"
-                                    >
-                                        <PlusCircle className="h-4 w-4" />
-                                        Add
-                                    </Button>
-                                }
-                            />
+                            {!readOnly && (
+                                <AddActivityDialog
+                                    tripId={day.tripId}
+                                    initialDate={dateObj}
+                                    initialTime={nextTime}
+                                    trigger={
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="gap-2 rounded-full text-muted-foreground"
+                                        >
+                                            <PlusCircle className="h-4 w-4" />
+                                            Add
+                                        </Button>
+                                    }
+                                />
+                            )}
                         </div>
                     </div>
                 </div>

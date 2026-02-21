@@ -32,9 +32,10 @@ import { showError } from '@/lib/toast-helper';
 
 interface TripHeaderProps {
     trip: Trip;
+    readOnly?: boolean;
 }
 
-export function TripHeader({ trip }: TripHeaderProps) {
+export function TripHeader({ trip, readOnly }: TripHeaderProps) {
     const { data: timeline } = useTripTimeline(trip.id);
     const { data: accommodations } = useAccommodationsByTrip(trip.id);
     const { mutate: regenerateBanner } = useRegenerateBanner();
@@ -112,34 +113,36 @@ export function TripHeader({ trip }: TripHeaderProps) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
 
                 {/* Top actions */}
-                <div className="absolute top-3 right-3">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-[14px] bg-black/20 hover:bg-black/40 text-white border border-white/10">
-                                <MoreVertical className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={() => handleCopyLink()}>
-                                <Share2 className="h-4 w-4 mr-2" />
-                                Copy Link
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleExportPdf()}>
-                                Export as PDF
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit Trip
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setShowDeleteDialog(true)}>
-                                <Trash className="h-4 w-4 mr-2" />
-                                Delete Trip
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
+                {!readOnly && (
+                    <div className="absolute top-3 right-3">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-[14px] bg-black/20 hover:bg-black/40 text-white border border-white/10">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem onClick={() => handleCopyLink()}>
+                                    <Share2 className="h-4 w-4 mr-2" />
+                                    Copy Link
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleExportPdf()}>
+                                    Export as PDF
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit Trip
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setShowDeleteDialog(true)}>
+                                    <Trash className="h-4 w-4 mr-2" />
+                                    Delete Trip
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                )}
 
                 {/* Glass info card inside image */}
                 <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4">

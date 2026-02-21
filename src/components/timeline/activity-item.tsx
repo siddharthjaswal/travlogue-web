@@ -10,9 +10,10 @@ interface ActivityItemProps {
     tripId: number;
     date: Date;
     dayPlace?: string;
+    readOnly?: boolean;
 }
 
-export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
+export function ActivityItem({ activity, tripId, date, readOnly }: ActivityItemProps) {
     const getActivityIcon = (type: string, location?: string) => {
         const t = type.toLowerCase();
         if (t === 'transportation' && location?.includes('•')) {
@@ -113,19 +114,21 @@ export function ActivityItem({ activity, tripId, date }: ActivityItemProps) {
                                         {currencySymbol(activity.currency)} {activity.cost}
                                     </div>
                                 )}
-                                <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                                    <AddActivityDialog
-                                        tripId={tripId}
-                                        initialDate={date}
-                                        mode="edit"
-                                        activity={activity}
-                                        trigger={
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg">
-                                                <Pencil className="h-3.5 w-3.5" />
-                                            </Button>
-                                        }
-                                    />
-                                </div>
+                                {!readOnly && (
+                                    <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                        <AddActivityDialog
+                                            tripId={tripId}
+                                            initialDate={date}
+                                            mode="edit"
+                                            activity={activity}
+                                            trigger={
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg">
+                                                    <Pencil className="h-3.5 w-3.5" />
+                                                </Button>
+                                            }
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 

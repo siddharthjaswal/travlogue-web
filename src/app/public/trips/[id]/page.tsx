@@ -16,8 +16,8 @@ export default function PublicTripPage() {
 
   return (
     <div className="space-y-6">
-      <TripHeader trip={trip} />
-      <TimelineView tripId={id} />
+      <TripHeader trip={trip} readOnly />
+      <TimelineView tripId={id} readOnly />
     </div>
   );
 }

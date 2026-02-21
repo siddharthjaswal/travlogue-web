@@ -17,9 +17,10 @@ import { TripMap } from '@/components/trips/trip-map';
 
 interface TimelineViewProps {
     tripId: number;
+    readOnly?: boolean;
 }
 
-export function TimelineView({ tripId }: TimelineViewProps) {
+export function TimelineView({ tripId, readOnly }: TimelineViewProps) {
     const { data: timeline, isLoading, isError } = useTripTimeline(tripId);
     const [mapOpen, setMapOpen] = useState(false);
     const { data: trip } = useTrip(tripId);
@@ -217,7 +218,7 @@ export function TimelineView({ tripId }: TimelineViewProps) {
                     <div className="rounded-3xl border border-border/30 bg-card/30 backdrop-blur-sm p-4 sm:p-6 shadow-sm">
                         {timeline.days.map((day) => (
                             <div key={day.id} className="relative pb-12 sm:pb-16">
-                                <TimelineDay day={day} stayInfo={stayMap.get(day.id)} />
+                                <TimelineDay day={day} stayInfo={stayMap.get(day.id)} readOnly={readOnly} />
                             </div>
                         ))}
                     </div>
