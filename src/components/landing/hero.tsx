@@ -93,7 +93,7 @@ export function Hero() {
                     <div className="relative w-full h-full rounded-3xl overflow-hidden border border-border/40 shadow-2xl">
                         <div className="absolute inset-0 bg-gradient-to-br from-background/95 to-muted/50" />
                         <div className="absolute inset-0">
-                            <PublicTrips />
+                            <PublicTrips variant="hero" />
                         </div>
                         <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-md px-4 py-3">
                             <div className="text-sm font-semibold">Summer in Italy</div>

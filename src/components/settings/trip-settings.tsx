@@ -9,7 +9,7 @@ import { Trip } from "@/services/trip-service";
 import { InviteMemberDialog } from "./invite-member-dialog";
 import { useState, useEffect } from "react";
 import { useCurrentUser } from "@/hooks/use-auth";
-import { useTripMembers, useTripInvitations, useInviteTripMember, useUpdateTripMemberRole, useRemoveTripMember, useCancelInvitation } from "@/hooks/use-collaboration";
+import { useTripMembers, useTripInvitations, useInviteTripMember, useUpdateTripMemberRole, useRemoveTripMember, useCancelInvitation, useResendInvitation } from "@/hooks/use-collaboration";
 import { useUpdateTrip } from "@/hooks/use-trips";
 import {
     DropdownMenu,
@@ -38,6 +38,7 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
     const updateRoleMutation = useUpdateTripMemberRole();
     const removeMemberMutation = useRemoveTripMember();
     const cancelInvitationMutation = useCancelInvitation();
+    const resendInvitationMutation = useResendInvitation();
     const updateTripMutation = useUpdateTrip();
 
     // Explicitly type the arguments
@@ -202,6 +203,13 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Badge variant="secondary" className="text-[10px] h-5">{inv.role}</Badge>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => resendInvitationMutation.mutate({ tripId, invitationId: inv.id })}
+                                    >
+                                        Resend
+                                    </Button>
                                     <Button
                                         variant="ghost"
                                         size="sm"

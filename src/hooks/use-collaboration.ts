@@ -59,3 +59,13 @@ export function useCancelInvitation() {
         },
     });
 }
+
+export function useResendInvitation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ tripId, invitationId }: { tripId: number; invitationId: number }) => tripInvitationService.resend(tripId, invitationId),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['trip-invitations', variables.tripId] });
+        },
+    });
+}

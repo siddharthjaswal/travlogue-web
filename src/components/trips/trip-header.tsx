@@ -110,7 +110,8 @@ export function TripHeader({ trip, readOnly }: TripHeaderProps) {
                     />
                 )}
                 {/* Sophisticated gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-transparent" />
 
                 {/* Top actions */}
                 {!readOnly && (
@@ -146,7 +147,7 @@ export function TripHeader({ trip, readOnly }: TripHeaderProps) {
 
                 {/* Glass info card inside image */}
                 <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4">
-                    <div className="rounded-[16px] border border-white/10 bg-black/35 backdrop-blur-md px-4 py-3 text-white">
+                    <div className="rounded-[18px] border border-white/15 bg-black/45 backdrop-blur-lg px-4 py-3 text-white shadow-lg">
                         <h1 className="text-3xl font-bold mb-2 tracking-tight">{trip.name}</h1>
                         <div className="flex flex-col gap-2 text-white/80 text-sm">
                             {(trip.primaryDestinationCity || trip.primaryDestinationCountry) && (

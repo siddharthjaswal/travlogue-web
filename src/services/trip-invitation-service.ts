@@ -35,4 +35,8 @@ export const tripInvitationService = {
     cancel: async (tripId: number, invitationId: number) => {
         await api.delete(`/trips/${tripId}/invitations/${invitationId}`);
     },
+    resend: async (tripId: number, invitationId: number) => {
+        const response = await api.post(`/trips/${tripId}/invitations/${invitationId}/resend`);
+        return mapInvitation(response.data);
+    },
 };
