@@ -61,13 +61,13 @@ export function Hero() {
                 </motion.div>
 
                 {/* Hero Preview Grid */}
-                <div className="mt-16 grid gap-6 lg:grid-cols-[1.2fr_0.95fr_0.85fr]">
+                <div className="mt-16 grid gap-6 lg:grid-cols-[1.2fr_0.95fr_0.85fr] items-stretch">
                     {/* Left: Story Trip */}
                     <motion.div
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.15, duration: 0.6 }}
-                        className="space-y-3"
+                        className="space-y-3 h-full"
                     >
                         <div className="text-sm font-semibold text-muted-foreground">Featured public trip</div>
                         <PublicTrips variant="showcase" />
@@ -78,7 +78,7 @@ export function Hero() {
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.25, duration: 0.6 }}
-                        className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md p-5 shadow-lg"
+                        className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md p-5 shadow-lg h-full"
                     >
                         <div className="flex items-center gap-2 text-sm font-semibold">
                             <Route className="h-4 w-4 text-primary" />
@@ -119,7 +119,7 @@ export function Hero() {
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.35, duration: 0.6 }}
-                        className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md p-5 shadow-lg"
+                        className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md p-5 shadow-lg h-full"
                     >
                         <div className="flex items-center gap-2 text-sm font-semibold">
                             <MapPin className="h-4 w-4 text-primary" />

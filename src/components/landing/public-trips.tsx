@@ -26,9 +26,9 @@ export function PublicTrips({ variant = 'gallery' }: { variant?: 'gallery' | 'sh
   if (variant === 'showcase') {
     const trip = trips[0];
     return (
-      <Link href={`/public/trips/${trip.id}`} className="group">
-        <Card className="relative overflow-hidden rounded-3xl border-border/40 bg-card/70 shadow-xl">
-          <div className="h-[320px] w-full bg-muted/30">
+      <Link href={`/public/trips/${trip.id}`} className="group block h-full">
+        <Card className="relative overflow-hidden rounded-3xl border-border/40 bg-card/70 shadow-xl h-full min-h-[360px]">
+          <div className="absolute inset-0 bg-muted/30">
             {trip.coverPhotoUrl && (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={trip.coverPhotoUrl} alt={trip.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
