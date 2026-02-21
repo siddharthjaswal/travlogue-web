@@ -69,7 +69,6 @@ export function Hero() {
                         transition={{ delay: 0.15, duration: 0.6 }}
                         className="space-y-3 h-full"
                     >
-                        <div className="text-sm font-semibold text-muted-foreground">Featured public trip</div>
                         <PublicTrips variant="showcase" />
                     </motion.div>
 
