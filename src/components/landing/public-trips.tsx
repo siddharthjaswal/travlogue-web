@@ -5,15 +5,15 @@ import Link from 'next/link';
 import { tripService, Trip } from '@/services/trip-service';
 import { MapPin } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export function PublicTrips({ variant = 'gallery' }: { variant?: 'gallery' | 'showcase' }) {
   const [trips, setTrips] = useState<Trip[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    tripService.getPublic().then(setTrips).catch(() => setTrips([]));
+    tripService.getPublic().then(setTrips).catch(() => setTrips([])).finally(() => setLoading(false));
   }, []);
-
-  if (!trips.length) return null;
 
   const formatDateRange = (trip: Trip) => {
     if (!trip.startDateTimestamp) return 'Flexible dates';
@@ -24,6 +24,14 @@ export function PublicTrips({ variant = 'gallery' }: { variant?: 'gallery' | 'sh
   };
 
   if (variant === 'showcase') {
+    if (loading) {
+      return (
+        <Card className="relative overflow-hidden rounded-3xl border-border/40 bg-card/70 shadow-xl h-full min-h-[360px]">
+          <Skeleton className="absolute inset-0" />
+        </Card>
+      );
+    }
+    if (!trips.length) return null;
     const trip = trips[0];
     return (
       <Link href={`/public/trips/${trip.id}`} className="group block h-full">
@@ -65,7 +73,21 @@ export function PublicTrips({ variant = 'gallery' }: { variant?: 'gallery' | 'sh
         </div>
 
         <div className="flex gap-5 overflow-x-auto pb-3 snap-x snap-mandatory">
-          {trips.map((trip) => (
+          {loading && (
+            <>
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="min-w-[300px] max-w-[300px] rounded-3xl overflow-hidden border-border/40 bg-card/70 shadow-md">
+                  <Skeleton className="h-44 w-full" />
+                  <div className="p-4 space-y-2">
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-3 w-1/2" />
+                    <Skeleton className="h-3 w-1/3" />
+                  </div>
+                </Card>
+              ))}
+            </>
+          )}
+          {!loading && trips.map((trip) => (
             <Link key={trip.id} href={`/public/trips/${trip.id}`} className="min-w-[300px] max-w-[300px] snap-start">
               <Card className="rounded-3xl overflow-hidden border-border/40 bg-card/70 shadow-md transition-transform duration-300 hover:-translate-y-1">
                 <div className="h-44 w-full bg-muted/30">

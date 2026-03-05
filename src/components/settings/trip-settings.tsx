@@ -206,7 +206,10 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => resendInvitationMutation.mutate({ tripId, invitationId: inv.id })}
+                                        onClick={() => resendInvitationMutation.mutate(
+                                            { tripId, invitationId: inv.id },
+                                            { onSuccess: () => toast.success('Invitation resent'), onError: () => toast.error('Failed to resend') }
+                                        )}
                                     >
                                         Resend
                                     </Button>
@@ -214,7 +217,10 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                                         variant="ghost"
                                         size="sm"
                                         className="text-destructive"
-                                        onClick={() => cancelInvitationMutation.mutate({ tripId, invitationId: inv.id })}
+                                        onClick={() => cancelInvitationMutation.mutate(
+                                            { tripId, invitationId: inv.id },
+                                            { onSuccess: () => toast.success('Invitation cancelled'), onError: () => toast.error('Failed to cancel invitation') }
+                                        )}
                                     >
                                         Cancel
                                     </Button>
