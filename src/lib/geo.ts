@@ -105,7 +105,7 @@ const COUNTRY_COORDS: Record<string, { lat: number; lng: number }> = {
   singapore: { lat: 1.3521, lng: 103.8198 },
 };
 
-export function guessCenter(city?: string, country?: string) {
+export function guessCenter(city?: string, country?: string): { lat: number; lng: number } | null {
   if (city) {
     const key = city.toLowerCase().replace(/\s+/g, "");
     if (CITY_COORDS[key]) return CITY_COORDS[key];
@@ -114,7 +114,7 @@ export function guessCenter(city?: string, country?: string) {
     const key = country.toLowerCase().replace(/\s+/g, "");
     if (COUNTRY_COORDS[key]) return COUNTRY_COORDS[key];
   }
-  return { lat: 20, lng: 0 }; // fallback
+  return null; // not found — caller should handle gracefully
 }
 
 export function parseGoogleMapsLink(url: string) {

@@ -32,33 +32,76 @@ export function WeatherPanel({ city, country, tripStartTimestamp, tripEndTimesta
     useEffect(() => {
         if (!city && !country) { setLoading(false); return; }
 
-        const coords = guessCenter(city ?? undefined, country ?? undefined);
-        if (!coords) { setLoading(false); return; }
-
-        const name = city || country || '';
-        setLocationName(name);
-
-        // Check session cache (refreshes each new calendar day)
-        const cacheKey = getCacheKey(name, coords.lat, coords.lng);
-        const cached = sessionStorage.getItem(cacheKey);
-        if (cached) {
-            try {
-                setWeather(JSON.parse(cached));
-                setLoading(false);
-                return;
-            } catch {}
-        }
-
+        let cancelled = false;
         setLoading(true);
-        // Fetch 16 days — max Open-Meteo forecast window
-        fetch(`/api/weather?lat=${coords.lat}&lng=${coords.lng}&days=16`)
-            .then(r => r.json())
-            .then(data => {
-                sessionStorage.setItem(cacheKey, JSON.stringify(data));
-                setWeather(data);
-            })
-            .catch(() => {})
-            .finally(() => setLoading(false));
+
+        const resolve = async () => {
+            // Stage 1: fast hardcoded lookup
+            let coords = guessCenter(city ?? undefined, country ?? undefined);
+
+            // Stage 2: fall back to country-state-city (covers all 250 countries + 153K cities)
+            if (!coords) {
+                const { Country, City } = await import('country-state-city');
+
+                // Find the country ISO code first
+                let isoCode: string | null = null;
+                if (country) {
+                    const match = Country.getAllCountries().find(
+                        (c) => c.name.toLowerCase() === country.toLowerCase()
+                    );
+                    if (match) {
+                        isoCode = match.isoCode;
+                        // Use country centre as baseline
+                        const cLat = parseFloat(match.latitude);
+                        const cLng = parseFloat(match.longitude);
+                        if (!isNaN(cLat) && !isNaN(cLng)) coords = { lat: cLat, lng: cLng };
+                    }
+                }
+
+                // Refine to city if we have one
+                if (city && isoCode) {
+                    const cities = City.getCitiesOfCountry(isoCode) ?? [];
+                    // Accent-insensitive comparison so "Reykjavik" matches "Reykjavík" etc.
+                    const normalize = (s: string) =>
+                        s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+                    const cityNorm = normalize(city);
+                    const match = cities.find((c) => normalize(c.name) === cityNorm);
+                    if (match?.latitude && match?.longitude) {
+                        const cLat = parseFloat(match.latitude);
+                        const cLng = parseFloat(match.longitude);
+                        if (!isNaN(cLat) && !isNaN(cLng)) coords = { lat: cLat, lng: cLng };
+                    }
+                }
+            }
+
+            if (!coords || cancelled) { setLoading(false); return; }
+
+            const name = city || country || '';
+            if (!cancelled) setLocationName(name);
+
+            // Session cache keyed by city + coords + date
+            const cacheKey = getCacheKey(name, coords.lat, coords.lng);
+            const cached = sessionStorage.getItem(cacheKey);
+            if (cached) {
+                try {
+                    if (!cancelled) { setWeather(JSON.parse(cached)); setLoading(false); }
+                    return;
+                } catch {}
+            }
+
+            // Fetch 16 days — max Open-Meteo forecast window
+            fetch(`/api/weather?lat=${coords.lat}&lng=${coords.lng}&days=16`)
+                .then((r) => r.json())
+                .then((data) => {
+                    sessionStorage.setItem(cacheKey, JSON.stringify(data));
+                    if (!cancelled) setWeather(data);
+                })
+                .catch(() => {})
+                .finally(() => { if (!cancelled) setLoading(false); });
+        };
+
+        resolve();
+        return () => { cancelled = true; };
     }, [city, country]);
 
     if (!city && !country) return null;
