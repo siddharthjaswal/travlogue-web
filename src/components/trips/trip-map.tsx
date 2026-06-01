@@ -2,10 +2,10 @@
 
 import { Trip } from '@/services/trip-service';
 import { activityService } from '@/services/activity-service';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CardContent } from '@/components/ui/card';
 import { StyledMap } from '@/components/maps/styled-map';
-import { guessCenter, parseLatLng } from '@/lib/geo';
+import { guessCenter, resolveDestinationCoords, parseLatLng } from '@/lib/geo';
 import api from '@/lib/api';
 import { useTripTimeline } from '@/hooks/use-trips';
 import { useQueryClient } from '@tanstack/react-query';
@@ -26,7 +26,18 @@ export function TripMap({ trip, height = 800, className, activeDayId }: TripMapP
     const didResolveRef = useRef<Record<number, boolean>>({});
     const { data: accommodations } = useAccommodationsByTrip(trip.id);
 
-    const center = guessCenter(trip.primaryDestinationCity, trip.primaryDestinationCountry);
+    // Center on the trip destination. guessCenter is a fast sync hint; resolve
+    // the full coords (country-state-city) async so unlisted places like
+    // Iceland center correctly instead of falling back to the map default.
+    const [center, setCenter] = useState<{ lat: number; lng: number } | null>(
+        () => guessCenter(trip.primaryDestinationCity, trip.primaryDestinationCountry)
+    );
+    useEffect(() => {
+        let cancelled = false;
+        resolveDestinationCoords(trip.primaryDestinationCity, trip.primaryDestinationCountry)
+            .then((coords) => { if (!cancelled && coords) setCenter(coords); });
+        return () => { cancelled = true; };
+    }, [trip.primaryDestinationCity, trip.primaryDestinationCountry]);
     const resolveMapLink = async (value: string) => {
         try {
             const res = await api.get('/utils/resolve-map-link', { params: { url: value } });

@@ -16,7 +16,7 @@ interface MarkerData {
 }
 
 interface StyledMapProps {
-    center: { lat: number; lng: number };
+    center: { lat: number; lng: number } | null;
     marker?: { lat: number; lng: number } | null;
     markers?: MarkerData[];
     path?: { lat: number; lng: number }[];

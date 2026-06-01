@@ -117,6 +117,64 @@ export function guessCenter(city?: string, country?: string): { lat: number; lng
   return null; // not found — caller should handle gracefully
 }
 
+// Accent-insensitive lowercase, so "Reykjavik" matches "Reykjavík".
+function normalizePlace(s: string) {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+/**
+ * Resolve a city/country to coordinates.
+ *
+ * Two stages: the fast hardcoded table first (guessCenter), then the
+ * country-state-city dataset (250 countries + 153K cities) as a complete
+ * fallback. Async because the dataset is dynamically imported so it stays
+ * out of the initial bundle. Returns null only when nothing matches.
+ */
+export async function resolveDestinationCoords(
+  city?: string | null,
+  country?: string | null
+): Promise<{ lat: number; lng: number } | null> {
+  // Stage 1 — fast hardcoded lookup.
+  const quick = guessCenter(city ?? undefined, country ?? undefined);
+  if (quick) return quick;
+
+  if (!city && !country) return null;
+
+  // Stage 2 — country-state-city.
+  try {
+    const { Country, City } = await import("country-state-city");
+    let coords: { lat: number; lng: number } | null = null;
+    let isoCode: string | null = null;
+
+    if (country) {
+      const match = Country.getAllCountries().find(
+        (c) => c.name.toLowerCase() === country.toLowerCase()
+      );
+      if (match) {
+        isoCode = match.isoCode;
+        const la = parseFloat(match.latitude);
+        const lo = parseFloat(match.longitude);
+        if (!isNaN(la) && !isNaN(lo)) coords = { lat: la, lng: lo };
+      }
+    }
+
+    if (city && isoCode) {
+      const cities = City.getCitiesOfCountry(isoCode) ?? [];
+      const cityNorm = normalizePlace(city);
+      const match = cities.find((c) => normalizePlace(c.name) === cityNorm);
+      if (match?.latitude && match?.longitude) {
+        const la = parseFloat(match.latitude);
+        const lo = parseFloat(match.longitude);
+        if (!isNaN(la) && !isNaN(lo)) coords = { lat: la, lng: lo };
+      }
+    }
+
+    return coords;
+  } catch {
+    return null;
+  }
+}
+
 export function parseGoogleMapsLink(url: string) {
   try {
     const u = new URL(url);

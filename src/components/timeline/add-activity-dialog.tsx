@@ -4,7 +4,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format, addDays, differenceInMinutes } from 'date-fns';
-import { CalendarIcon, Loader2, Trash2 } from 'lucide-react';
+import {
+    CalendarIcon, Loader2, Trash2,
+    Camera, Utensils, Plane, Landmark, ShoppingBag, Mountain, Hotel,
+    Train, Bus, Car, Ship, MapPin,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -27,13 +31,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
     Popover,
     PopoverContent,
     PopoverTrigger,
@@ -46,7 +43,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity } from '@/services/activity-service';
 import { showError } from '@/lib/toast-helper';
 import { StyledMap } from '@/components/maps/styled-map';
-import { guessCenter, parseLatLng, parseGoogleMapsLink } from '@/lib/geo';
+import { guessCenter, resolveDestinationCoords, parseLatLng, parseGoogleMapsLink } from '@/lib/geo';
 import api from '@/lib/api';
 
 const formSchema = z.object({
@@ -69,6 +66,84 @@ const formSchema = z.object({
     checkinTime: z.string().optional(),
     checkoutTime: z.string().optional(),
 });
+
+// Activity types as icon chips — accent colors mirror the timeline (activity-item.tsx)
+interface ChipOption {
+    value: string;
+    label: string;
+    icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+    accent: string;
+}
+
+const TYPE_OPTIONS: ChipOption[] = [
+    { value: 'sightseeing', label: 'Sightseeing', icon: Camera, accent: '#7FD1C8' },
+    { value: 'dining', label: 'Dining', icon: Utensils, accent: '#F2A477' },
+    { value: 'transportation', label: 'Transport', icon: Plane, accent: '#A8A4F2' },
+    { value: 'cultural', label: 'Cultural', icon: Landmark, accent: '#C5B8A5' },
+    { value: 'shopping', label: 'Shopping', icon: ShoppingBag, accent: '#E6A0C4' },
+    { value: 'adventure', label: 'Adventure', icon: Mountain, accent: '#9DD49A' },
+    { value: 'other', label: 'Stay', icon: Hotel, accent: '#8FB7FF' },
+];
+
+const MODE_OPTIONS: ChipOption[] = [
+    { value: 'flight', label: 'Flight', icon: Plane, accent: '#A8A4F2' },
+    { value: 'train', label: 'Train', icon: Train, accent: '#A8A4F2' },
+    { value: 'bus', label: 'Bus', icon: Bus, accent: '#A8A4F2' },
+    { value: 'car', label: 'Car', icon: Car, accent: '#A8A4F2' },
+    { value: 'ferry', label: 'Ferry', icon: Ship, accent: '#A8A4F2' },
+    { value: 'other', label: 'Other', icon: MapPin, accent: '#A8A4F2' },
+];
+
+// Quick presets so users can set a time in one tap instead of typing.
+const TIME_PRESETS: { label: string; value: string }[] = [
+    { label: 'Morning', value: '09:00' },
+    { label: 'Noon', value: '12:00' },
+    { label: 'Afternoon', value: '15:00' },
+    { label: 'Evening', value: '18:00' },
+];
+
+function OptionChips({
+    options,
+    value,
+    onChange,
+    columns = 'grid-cols-3 sm:grid-cols-4',
+}: {
+    options: ChipOption[];
+    value?: string;
+    onChange: (value: string) => void;
+    columns?: string;
+}) {
+    return (
+        <div className={cn('grid gap-2', columns)}>
+            {options.map((opt) => {
+                const Icon = opt.icon;
+                const active = value === opt.value;
+                return (
+                    <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => onChange(opt.value)}
+                        aria-pressed={active}
+                        className={cn(
+                            'flex flex-col items-center justify-center gap-1.5 rounded-xl border px-2 py-3 text-xs font-medium transition-all',
+                            active
+                                ? 'text-foreground shadow-sm'
+                                : 'border-border/50 text-muted-foreground hover:border-border hover:bg-muted/40'
+                        )}
+                        style={
+                            active
+                                ? { backgroundColor: `${opt.accent}22`, borderColor: `${opt.accent}66` }
+                                : undefined
+                        }
+                    >
+                        <Icon className="h-5 w-5" style={active ? { color: opt.accent } : undefined} />
+                        {opt.label}
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
 
 interface AddActivityDialogProps {
     tripId: number;
@@ -166,6 +241,16 @@ export function AddActivityDialog({
     const [startCoords, setStartCoords] = useState<{ lat: number; lng: number } | null>(null);
     const [endCoords, setEndCoords] = useState<{ lat: number; lng: number } | null>(null);
     const didAutoResolveRef = useRef<Record<number, boolean>>({});
+
+    // Resolve the trip's destination (e.g. Iceland) to coordinates so the map
+    // opens centered on the right country, not the StyledMap default fallback.
+    const [tripCenter, setTripCenter] = useState<{ lat: number; lng: number } | null>(null);
+    useEffect(() => {
+        let cancelled = false;
+        resolveDestinationCoords(trip?.primaryDestinationCity, trip?.primaryDestinationCountry)
+            .then((coords) => { if (!cancelled) setTripCenter(coords); });
+        return () => { cancelled = true; };
+    }, [trip?.primaryDestinationCity, trip?.primaryDestinationCountry]);
     async function resolveLocationInput(value: string, setCoords: (c: {lat:number; lng:number} | null)=>void) {
         if (!value) return null;
         if (resolvedCache.current.has(value)) {
@@ -208,14 +293,15 @@ export function AddActivityDialog({
     }, [startCoords, endCoords]);
 
     const mapCenter = useMemo(() => {
-        // Priority: parsed location -> activity location -> last activity coords -> trip city/country
+        // Priority: transport route -> parsed location -> activity location ->
+        // last activity coords -> resolved trip destination (sync table, then async CSC).
         if (transportCenter) return transportCenter;
         if (parsedLocation) return parsedLocation;
         const actCoords = parseLatLng(activity?.location);
         if (actCoords) return actCoords;
         if (lastActivityCoords) return lastActivityCoords;
-        return guessCenter(trip?.primaryDestinationCity, trip?.primaryDestinationCountry);
-    }, [parsedLocation, activity?.location, lastActivityCoords, trip?.primaryDestinationCity, trip?.primaryDestinationCountry]);
+        return guessCenter(trip?.primaryDestinationCity, trip?.primaryDestinationCountry) ?? tripCenter;
+    }, [transportCenter, parsedLocation, activity?.location, lastActivityCoords, tripCenter, trip?.primaryDestinationCity, trip?.primaryDestinationCountry]);
 
     const marker = parsedLocation || null;
     const transportMarkers = [
@@ -298,6 +384,7 @@ export function AddActivityDialog({
                 });
                 setStartCoords(null);
                 setEndCoords(null);
+                setResolvedCoords(null);
             }
         }
     }, [show, mode, activity, initialDate, form]);
@@ -429,6 +516,8 @@ export function AddActivityDialog({
         <Dialog open={show} onOpenChange={setShow}>
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
             <DialogContent className="sm:max-w-[900px] w-[95vw] overflow-y-auto max-h-[92vh]">
+                {/* Visually hidden title for screen-reader accessibility (visual title is the <h2> below) */}
+                <DialogTitle className="sr-only">{mode === 'edit' ? 'Edit Activity' : 'Add Activity'}</DialogTitle>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -495,64 +584,40 @@ export function AddActivityDialog({
                             )}
                         />
 
-                        <div className={cn("grid gap-4", isStay ? "grid-cols-1" : "grid-cols-2")}>
+                        <FormField
+                            control={form.control}
+                            name="activityType"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Type</FormLabel>
+                                    <OptionChips
+                                        options={TYPE_OPTIONS}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {isTransport && (
                             <FormField
                                 control={form.control}
-                                name="activityType"
+                                name="transportMode"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Type</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select type" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="sightseeing">Sightseeing</SelectItem>
-                                                <SelectItem value="dining">Dining</SelectItem>
-                                                <SelectItem value="transportation">Transportation</SelectItem>
-                                                <SelectItem value="cultural">Cultural</SelectItem>
-                                                <SelectItem value="shopping">Shopping</SelectItem>
-                                                <SelectItem value="adventure">Adventure</SelectItem>
-                                                <SelectItem value="other">Stay / Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <FormLabel>Mode of transport</FormLabel>
+                                        <OptionChips
+                                            options={MODE_OPTIONS}
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                            columns="grid-cols-3 sm:grid-cols-6"
+                                        />
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-
-                            {isTransport ? (
-                                <FormField
-                                    control={form.control}
-                                    name="transportMode"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Mode</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select mode" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="flight">Flight</SelectItem>
-                                                    <SelectItem value="train">Train</SelectItem>
-                                                    <SelectItem value="bus">Bus</SelectItem>
-                                                    <SelectItem value="car">Car</SelectItem>
-                                                    <SelectItem value="ferry">Ferry</SelectItem>
-                                                    <SelectItem value="other">Other</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            ) : (
-                                <div />
-                            )}
-                        </div>
+                        )}
 
                         {isStay ? (
                             <div className="rounded-2xl border border-border/40 bg-muted/10 p-4">
@@ -666,7 +731,7 @@ export function AddActivityDialog({
                                 </div>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4 items-start">
                                 {isTransport ? (
                                     <>
                                         <FormField
@@ -706,6 +771,23 @@ export function AddActivityDialog({
                                                 <FormControl>
                                                     <Input type="time" {...field} />
                                                 </FormControl>
+                                                <div className="flex flex-wrap gap-1.5 pt-1.5">
+                                                    {TIME_PRESETS.map((preset) => (
+                                                        <button
+                                                            key={preset.value}
+                                                            type="button"
+                                                            onClick={() => field.onChange(preset.value)}
+                                                            className={cn(
+                                                                'rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+                                                                field.value === preset.value
+                                                                    ? 'border-primary/50 bg-primary/10 text-primary'
+                                                                    : 'border-border/50 text-muted-foreground hover:border-border hover:bg-muted/40'
+                                                            )}
+                                                        >
+                                                            {preset.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -1065,9 +1147,9 @@ export function AddActivityDialog({
                             </div>
                             <div className="flex items-center gap-2">
                                 <Button type="button" variant="outline" onClick={() => setShow(false)}>Cancel</Button>
-                                <Button type="submit" disabled={isPending}>
-                                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    {mode === 'edit' ? 'Save Changes' : 'Add'}
+                                <Button type="submit" disabled={isPending || isExpanding}>
+                                    {(isPending || isExpanding) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {isExpanding ? 'Resolving…' : mode === 'edit' ? 'Save Changes' : 'Add'}
                                 </Button>
                             </div>
                         </DialogFooter>
