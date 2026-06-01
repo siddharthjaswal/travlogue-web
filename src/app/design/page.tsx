@@ -1,248 +1,295 @@
 'use client';
 
+/**
+ * Travlogue Design Language — living style guide.
+ *
+ * This route is the single source of truth for the visual system: colors,
+ * surfaces & elevation, typography, components, map styling, and patterns.
+ * Reference it (and keep it updated) when building new UI.
+ */
+
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar } from '@/components/ui/calendar';
-import { Plus, Share2, Calendar as CalendarIcon, Menu, Search, Bell, Settings, Home, Map, Wallet } from 'lucide-react';
-import Image from 'next/image';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+    Plus, Search, MapPin, Camera, Utensils, Plane, Hotel, Mountain,
+    Wallet, Globe, CalendarDays, TrendingUp,
+} from 'lucide-react';
+
+// ── Reusable section wrapper ───────────────────────────────────────────────
+function Section({ id, title, subtitle, children }: {
+    id: string; title: string; subtitle?: string; children: React.ReactNode;
+}) {
+    return (
+        <section id={id} className="scroll-mt-8 space-y-5">
+            <div>
+                <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+                {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
+            </div>
+            {children}
+        </section>
+    );
+}
+
+function Swatch({ label, sub, className, style }: {
+    label: string; sub?: string; className?: string; style?: React.CSSProperties;
+}) {
+    return (
+        <div className="space-y-1.5">
+            <div className={`h-16 rounded-xl border border-border/60 ${className ?? ''}`} style={style} />
+            <div className="px-0.5">
+                <div className="text-xs font-medium text-foreground">{label}</div>
+                {sub && <div className="text-[11px] text-muted-foreground font-mono">{sub}</div>}
+            </div>
+        </div>
+    );
+}
+
+const SEMANTIC = [
+    { label: 'background', sub: 'base canvas', cls: 'bg-background' },
+    { label: 'card', sub: 'surface-1', cls: 'bg-card' },
+    { label: 'popover', sub: 'surface-2/3', cls: 'bg-popover' },
+    { label: 'muted', sub: 'subtle fill', cls: 'bg-muted' },
+    { label: 'secondary', sub: 'secondary fill', cls: 'bg-secondary' },
+    { label: 'border', sub: 'edges', cls: 'bg-border' },
+    { label: 'primary', sub: 'brand / actions', cls: 'bg-primary' },
+    { label: 'accent', sub: 'coral highlight', cls: 'bg-accent' },
+    { label: 'destructive', sub: 'errors', cls: 'bg-destructive' },
+];
+
+const TRAVEL_ACCENTS = [
+    { label: 'Primary (blue)', sub: 'oklch(0.65 0.18 255)', style: { background: 'oklch(0.65 0.18 255)' } },
+    { label: 'Teal', sub: '#7FD1C8', style: { background: '#7FD1C8' } },
+    { label: 'Coral', sub: '#F2A477', style: { background: '#F2A477' } },
+    { label: 'Gold', sub: 'oklch(0.82 0.15 85)', style: { background: 'oklch(0.82 0.15 85)' } },
+    { label: 'Violet', sub: '#A8A4F2', style: { background: '#A8A4F2' } },
+    { label: 'Sand', sub: '#C5B8A5', style: { background: '#C5B8A5' } },
+];
+
+// Activity/marker type → color (mirrors styled-map + activity chips)
+const MARKERS = [
+    { type: 'Sightseeing', color: '#7FD1C8', icon: Camera },
+    { type: 'Dining', color: '#F2A477', icon: Utensils },
+    { type: 'Transport', color: '#A8A4F2', icon: Plane },
+    { type: 'Stay', color: '#8FB7FF', icon: Hotel },
+    { type: 'Adventure', color: '#9DD49A', icon: Mountain },
+    { type: 'Default', color: '#9BB6D4', icon: MapPin },
+];
+
+const TYPE_SCALE = [
+    { cls: 'text-4xl font-bold tracking-tight', name: 'Display / 4xl bold', sample: 'Plan your journey' },
+    { cls: 'text-2xl font-semibold tracking-tight', name: 'Heading / 2xl semibold', sample: 'Icelandic Roadtrip' },
+    { cls: 'text-lg font-semibold', name: 'Subheading / lg', sample: 'Trip Budget' },
+    { cls: 'text-sm', name: 'Body / sm', sample: 'A romantic 3-night escape to the City of Light.' },
+    { cls: 'text-xs text-muted-foreground', name: 'Caption / xs muted', sample: 'Jun 17 – Jun 24, 2026' },
+    { cls: 'text-[10px] font-semibold uppercase tracking-widest text-muted-foreground', name: 'Overline', sample: 'Upcoming' },
+];
 
 export default function DesignPage() {
-  return (
-    <div className="max-w-6xl mx-auto py-10 px-6 space-y-10 relative">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(76,120,220,0.12),transparent_55%),radial-gradient(ellipse_at_bottom,rgba(80,200,180,0.10),transparent_60%)]" />
-      <div>
-        <h1 className="text-4xl font-bold tracking-tight">Design System</h1>
-        <p className="text-muted-foreground mt-2">Reference UI components and styling.</p>
-      </div>
+    return (
+        <div className="max-w-5xl mx-auto py-10 px-6 space-y-12 pb-24">
+            {/* Header */}
+            <header className="space-y-2">
+                <Badge variant="secondary" className="rounded-full">Living reference</Badge>
+                <h1 className="text-4xl font-bold tracking-tight gradient-text-travel">Travlogue Design Language</h1>
+                <p className="text-muted-foreground max-w-2xl">
+                    The visual system for a calm, premium travel-planning experience. Dark-first,
+                    layered surfaces, expressive travel accents. Keep this page in sync as the UI evolves.
+                </p>
+            </header>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="md:col-span-2 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Typography</h2>
-          <div className="space-y-2">
-            <div className="text-5xl font-bold tracking-tight">Travlogue</div>
-            <div className="text-3xl font-semibold tracking-tight">Plan. Travel. Remember.</div>
-            <div className="text-xl text-muted-foreground">A calm, expressive system for travel planning.</div>
-            <div className="text-sm text-muted-foreground">Body / regular — The quick brown fox jumps over the lazy dog.</div>
-          </div>
-        </Card>
+            {/* Surfaces & Elevation — the core */}
+            <Section
+                id="surfaces"
+                title="Surfaces & Elevation"
+                subtitle="The backbone of the system. Each level steps lighter with a defined border + deeper shadow, so content separates clearly from the dark canvas."
+            >
+                <div className="rounded-2xl bg-background border border-border/60 p-6 space-y-4">
+                    <p className="text-xs text-muted-foreground">Base canvas (bg-background) — the page sits here</p>
+                    <div className="surface-1 rounded-2xl p-5">
+                        <p className="text-sm font-medium">Surface-1 · <span className="font-mono text-xs text-muted-foreground">.surface-1</span></p>
+                        <p className="text-xs text-muted-foreground mt-1">Content cards: stats, panels, list rows, inputs.</p>
+                        <div className="surface-2 rounded-xl p-4 mt-4">
+                            <p className="text-sm font-medium">Surface-2 · <span className="font-mono text-xs text-muted-foreground">.surface-2</span></p>
+                            <p className="text-xs text-muted-foreground mt-1">Raised tiles, hover state, nested cards.</p>
+                            <div className="surface-3 rounded-lg p-4 mt-4">
+                                <p className="text-sm font-medium">Surface-3 · <span className="font-mono text-xs text-muted-foreground">.surface-3</span></p>
+                                <p className="text-xs text-muted-foreground mt-1">Overlays: dialogs, popovers, menus.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="grid sm:grid-cols-3 gap-4">
+                    <div className="surface-1 rounded-xl p-4 text-sm">.surface-1 — flat card</div>
+                    <div className="surface-2 rounded-xl p-4 text-sm">.surface-2 — raised</div>
+                    <div className="surface-interactive rounded-xl p-4 text-sm">.surface-interactive — hover me</div>
+                </div>
+            </Section>
 
-        <Card className="md:col-span-2 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Branding</h2>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-border/40 bg-background p-4">
-              <div className="text-sm font-semibold">Icon System</div>
-              <div className="mt-2 text-xs text-muted-foreground">M3 + Apple HIG aligned</div>
-              <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
-                <li>Grid: 24dp / 48dp / 64dp</li>
-                <li>Stroke: 2px optical</li>
-                <li>Padding: 20–24% safe area</li>
-                <li>Corner radius: squircle (24%)</li>
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-border/40 bg-background p-4">
-              <div className="text-sm font-semibold">App Icon</div>
-              <div className="mt-2 text-xs text-muted-foreground">Centered mark, high contrast</div>
-              <div className="mt-4 flex items-center gap-3">
-                <Image src="/icons/icon-192.png" alt="PWA icon" width={48} height={48} className="rounded-[14px]" />
-                <Image src="/icons/apple-touch-icon.png" alt="Apple icon" width={48} height={48} className="rounded-[14px]" />
-              </div>
-            </div>
-            <div className="rounded-2xl border border-border/40 bg-background p-4">
-              <div className="text-sm font-semibold">Favicon</div>
-              <div className="mt-2 text-xs text-muted-foreground">Auto switches light/dark</div>
-              <div className="mt-4 flex items-center gap-3">
-                <Image src="/favicon-light.svg" alt="Favicon light" width={24} height={24} />
-                <Image src="/favicon-dark.svg" alt="Favicon dark" width={24} height={24} />
-              </div>
-            </div>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3 items-center">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-                <Image src="/ic_travlogue.svg" alt="Travlogue logo" width={26} height={26} />
-              </div>
-              <div className="text-xl font-semibold">Travlogue</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-                <Image src="/ic_travlogue.svg" alt="Travlogue icon" width={24} height={24} />
-              </div>
-              <div className="text-base font-medium text-muted-foreground">Icon only</div>
-            </div>
-            <div className="text-xl font-semibold">Travlogue</div>
-          </div>
+            {/* Color */}
+            <Section id="color" title="Color — semantic tokens" subtitle="Reference via CSS variables / Tailwind classes. Never hardcode hex for these.">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+                    {SEMANTIC.map((c) => (
+                        <Swatch key={c.label} label={c.label} sub={c.sub} className={c.cls} />
+                    ))}
+                </div>
+            </Section>
 
-          <div className="grid gap-3 md:grid-cols-4">
-            <div className="rounded-2xl border border-border/40 bg-background p-4 flex items-center gap-2">
-              <Image src="/favicon.svg" alt="Web tab" width={20} height={20} />
-              <span className="text-sm">Web tab icon</span>
-            </div>
-            <div className="rounded-2xl border border-border/40 bg-background p-4 flex items-center gap-2">
-              <Image src="/icons/icon-192.png" alt="PWA icon" width={24} height={24} />
-              <span className="text-sm">PWA icon</span>
-            </div>
-            <div className="rounded-2xl border border-border/40 bg-background p-4 flex items-center gap-2">
-              <Image src="/icons/apple-touch-icon.png" alt="Apple icon" width={24} height={24} />
-              <span className="text-sm">Apple touch</span>
-            </div>
-          </div>
-        </Card>
+            <Section id="accents" title="Travel accent palette" subtitle="Expressive accents for categories, charts, and highlights. Used at low opacity for icon chips.">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+                    {TRAVEL_ACCENTS.map((c) => (
+                        <Swatch key={c.label} label={c.label} sub={c.sub} style={c.style} />
+                    ))}
+                </div>
+            </Section>
 
-        <Card className="md:col-span-2 rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Color Scheme</h2>
-          <div className="grid gap-4 md:grid-cols-4">
-            {[
-              { label: 'Primary', className: 'bg-primary text-primary-foreground' },
-              { label: 'Secondary', className: 'bg-secondary text-secondary-foreground' },
-              { label: 'Accent', className: 'bg-accent text-accent-foreground' },
-              { label: 'Destructive', className: 'bg-destructive text-destructive-foreground' },
-            ].map((c) => (
-              <div key={c.label} className={`rounded-2xl p-4 ${c.className}`}>
-                <div className="text-sm font-semibold">{c.label}</div>
-              </div>
-            ))}
-          </div>
+            {/* Typography */}
+            <Section id="type" title="Typography" subtitle="Geist Sans. Tight tracking on headings; muted-foreground for secondary text.">
+                <Card>
+                    <CardContent className="space-y-5 pt-2">
+                        {TYPE_SCALE.map((t) => (
+                            <div key={t.name} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6">
+                                <span className="w-44 shrink-0 text-[11px] font-mono text-muted-foreground">{t.name}</span>
+                                <span className={t.cls}>{t.sample}</span>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
+            </Section>
 
-          <div className="grid gap-4 md:grid-cols-4">
-            {[
-              { label: 'Background', className: 'bg-background text-foreground border border-border/40' },
-              { label: 'Card', className: 'bg-card text-card-foreground border border-border/40' },
-              { label: 'Muted', className: 'bg-muted text-muted-foreground border border-border/40' },
-              { label: 'Border', className: 'bg-border text-foreground' },
-            ].map((c) => (
-              <div key={c.label} className={`rounded-2xl p-4 ${c.className}`}>
-                <div className="text-sm font-semibold">{c.label}</div>
-              </div>
-            ))}
-          </div>
-        </Card>
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Buttons</h2>
-          <div className="flex flex-wrap gap-4">
-            <Button className="rounded-full px-6">Primary</Button>
-            <Button variant="secondary" className="rounded-full px-6">Secondary</Button>
-            <Button variant="outline" className="rounded-full px-6">Outline</Button>
-            <Button size="icon" className="rounded-full h-12 w-12"><Plus /></Button>
-            <Button size="icon" variant="outline" className="rounded-full h-12 w-12"><Share2 /></Button>
-            <Button size="icon" variant="secondary" className="rounded-full h-12 w-12"><CalendarIcon /></Button>
-          </div>
-        </Card>
+            {/* Radius */}
+            <Section id="radius" title="Radius" subtitle="Generous, soft corners. Base --radius = 1rem.">
+                <div className="flex flex-wrap gap-4">
+                    {[
+                        { name: 'lg (default card)', cls: 'rounded-3xl' },
+                        { name: '2xl (panels)', cls: 'rounded-2xl' },
+                        { name: 'xl (inputs, chips)', cls: 'rounded-xl' },
+                        { name: 'full (pills)', cls: 'rounded-full' },
+                    ].map((r) => (
+                        <div key={r.name} className="space-y-1.5">
+                            <div className={`h-16 w-24 surface-1 ${r.cls}`} />
+                            <div className="text-[11px] text-muted-foreground">{r.name}</div>
+                        </div>
+                    ))}
+                </div>
+            </Section>
 
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Inputs</h2>
-          <div className="flex flex-col gap-4">
-            <Input placeholder="Search by destination..." className="rounded-2xl" />
-            <Input placeholder="Add guests" className="rounded-2xl" />
-          </div>
-        </Card>
+            {/* Buttons */}
+            <Section id="buttons" title="Buttons">
+                <div className="flex flex-wrap items-center gap-3">
+                    <Button><Plus className="h-4 w-4" /> Primary</Button>
+                    <Button variant="secondary">Secondary</Button>
+                    <Button variant="outline">Outline</Button>
+                    <Button variant="ghost">Ghost</Button>
+                    <Button variant="destructive">Destructive</Button>
+                    <Button size="sm">Small</Button>
+                    <Button size="lg"><Plus className="h-5 w-5" /> Large</Button>
+                </div>
+            </Section>
 
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Tabs</h2>
-          <Tabs defaultValue="one">
-            <TabsList className="rounded-full border border-border/40 bg-card/60 backdrop-blur-xl p-1">
-              <TabsTrigger value="one" className="rounded-full">Overview</TabsTrigger>
-              <TabsTrigger value="two" className="rounded-full">Itinerary</TabsTrigger>
-              <TabsTrigger value="three" className="rounded-full">Expenses</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </Card>
+            {/* Inputs */}
+            <Section id="inputs" title="Inputs & search">
+                <div className="grid sm:grid-cols-2 gap-4 max-w-xl">
+                    <div className="relative">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <input
+                            placeholder="Search your trips…"
+                            className="surface-1 w-full h-11 pl-10 pr-4 rounded-xl text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30"
+                        />
+                    </div>
+                    <input
+                        placeholder="Plain input"
+                        className="surface-1 w-full h-11 px-4 rounded-xl text-sm outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/30"
+                    />
+                </div>
+            </Section>
 
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Badges</h2>
-          <div className="flex flex-wrap gap-3">
-            <Badge variant="secondary" className="rounded-full">Planning</Badge>
-            <Badge variant="outline" className="rounded-full">Private</Badge>
-            <Badge className="rounded-full">Active</Badge>
-          </div>
-        </Card>
+            {/* Badges */}
+            <Section id="badges" title="Badges & pills">
+                <div className="flex flex-wrap gap-2">
+                    <Badge>Default</Badge>
+                    <Badge variant="secondary">Secondary</Badge>
+                    <Badge variant="outline">Outline</Badge>
+                    <Badge variant="destructive">Destructive</Badge>
+                    <span className="px-2.5 py-1 rounded-full bg-muted/40 border border-border/60 text-xs text-muted-foreground">place pill</span>
+                </div>
+            </Section>
 
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Icon Buttons</h2>
-          <div className="flex flex-wrap gap-3">
-            <Button size="icon" variant="outline" className="rounded-full h-12 w-12"><Plus /></Button>
-            <Button size="icon" variant="outline" className="rounded-full h-12 w-12"><Share2 /></Button>
-            <Button size="icon" variant="outline" className="rounded-full h-12 w-12"><CalendarIcon /></Button>
-          </div>
-        </Card>
+            {/* Cards */}
+            <Section id="cards" title="Card types">
+                <div className="grid sm:grid-cols-2 gap-5">
+                    {/* Content card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Content card</CardTitle>
+                            <CardDescription>Default <span className="font-mono text-xs">.surface-1</span> on flat backgrounds.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-sm text-muted-foreground">Budget, settings, panels.</CardContent>
+                    </Card>
 
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Progress</h2>
-          <div className="h-2 rounded-full bg-muted">
-            <div className="h-2 w-1/2 rounded-full bg-primary" />
-          </div>
-        </Card>
+                    {/* Stat tile */}
+                    <div className="surface-interactive flex items-center gap-3.5 rounded-2xl px-4 py-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Wallet className="h-5 w-5 text-primary" strokeWidth={1.75} />
+                        </div>
+                        <div>
+                            <div className="text-2xl font-bold text-primary leading-none tracking-tight">5</div>
+                            <div className="text-xs text-muted-foreground mt-1">Stat tile</div>
+                        </div>
+                    </div>
 
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Calendar (Compact)</h2>
-          <div className="max-w-sm">
-            <Calendar mode="single" />
-          </div>
-        </Card>
+                    {/* Glass card over imagery */}
+                    <div className="relative h-32 rounded-2xl overflow-hidden border border-border/40 sm:col-span-2">
+                        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200')] bg-cover bg-center" />
+                        <div className="absolute inset-x-0 bottom-0 glass-dark p-4">
+                            <p className="text-[10px] uppercase tracking-widest text-white/70">Glass over imagery</p>
+                            <p className="text-white font-semibold">.glass-dark — for trip covers & hero overlays</p>
+                        </div>
+                    </div>
+                </div>
+            </Section>
 
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Calendar (Range)</h2>
-          <div className="max-w-sm">
-            <Calendar mode="range" selected={{ from: new Date(2026, 1, 7), to: new Date(2026, 1, 14) }} />
-          </div>
-        </Card>
+            {/* Map styling */}
+            <Section id="maps" title="Maps" subtitle="Dark, decluttered Google Maps style (geometry only, city labels dimmed). Markers are color-coded by activity type.">
+                <div className="grid sm:grid-cols-2 gap-5">
+                    <div className="rounded-2xl border border-border/60 p-4 space-y-3" style={{ background: '#0d1117' }}>
+                        <p className="text-xs text-muted-foreground">Map canvas — <span className="font-mono">#0d1117</span> geometry, <span className="font-mono">#0a1628</span> water</p>
+                        <div className="flex gap-2">
+                            <span className="h-3 w-10 rounded" style={{ background: '#171d29' }} title="road" />
+                            <span className="h-3 w-10 rounded" style={{ background: '#0a1628' }} title="water" />
+                            <span className="h-3 w-10 rounded" style={{ background: '#0f1e14' }} title="park" />
+                        </div>
+                    </div>
+                    <div className="surface-1 rounded-2xl p-4">
+                        <p className="text-xs text-muted-foreground mb-3">Marker legend</p>
+                        <div className="grid grid-cols-2 gap-2.5">
+                            {MARKERS.map((m) => (
+                                <div key={m.type} className="flex items-center gap-2 text-xs">
+                                    <span className="h-3.5 w-3.5 rounded-full border-2" style={{ background: m.color, borderColor: '#0d1117' }} />
+                                    <m.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                                    {m.type}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </Section>
 
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Button Groups</h2>
-          <div className="flex rounded-full border border-border/40 overflow-hidden">
-            <Button variant="secondary" className="rounded-none flex-1">Day</Button>
-            <Button variant="ghost" className="rounded-none flex-1">Week</Button>
-            <Button variant="ghost" className="rounded-none flex-1">Month</Button>
-          </div>
-        </Card>
-
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Toolbar</h2>
-          <div className="flex items-center gap-2">
-            <Button size="icon" variant="outline" className="rounded-full h-10 w-10"><Plus /></Button>
-            <Button variant="secondary" className="rounded-full px-4">Create</Button>
-            <Button variant="outline" className="rounded-full px-4">Share</Button>
-          </div>
-        </Card>
-
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">App Bar</h2>
-          <div className="rounded-2xl border border-border/40 bg-background/80 backdrop-blur-xl p-3 flex items-center justify-between">
-            <Button size="icon" variant="outline" className="rounded-full h-10 w-10"><Menu /></Button>
-            <div className="font-semibold">Dashboard</div>
-            <div className="flex items-center gap-2">
-              <Button size="icon" variant="outline" className="rounded-full h-10 w-10"><Search /></Button>
-              <Button size="icon" variant="outline" className="rounded-full h-10 w-10"><Bell /></Button>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Navigation Bar</h2>
-          <div className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl shadow-lg px-4 py-3 flex items-center justify-around">
-            <div className="flex flex-col items-center text-[11px]"><Home className="h-5 w-5" />Home</div>
-            <div className="flex flex-col items-center text-[11px]"><Map className="h-5 w-5" />Trips</div>
-            <div className="flex flex-col items-center text-[11px]"><CalendarIcon className="h-5 w-5" />Calendar</div>
-            <div className="flex flex-col items-center text-[11px]"><Wallet className="h-5 w-5" />Expenses</div>
-            <div className="flex flex-col items-center text-[11px]"><Settings className="h-5 w-5" />Settings</div>
-          </div>
-        </Card>
-
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">FAB</h2>
-          <div className="flex items-center gap-3">
-            <Button className="rounded-full h-14 px-6 shadow-lg" size="lg"><Plus className="mr-2" />Add</Button>
-            <Button size="icon" className="rounded-full h-14 w-14 shadow-lg"><Plus /></Button>
-          </div>
-        </Card>
-
-        <Card className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-6 pt-7 pb-7 space-y-6">
-          <h2 className="text-xl font-semibold mb-2">Loading</h2>
-          <div className="h-10 w-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-        </Card>
-      </div>
-    </div>
-  );
+            {/* Iconography */}
+            <Section id="icons" title="Iconography" subtitle="lucide-react, stroke 1.5–1.75. Place accent icons in a tinted rounded chip.">
+                <div className="flex flex-wrap gap-3">
+                    {[
+                        { icon: Globe, c: 'text-violet-400', b: 'bg-violet-400/10' },
+                        { icon: CalendarDays, c: 'text-teal-400', b: 'bg-teal-400/10' },
+                        { icon: TrendingUp, c: 'text-orange-400', b: 'bg-orange-400/10' },
+                        { icon: MapPin, c: 'text-primary', b: 'bg-primary/10' },
+                    ].map((it, i) => (
+                        <div key={i} className={`w-11 h-11 rounded-xl ${it.b} flex items-center justify-center`}>
+                            <it.icon className={`h-5 w-5 ${it.c}`} strokeWidth={1.75} />
+                        </div>
+                    ))}
+                </div>
+            </Section>
+        </div>
+    );
 }

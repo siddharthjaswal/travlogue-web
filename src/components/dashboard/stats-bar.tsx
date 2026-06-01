@@ -62,14 +62,14 @@ export function StatsBar({ trips }: StatsBarProps) {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.07, duration: 0.4 }}
-                    className="flex items-center gap-3 rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm px-4 py-3"
+                    className="surface-interactive flex items-center gap-3.5 rounded-2xl px-4 py-3.5"
                 >
-                    <div className={`w-9 h-9 rounded-xl ${stat.bg} flex items-center justify-center flex-shrink-0`}>
-                        <stat.icon className={`h-4.5 w-4.5 ${stat.accent}`} strokeWidth={1.5} />
+                    <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center flex-shrink-0`}>
+                        <stat.icon className={`h-5 w-5 ${stat.accent}`} strokeWidth={1.75} />
                     </div>
                     <div className="min-w-0">
-                        <div className={`text-xl font-bold ${stat.accent} leading-tight`}>{stat.value}</div>
-                        <div className="text-xs text-muted-foreground leading-tight truncate">{stat.label}</div>
+                        <div className={`text-2xl font-bold ${stat.accent} leading-none tracking-tight`}>{stat.value}</div>
+                        <div className="text-xs text-muted-foreground leading-tight truncate mt-1">{stat.label}</div>
                     </div>
                 </motion.div>
             ))}

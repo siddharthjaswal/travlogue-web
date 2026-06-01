@@ -52,14 +52,14 @@ export default function TripsPage() {
 
             {/* Search + create row */}
             <div className="flex items-center gap-3">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                     <input
                         type="text"
-                        placeholder="Search trips..."
+                        placeholder="Search your trips…"
                         value={query}
                         onChange={e => setQuery(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2 rounded-xl bg-card/60 border border-border/40 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/40 backdrop-blur-sm"
+                        className="surface-1 w-full h-11 pl-10 pr-4 rounded-xl text-sm text-foreground placeholder:text-muted-foreground outline-none transition-shadow focus:border-primary/50 focus:ring-2 focus:ring-primary/30"
                     />
                 </div>
                 <CreateTripDialog />
