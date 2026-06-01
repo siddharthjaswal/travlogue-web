@@ -1,174 +1,240 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, MapPin, Calendar, Route, Wallet } from 'lucide-react';
-import { PublicTrips } from '@/components/landing/public-trips';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { DestinationSearch } from './destination-search';
+
+const DESTINATIONS = [
+  {
+    city: 'Paris',
+    country: 'France',
+    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=85&fit=crop&auto=format',
+    tagline: 'City of Light',
+  },
+  {
+    city: 'Kyoto',
+    country: 'Japan',
+    image: 'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1920&q=85&fit=crop&auto=format',
+    tagline: 'Ancient & Timeless',
+  },
+  {
+    city: 'Santorini',
+    country: 'Greece',
+    image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?w=1920&q=85&fit=crop&auto=format',
+    tagline: 'Island of Dreams',
+  },
+  {
+    city: 'Patagonia',
+    country: 'Argentina',
+    image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=85&fit=crop&auto=format',
+    tagline: 'Edge of the World',
+  },
+  {
+    city: 'New York',
+    country: 'USA',
+    image: 'https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?w=1920&q=85&fit=crop&auto=format',
+    tagline: 'The City That Never Sleeps',
+  },
+  {
+    city: 'Bali',
+    country: 'Indonesia',
+    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1920&q=85&fit=crop&auto=format',
+    tagline: 'Island of the Gods',
+  },
+];
+
+const STATS = [
+  { value: '2,400+', label: 'Trips planned' },
+  { value: '180+', label: 'Destinations' },
+  { value: '50K+', label: 'Activities logged' },
+];
 
 export function Hero() {
-    return (
-        <section className="relative overflow-hidden pt-32 pb-20 md:pt-44 md:pb-28">
-            {/* Elegant Background */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/8 rounded-full blur-[120px] -z-10" />
-            <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-accent/6 rounded-full blur-[140px] -z-10" />
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState<Record<number, boolean>>({});
 
-            <div className="container mx-auto px-4">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-                    className="max-w-4xl mx-auto text-center space-y-8"
-                >
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/50 backdrop-blur-sm border border-border/40 text-sm font-medium">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                        </span>
-                        Plan with clarity, travel with confidence
-                    </div>
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % DESTINATIONS.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
 
-                    {/* Main Heading */}
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-[1.1]">
-                        Plan your trip like a pro —
-                        <br className="hidden md:block" />
-                        <span className="bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent">
-                            without the chaos
-                        </span>
-                    </h1>
+  // Preload next image
+  useEffect(() => {
+    const nextIndex = (currentIndex + 1) % DESTINATIONS.length;
+    if (!imagesLoaded[nextIndex]) {
+      const img = new Image();
+      img.src = DESTINATIONS[nextIndex].image;
+      img.onload = () => setImagesLoaded(prev => ({ ...prev, [nextIndex]: true }));
+    }
+  }, [currentIndex, imagesLoaded]);
 
-                    {/* Description */}
-                    <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                        Day-by-day itinerary, stays, transport, and costs — all visible in one place.
-                        Collaborate, stay organized, and actually enjoy planning.
-                    </p>
+  const current = DESTINATIONS[currentIndex];
 
-                    {/* CTAs */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-                        <Link href="/login">
-                            <Button size="lg" className="h-12 px-8 text-base shadow-lg hover:shadow-xl">
-                                Get Started Free
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </Link>
-                        <Link href="#features">
-                            <Button size="lg" variant="outline" className="h-12 px-8 text-base">
-                                Explore Features
-                            </Button>
-                        </Link>
-                    </div>
-                </motion.div>
+  return (
+    <section className="relative w-full min-h-screen overflow-hidden">
+      {/* Background images */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.2, ease: 'easeInOut' }}
+          className="absolute inset-0"
+        >
+          {/* Ken Burns zoom */}
+          <motion.div
+            initial={{ scale: 1.05 }}
+            animate={{ scale: 1.12 }}
+            transition={{ duration: 7, ease: 'linear' }}
+            className="absolute inset-0"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={current.image}
+              alt={current.city}
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
 
-                {/* Hero Preview Grid */}
-                <div className="mt-16 grid gap-6 lg:grid-cols-[1.2fr_0.95fr_0.85fr] items-stretch">
-                    {/* Left: Story Trip */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 24 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.15, duration: 0.6 }}
-                        className="space-y-3 h-full"
-                    >
-                        <PublicTrips variant="showcase" />
-                    </motion.div>
+      {/* Multi-layer gradient overlays */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/20 z-10" />
 
-                    {/* Center: Timeline Preview */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 24 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.25, duration: 0.6 }}
-                        className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md p-5 shadow-lg h-full"
-                    >
-                        <div className="flex items-center gap-2 text-sm font-semibold">
-                            <Route className="h-4 w-4 text-primary" />
-                            Plan days, stays, and transport
-                        </div>
-                        <div className="mt-4 space-y-4 text-sm">
-                            <div className="rounded-2xl border border-border/40 bg-background/60 px-4 py-3">
-                                <div className="text-xs text-muted-foreground">Day 1 • Rome</div>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    <span className="px-2.5 py-1 rounded-full bg-muted/40 text-[11px]">Colosseum</span>
-                                    <span className="px-2.5 py-1 rounded-full bg-muted/40 text-[11px]">Trastevere</span>
-                                    <span className="px-2.5 py-1 rounded-full bg-muted/40 text-[11px]">Food Tour</span>
-                                </div>
-                            </div>
-                            <div className="rounded-2xl border border-border/40 bg-background/60 px-4 py-3">
-                                <div className="text-xs text-muted-foreground">Day 2 • Naples</div>
-                                <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                                    <span className="h-2 w-2 rounded-full bg-primary/80" />
-                                    <span>Train • 1h 20m</span>
-                                </div>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    <span className="px-2.5 py-1 rounded-full bg-muted/40 text-[11px]">Street Food</span>
-                                    <span className="px-2.5 py-1 rounded-full bg-muted/40 text-[11px]">Spaccanapoli</span>
-                                </div>
-                            </div>
-                            <div className="rounded-2xl border border-border/40 bg-background/60 px-4 py-3">
-                                <div className="text-xs text-muted-foreground">Day 3 • Amalfi</div>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                    <span className="px-2.5 py-1 rounded-full bg-muted/40 text-[11px]">Positano</span>
-                                    <span className="px-2.5 py-1 rounded-full bg-muted/40 text-[11px]">Sunset Cruise</span>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
+      {/* Content */}
+      <div className="relative z-20 flex flex-col min-h-screen">
+        {/* Top spacer for navbar */}
+        <div className="h-20" />
 
-                    {/* Right: Map + Costs */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 24 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.35, duration: 0.6 }}
-                        className="rounded-3xl border border-border/40 bg-card/60 backdrop-blur-md p-5 shadow-lg h-full"
-                    >
-                        <div className="flex items-center gap-2 text-sm font-semibold">
-                            <MapPin className="h-4 w-4 text-primary" />
-                            Map + cost snapshot
-                        </div>
-                        <div className="mt-4 rounded-2xl border border-border/40 bg-gradient-to-br from-slate-100/70 to-slate-200/60 h-36 relative overflow-hidden">
-                            <div className="absolute inset-0 opacity-60" style={{ backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(96,165,250,0.25), transparent 40%), radial-gradient(circle at 70% 60%, rgba(34,197,94,0.2), transparent 45%)' }} />
-                            <div className="absolute top-4 left-4 h-3 w-3 rounded-full bg-primary shadow" />
-                            <div className="absolute bottom-6 right-6 h-3 w-3 rounded-full bg-accent shadow" />
-                            <div className="absolute top-1/2 left-1/2 h-1 w-16 -translate-x-1/2 -translate-y-1/2 border-t-2 border-dashed border-primary/60" />
-                        </div>
-                        <div className="mt-4 space-y-2 text-xs text-muted-foreground">
-                            <div className="flex items-center justify-between rounded-xl border border-border/40 bg-background/60 px-3 py-2">
-                                <span className="flex items-center gap-2"><Wallet className="h-3.5 w-3.5" /> Stays</span>
-                                <span className="font-medium text-foreground">$480</span>
-                            </div>
-                            <div className="flex items-center justify-between rounded-xl border border-border/40 bg-background/60 px-3 py-2">
-                                <span className="flex items-center gap-2"><Wallet className="h-3.5 w-3.5" /> Transport</span>
-                                <span className="font-medium text-foreground">$140</span>
-                            </div>
-                            <div className="flex items-center justify-between rounded-xl border border-border/40 bg-background/60 px-3 py-2">
-                                <span className="flex items-center gap-2"><Wallet className="h-3.5 w-3.5" /> Activities</span>
-                                <span className="font-medium text-foreground">$210</span>
-                            </div>
-                        </div>
-                    </motion.div>
+        {/* Main hero content */}
+        <div className="flex-1 flex flex-col items-center justify-center px-4 py-16">
+          {/* Current destination label */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`label-${currentIndex}`}
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.5 }}
+              className="flex items-center gap-2 mb-6"
+            >
+              <span className="h-px w-8 bg-white/40" />
+              <span className="text-white/60 text-sm tracking-[0.2em] uppercase font-medium">
+                {current.city}, {current.country}
+              </span>
+              <span className="h-px w-8 bg-white/40" />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Main headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-5xl md:text-7xl lg:text-8xl font-bold text-white text-center leading-[1.0] tracking-tight max-w-5xl mx-auto mb-4"
+          >
+            Plan your trip.
+            <br />
+            <span className="gradient-text-travel">
+              Live the adventure.
+            </span>
+          </motion.h1>
+
+          {/* Tagline */}
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={`tag-${currentIndex}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-white/50 text-lg md:text-xl font-light italic text-center mb-12"
+            >
+              &ldquo;{current.tagline}&rdquo;
+            </motion.p>
+          </AnimatePresence>
+
+          {/* Search widget */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="w-full max-w-2xl relative"
+          >
+            <DestinationSearch />
+          </motion.div>
+
+          {/* Popular quick-links */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="flex items-center gap-2 mt-5 flex-wrap justify-center"
+          >
+            <span className="text-white/35 text-xs">Trending:</span>
+            {['Paris', 'Tokyo', 'Bali', 'Barcelona', 'NYC'].map(city => (
+              <a
+                key={city}
+                href={`/login?destination=${encodeURIComponent(city)}`}
+                className="px-3 py-1 rounded-full text-xs text-white/60 border border-white/15 hover:border-white/35 hover:text-white/90 transition-all"
+              >
+                {city}
+              </a>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="px-4 pb-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              {/* Stats */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="flex items-center gap-8 md:gap-12"
+              >
+                {STATS.map((stat, i) => (
+                  <div key={i} className="text-center">
+                    <div className="text-white text-xl md:text-2xl font-bold">{stat.value}</div>
+                    <div className="text-white/45 text-xs mt-0.5">{stat.label}</div>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* Slide indicators */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.7 }}
+                className="flex items-center gap-3"
+              >
+                <span className="text-white/30 text-xs uppercase tracking-widest">
+                  {String(currentIndex + 1).padStart(2, '0')} / {String(DESTINATIONS.length).padStart(2, '0')}
+                </span>
+                <div className="flex gap-1.5">
+                  {DESTINATIONS.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentIndex(i)}
+                      className={`h-0.5 rounded-full transition-all duration-500 ${
+                        i === currentIndex
+                          ? 'w-8 bg-white'
+                          : 'w-2 bg-white/30 hover:bg-white/50'
+                      }`}
+                    />
+                  ))}
                 </div>
-
-                {/* Feature Pills */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.45, duration: 0.6 }}
-                    className="flex flex-wrap items-center justify-center gap-4 mt-14 max-w-3xl mx-auto"
-                >
-                    {[
-                        { icon: MapPin, text: "Beautiful itineraries" },
-                        { icon: Calendar, text: "Smart planning" },
-                        { icon: Sparkles, text: "Effortless organization" }
-                    ].map((feature, i) => (
-                        <div
-                            key={i}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card/50 backdrop-blur-sm border border-border/40 text-sm"
-                        >
-                            <feature.icon className="h-4 w-4 text-primary" />
-                            <span className="text-muted-foreground">{feature.text}</span>
-                        </div>
-                    ))}
-                </motion.div>
+              </motion.div>
             </div>
-        </section>
-    );
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }

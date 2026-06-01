@@ -1,34 +1,50 @@
+'use client';
+
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { format } from 'date-fns';
-import { Calendar, MapPin, Users, MoreVertical, Trash2, Edit, Sparkles, Loader2, Clock } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
+import {
+    Calendar, MoreVertical, Trash2,
+    Loader2, Plane, Clock
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Trip } from '@/services/trip-service';
 import { cn } from '@/lib/utils';
-import { collectDayPlaces, cleanPlaceTokens } from '@/lib/places';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+    DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useDeleteTrip, useRegenerateCover, useTripTimeline } from '@/hooks/use-trips';
+    AlertDialog, AlertDialogAction, AlertDialogCancel,
+    AlertDialogContent, AlertDialogDescription,
+    AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useDeleteTrip } from '@/hooks/use-trips';
 import { toast } from 'sonner';
 import { showError } from '@/lib/toast-helper';
+import { getDestinationImageUrl, isDeprecatedUnsplashUrl } from '@/lib/destination-images';
+import { getWeatherLabel } from '@/lib/weather';
+import { guessCenter } from '@/lib/geo';
+
+// Country → flag emoji
+function getFlag(country?: string | null): string {
+    const flags: Record<string, string> = {
+        france: '🇫🇷', italy: '🇮🇹', spain: '🇪🇸', japan: '🇯🇵',
+        greece: '🇬🇷', thailand: '🇹🇭', indonesia: '🇮🇩', uk: '🇬🇧',
+        germany: '🇩🇪', usa: '🇺🇸', australia: '🇦🇺', uae: '🇦🇪',
+        turkey: '🇹🇷', india: '🇮🇳', china: '🇨🇳', brazil: '🇧🇷',
+        portugal: '🇵🇹', austria: '🇦🇹', netherlands: '🇳🇱',
+        switzerland: '🇨🇭', sweden: '🇸🇪', norway: '🇳🇴',
+        denmark: '🇩🇰', ireland: '🇮🇪', czechia: '🇨🇿',
+        'czech republic': '🇨🇿', hungary: '🇭🇺', poland: '🇵🇱',
+        croatia: '🇭🇷', singapore: '🇸🇬', southkorea: '🇰🇷',
+        'south korea': '🇰🇷', mexico: '🇲🇽', canada: '🇨🇦',
+    };
+    return flags[(country || '').toLowerCase()] || '🌍';
+}
 
 interface TripCardProps {
     trip: Trip;
@@ -37,211 +53,172 @@ interface TripCardProps {
 
 export function TripCard({ trip, index = 0 }: TripCardProps) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
+    const [imageError, setImageError] = useState(false);
     const { mutate: deleteTrip, isPending: isDeleting } = useDeleteTrip();
-    const { mutate: regenerateCover, isPending: isRegenerating } = useRegenerateCover();
-    const { data: timeline } = useTripTimeline(trip.id);
 
-    const coverQuery = [
-        trip.primaryDestinationCity,
-        trip.primaryDestinationCountry,
-        trip.name,
-        'night',
-        'moody',
-        'cinematic',
-        'dark'
-    ].filter(Boolean).join(' ');
-
-    // Auto-generate cover if missing
+    // Live weather
+    const [weatherBadge, setWeatherBadge] = useState<{ emoji: string; temp: number } | null>(null);
     useEffect(() => {
-        if (!trip.coverPhotoUrl) {
-            const timeout = setTimeout(() => {
-                regenerateCover({ id: trip.id, query: coverQuery });
-            }, index * 500 + 500);
-            return () => clearTimeout(timeout);
+        const coords = guessCenter(trip.primaryDestinationCity ?? undefined, trip.primaryDestinationCountry ?? undefined);
+        if (!coords) return;
+        fetch(`/api/weather?lat=${coords.lat}&lng=${coords.lng}&days=1`)
+            .then(r => r.json())
+            .then(d => {
+                if (d.current) {
+                    const info = getWeatherLabel(d.current.weatherCode, d.current.isDay);
+                    setWeatherBadge({ emoji: info.emoji, temp: d.current.temperature });
+                }
+            })
+            .catch(() => {});
+    }, [trip.primaryDestinationCity, trip.primaryDestinationCountry]);
+
+    // Smart image: use curated if cover is missing/deprecated
+    const imageUrl = useMemo(() => {
+        if (trip.coverPhotoUrl && !isDeprecatedUnsplashUrl(trip.coverPhotoUrl) && !imageError) {
+            return trip.coverPhotoUrl;
         }
-    }, [trip.coverPhotoUrl, trip.id, regenerateCover, index, coverQuery]);
+        return getDestinationImageUrl(trip.primaryDestinationCity, trip.primaryDestinationCountry, index);
+    }, [trip.coverPhotoUrl, trip.primaryDestinationCity, trip.primaryDestinationCountry, index, imageError]);
+
+    // Date calculations
+    const startDate = trip.startDateTimestamp ? new Date(trip.startDateTimestamp * 1000) : null;
+    const endDate = trip.endDateTimestamp ? new Date(trip.endDateTimestamp * 1000) : null;
+    const tripDays = startDate && endDate ? differenceInDays(endDate, startDate) + 1 : null;
+    const daysUntil = startDate ? Math.ceil((startDate.getTime() - Date.now()) / 86400000) : null;
+    const isPast = daysUntil !== null && daysUntil < 0;
+    const isNow = daysUntil !== null && daysUntil <= 0 && !isPast;
+    const isUpcoming = daysUntil !== null && daysUntil > 0;
+
+    const dateDisplay = startDate && endDate
+        ? `${format(startDate, 'MMM d')} – ${format(endDate, 'MMM d, yyyy')}`
+        : startDate ? format(startDate, 'MMM d, yyyy') : 'Dates TBD';
 
     const handleDelete = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         deleteTrip(trip.id, {
-            onSuccess: () => {
-                toast.success('Trip deleted successfully');
-                setShowDeleteDialog(false);
-            },
-            onError: (error: any) => showError('Failed to delete trip', error)
+            onSuccess: () => { toast.success('Trip deleted'); setShowDeleteDialog(false); },
+            onError: (err: any) => showError('Failed to delete', err),
         });
     };
-
-    const handleRegenerateCover = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        regenerateCover({ id: trip.id, query: coverQuery }, {
-            onSuccess: () => toast.success('New cover image generated! ✨'),
-            onError: () => toast.error('Failed to generate cover')
-        });
-    };
-
-        const derivedPlaces = useMemo(() => {
-        if (!timeline?.days) return [] as string[];
-        const tokens = timeline.days.flatMap((day) => collectDayPlaces({
-            dayPlace: day.place,
-            activityLocations: day.activities.map((a) => a.location),
-        }));
-        return cleanPlaceTokens(tokens).slice(0, 3);
-    }, [timeline]);
-
-// Format dates
-    const dateDisplay = trip.startDateTimestamp && trip.endDateTimestamp
-        ? `${format(new Date(trip.startDateTimestamp * 1000), 'MMM d')} - ${format(new Date(trip.endDateTimestamp * 1000), 'MMM d, yyyy')}`
-        : 'Dates TBD';
 
     return (
         <>
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05, duration: 0.4 }}
-                className="h-full"
-                onHoverStart={() => setIsHovered(true)}
-                onHoverEnd={() => setIsHovered(false)}
+                transition={{ delay: index * 0.07, duration: 0.5 }}
             >
-                <div className="relative group h-full">
-                    <Link href={`/dashboard/trips/${trip.id}`} className="block h-full">
-                        <Card className={cn(
-                            "relative overflow-hidden h-[320px] sm:h-[400px] flex flex-col",
-                            "border-0 rounded-3xl shadow-lg",
-                            "transition-all duration-500 ease-out",
-                            "hover:shadow-2xl hover:scale-[1.02]",
-                            "bg-muted"
-                        )}>
-                            {/* Full Background Image */}
-                            <div className="absolute inset-0 z-0">
-                                {trip.coverPhotoUrl ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
-                                        src={trip.coverPhotoUrl}
-                                        alt={trip.name}
-                                        className={cn(
-                                            "w-full h-full object-cover",
-                                            "transition-transform duration-700 ease-out",
-                                            isHovered && "scale-110",
-                                            isRegenerating && "opacity-50 blur-sm scale-110"
-                                        )}
-                                    />
-                                ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-                                        <MapPin className="h-16 w-16 text-slate-700" strokeWidth={1} />
-                                    </div>
-                                )}
-                                
-                                {/* Cinematic Gradient Overlays */}
-                                {/* Top Shadow for badges */}
-                                <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
-                                {/* Bottom Blur + Gradient for text */}
-                                <div className="absolute bottom-0 left-0 right-0 h-44 bg-gradient-to-t from-black/80 via-black/45 to-transparent pointer-events-none" />
-                            </div>
+                <Link href={`/dashboard/trips/${trip.id}`} className="block group">
+                    <Card className="relative overflow-hidden rounded-3xl border-0 bg-muted h-[380px] flex flex-col transition-all duration-500 hover:shadow-2xl hover:shadow-black/40 hover:-translate-y-1">
 
-                            {/* Top Controls (Glassmorphism) */}
-                            <div className="relative z-10 flex justify-between items-start p-3.5">
-                                {/* Actions Menu */}
+                        {/* Background image */}
+                        <div className="absolute inset-0">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={imageUrl}
+                                alt={trip.name}
+                                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                onError={() => setImageError(true)}
+                            />
+                            {/* Gradient overlays */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10" />
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent h-32" />
+                        </div>
+
+                        {/* Top row: menu + weather + status */}
+                        <div className="relative z-10 flex items-center justify-between p-2">
+                            <div className="flex items-center gap-2">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button 
-                                            variant="ghost" 
-                                            size="icon" 
-                                            className="h-10 w-10 rounded-[14px] bg-black/20 hover:bg-black/40 text-white border border-white/10 transition-colors"
-                                            onClick={(e) => e.stopPropagation()}
+                                        <Button
+                                            variant="ghost" size="icon"
+                                            className="h-8 w-8 rounded-xl bg-black/25 hover:bg-black/50 text-white border border-white/10"
+                                            onClick={e => e.preventDefault()}
                                         >
-                                            <MoreVertical className="h-5 w-5" />
+                                            <MoreVertical className="h-4 w-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="start" className="w-48">
-                                        <DropdownMenuItem onClick={handleRegenerateCover}>
-                                            <Sparkles className="mr-2 h-4 w-4" /> Regenerate Cover
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.info('Edit coming soon!'); }}>
-                                            <Edit className="mr-2 h-4 w-4" /> Edit Trip
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => { e.stopPropagation(); setShowDeleteDialog(true); }}>
-                                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                    <DropdownMenuContent align="start" className="w-44">
+                                        <DropdownMenuItem
+                                            className="text-destructive focus:text-destructive"
+                                            onClick={e => { e.preventDefault(); setShowDeleteDialog(true); }}
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" />Delete Trip
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
 
-                                {/* Status Badge */}
-                                <Badge className={cn(
-                                    "px-3 py-1 text-xs font-medium uppercase tracking-wider rounded-[14px]",
-                                    "bg-white/20 text-white border-white/10",
-                                    "shadow-sm"
-                                )}>
-                                    {trip.status}
-                                </Badge>
+                                {/* Live weather */}
+                                {weatherBadge && (
+                                    <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-black/30 border border-white/15 text-white text-xs font-semibold backdrop-blur-sm">
+                                        {weatherBadge.emoji} {weatherBadge.temp}°C
+                                    </span>
+                                )}
                             </div>
 
-                            {/* Center Action (Generate Button if missing) */}
-                            {!trip.coverPhotoUrl && (
-                                <div className="absolute inset-0 z-10 flex items-center justify-center">
-                                    <Button 
-                                        variant="secondary"
-                                        size="lg"
-                                        className="bg-white/90 text-black hover:bg-white shadow-xl gap-2"
-                                        onClick={handleRegenerateCover}
-                                        disabled={isRegenerating}
-                                    >
-                                        {isRegenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                                        Generate Cover
-                                    </Button>
-                                </div>
-                            )}
+                            {/* Days until countdown */}
+                            <div className="flex items-center gap-2">
+                                {isUpcoming && daysUntil! <= 30 && (
+                                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-primary text-white text-xs font-bold">
+                                        <Plane className="h-3 w-3" />
+                                        In {daysUntil}d
+                                    </span>
+                                )}
+                                {isUpcoming && daysUntil! > 30 && (
+                                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-black/30 border border-white/15 text-white/80 text-xs backdrop-blur-sm">
+                                        <Clock className="h-3 w-3" />
+                                        {Math.round(daysUntil! / 7)}w away
+                                    </span>
+                                )}
+                                {isPast && (
+                                    <span className="px-2.5 py-1 rounded-xl bg-white/15 border border-white/20 text-white/70 text-xs">
+                                        Completed
+                                    </span>
+                                )}
+                            </div>
+                        </div>
 
-                            {/* Bottom Content */}
-                            <div className="relative z-10 mt-auto p-2">
-                                <div className="rounded-[16px] border border-white/10 bg-black/35 backdrop-blur-md px-4 py-3 space-y-2">
-                                    {/* Date */}
-                                    <div className="flex items-center gap-2 text-white/80 text-xs font-semibold uppercase tracking-wider">
-                                        <Calendar className="h-3.5 w-3.5 text-white/70" />
+                        {/* Bottom content */}
+                        <div className="relative z-10 mt-auto p-2">
+                            <div className="rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md px-4 py-3 space-y-2.5">
+                                {/* Location + flag */}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xl leading-none">{getFlag(trip.primaryDestinationCountry)}</span>
+                                    <span className="text-white/70 text-xs font-medium uppercase tracking-widest">
+                                        {[trip.primaryDestinationCity, trip.primaryDestinationCountry].filter(Boolean).join(', ')}
+                                    </span>
+                                </div>
+
+                                {/* Trip name */}
+                                <h3 className="text-xl font-bold text-white leading-tight tracking-tight">
+                                    {trip.name}
+                                </h3>
+
+                                {/* Description */}
+                                {trip.description && (
+                                    <p className="text-white/55 text-xs leading-relaxed line-clamp-2">
+                                        {trip.description}
+                                    </p>
+                                )}
+
+                                {/* Date + duration strip */}
+                                <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                                    <div className="flex items-center gap-1.5 text-white/60 text-xs">
+                                        <Calendar className="h-3.5 w-3.5" />
                                         <span>{dateDisplay}</span>
                                     </div>
-
-                                    {/* Title & Location */}
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-white leading-tight mb-1 drop-shadow-sm">
-                                            {trip.name}
-                                        </h3>
-                                        <div className="flex items-center gap-1.5 text-white/90 text-sm font-medium">
-                                            <MapPin className="h-4 w-4 text-white/70" />
-                                            <span>
-                                                {trip.primaryDestinationCity || trip.primaryDestinationCountry || 'Destination Unknown'}
-                                            </span>
-                                        </div>
-                                        {derivedPlaces.length > 0 && (
-                                            <div className="mt-1 flex flex-wrap gap-1.5">
-                                                {derivedPlaces.map((place) => (
-                                                    <span key={place} className="px-2 py-0.5 rounded-full bg-white/15 text-white/80 text-[10px] uppercase tracking-wide">
-                                                        {place}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Details */}
-                                    {trip.description && (
-                                        <p className="text-sm text-white/70 line-clamp-2 leading-relaxed">
-                                            {trip.description}
-                                        </p>
+                                    {tripDays && (
+                                        <span className="text-xs font-semibold text-white/80 bg-white/10 px-2 py-0.5 rounded-full">
+                                            {tripDays}d
+                                        </span>
                                     )}
                                 </div>
                             </div>
-                        </Card>
-                    </Link>
-                </div>
+                        </div>
+                    </Card>
+                </Link>
             </motion.div>
 
-            {/* Delete Dialog */}
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <AlertDialogContent className="rounded-2xl">
                     <AlertDialogHeader>
@@ -252,8 +229,13 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90 rounded-xl">
-                            {isDeleting ? 'Deleting...' : 'Delete'}
+                        <AlertDialogAction
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                            className="bg-destructive hover:bg-destructive/90 rounded-xl"
+                        >
+                            {isDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                            Delete Trip
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

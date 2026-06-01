@@ -111,11 +111,11 @@ function Calendar({
           defaultClassNames.day
         ),
         range_start: cn(
-          "rounded-l-full bg-muted/60",
+          "rounded-l-full bg-primary",
           defaultClassNames.range_start
         ),
-        range_middle: cn("rounded-none bg-muted/60", defaultClassNames.range_middle),
-        range_end: cn("rounded-r-full bg-muted/60", defaultClassNames.range_end),
+        range_middle: cn("rounded-none bg-primary", defaultClassNames.range_middle),
+        range_end: cn("rounded-r-full bg-primary", defaultClassNames.range_end),
         today: cn(
           "bg-transparent text-foreground rounded-full ring-1 ring-primary/30",
           defaultClassNames.today
@@ -209,7 +209,7 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-transparent data-[range-middle=true]:text-foreground data-[range-start=true]:bg-transparent data-[range-start=true]:text-foreground data-[range-end=true]:bg-transparent data-[range-end=true]:text-foreground group-data-[focused=true]/day:border-transparent group-data-[focused=true]/day:ring-0 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none data-[range-end=true]:rounded-full data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-full data-[selected-single=true]:rounded-full [&>span]:text-xs [&>span]:opacity-70 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none",
+        "data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-transparent data-[range-middle=true]:text-primary-foreground data-[range-start=true]:bg-transparent data-[range-start=true]:text-primary-foreground data-[range-end=true]:bg-transparent data-[range-end=true]:text-primary-foreground group-data-[focused=true]/day:border-transparent group-data-[focused=true]/day:ring-0 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none data-[range-end=true]:rounded-full data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-full data-[selected-single=true]:rounded-full [&>span]:text-xs [&>span]:opacity-70 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none",
         defaultClassNames.day,
         className
       )}

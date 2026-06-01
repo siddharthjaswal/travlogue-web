@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { showError } from '@/lib/toast-helper';
 import { useTripTimeline, useCreateTripDay, useTrip } from '@/hooks/use-trips';
 import { useAccommodationsByTrip } from '@/hooks/use-accommodations';
@@ -9,7 +9,7 @@ import { TimelineDay } from './timeline-day';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Plus, Maximize2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+// Dialog removed — using plain fixed overlay for map to avoid CSS transform conflicts
 import { AddActivityDialog } from './add-activity-dialog';
 import { toast } from 'sonner';
 import { Calendar } from '@/components/ui/calendar';
@@ -23,6 +23,22 @@ interface TimelineViewProps {
 export function TimelineView({ tripId, readOnly }: TimelineViewProps) {
     const { data: timeline, isLoading, isError } = useTripTimeline(tripId);
     const [mapOpen, setMapOpen] = useState(false);
+    const [mapMounted, setMapMounted] = useState(false);
+    const [dialogHeight, setDialogHeight] = useState(600);
+
+    // Delay mounting the full-screen map until dialog animation completes, capture real height
+    useEffect(() => {
+        if (mapOpen) {
+            const t = setTimeout(() => {
+                // Use actual window height to give Google Maps explicit pixel dimensions
+                setDialogHeight(typeof window !== 'undefined' ? window.innerHeight - 48 : 700);
+                setMapMounted(true);
+            }, 350);
+            return () => clearTimeout(t);
+        } else {
+            setMapMounted(false);
+        }
+    }, [mapOpen]);
     const { data: trip } = useTrip(tripId);
     const { data: accommodations } = useAccommodationsByTrip(tripId);
     const createTripDay = useCreateTripDay();
@@ -121,27 +137,20 @@ export function TimelineView({ tripId, readOnly }: TimelineViewProps) {
     }
 
     return (
-        <div className="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8 sm:mb-12">
-                <div>
-                    <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">Itinerary</h2>
-                    <p className="text-muted-foreground text-base sm:text-lg">Your trip schedule at a glance.</p>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-10 lg:gap-16 items-start">
+        <div className="py-4">
+            <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 items-start">
                 {/* Left Sidebar: Calendar + Map */}
-                <div className="hidden lg:block sticky top-24 space-y-6">
-                    <div className="rounded-3xl bg-transparent p-0">
+                <div className="hidden lg:block sticky top-20 space-y-4">
+                    <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm p-3">
                         <Calendar
                             mode="range"
                             selected={{ from: startDate, to: endDate }}
-                            className="w-full flex justify-center"
+                            className="w-full"
                             defaultMonth={startDate}
                         />
                     </div>
-                    <div className="relative rounded-3xl overflow-hidden w-full aspect-square">
-                        {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
+                    <div className="relative rounded-2xl overflow-hidden w-full" style={{ height: 240 }}>
+                        {trip && <TripMap trip={trip} height={240} className="w-full" />}
                         <div className="absolute left-3 right-3 bottom-3 rounded-2xl border border-border/30 bg-card/70 backdrop-blur px-4 py-3 text-xs text-muted-foreground">
                             <div className="flex items-start justify-between gap-3">
                                 <div className="flex flex-wrap items-center gap-3">
@@ -178,44 +187,58 @@ export function TimelineView({ tripId, readOnly }: TimelineViewProps) {
                     </div>
                 </div>
 
-                <Dialog open={mapOpen} onOpenChange={setMapOpen}>
-                    <DialogContent className="!w-[calc(100vw-48px)] !h-[calc(100vh-48px)] !max-w-none !p-0 !rounded-3xl overflow-hidden flex flex-col">
-                        <div className="relative w-full h-full">
-                            <div className="absolute inset-0">
-                                {trip && <TripMap trip={trip} height={0} className="h-full w-full" />}
-                            </div>
-                            <div className="absolute left-5 top-4 rounded-2xl border border-border/30 bg-card/70 backdrop-blur px-3 py-2 text-sm font-medium">
-                                Trip Map
-                            </div>
-                            <div className="absolute right-5 bottom-5 rounded-2xl border border-border/30 bg-card/70 backdrop-blur px-4 py-3 text-xs text-muted-foreground">
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#7FD1C8]" /> Sightseeing
-                                    </span>
-                                    <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#F2A477]" /> Dining
-                                    </span>
-                                    <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#A8A4F2]" /> Transport
-                                    </span>
-                                    <span className="inline-flex items-center gap-2">
-                                        <span className="h-0.5 w-5 border-t-2 border-dashed border-[#A8A4F2]" /> Route
-                                    </span>
-                                    <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#8FB7FF]" /> Stay
-                                    </span>
-                                    <span className="inline-flex items-center gap-2">
-                                        <span className="h-2.5 w-2.5 rounded-full border border-[#5F6E84] bg-[#C5B8A5]" /> Other
-                                    </span>
+                {/* Full-screen map overlay — plain fixed div, no Dialog transforms */}
+                {mapOpen && (
+                    <div
+                        style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#0d1117' }}
+                        className="flex flex-col"
+                    >
+                        {/* Header bar */}
+                        <div className="flex items-center justify-between px-5 py-3 border-b border-border/30 bg-card/80 backdrop-blur flex-shrink-0">
+                            <span className="text-sm font-semibold text-foreground">
+                                {trip?.name} — Map
+                            </span>
+                            <div className="flex items-center gap-4">
+                                <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground">
+                                    {[['#7FD1C8','Sightseeing'],['#F2A477','Dining'],['#A8A4F2','Transport'],['#8FB7FF','Stay']].map(([c,l]) => (
+                                        <span key={l} className="flex items-center gap-1.5">
+                                            <span className="h-2 w-2 rounded-full" style={{ background: c }} />
+                                            {l}
+                                        </span>
+                                    ))}
                                 </div>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground"
+                                    onClick={() => setMapOpen(false)}
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                </Button>
                             </div>
                         </div>
-                    </DialogContent>
-                </Dialog>
+                        {/* Map fills remaining height — explicit pixels, no CSS height chains */}
+                        <div style={{ flex: 1 }} ref={(el) => {
+                            if (el && mapMounted && trip) return;
+                            if (el && !mapMounted) {
+                                // Set height after layout
+                                setTimeout(() => setMapMounted(true), 50);
+                            }
+                        }}>
+                            {mapMounted && trip && (
+                                <TripMap
+                                    trip={trip}
+                                    height={typeof window !== 'undefined' ? window.innerHeight - 52 : 700}
+                                    className="w-full"
+                                />
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Right Column: Timeline Stream */}
-                <div className="relative pl-0 lg:pl-8 min-h-[400px]">
-                    <div className="rounded-3xl border border-border/30 bg-card/30 backdrop-blur-sm p-4 sm:p-6 shadow-sm">
+                <div className="min-h-[400px]">
+                    <div className="rounded-2xl border border-border/30 bg-card/30 backdrop-blur-sm p-4 shadow-sm">
                         {timeline.days.map((day) => (
                             <div key={day.id} className="relative pb-12 sm:pb-16">
                                 <TimelineDay day={day} stayInfo={stayMap.get(day.id)} readOnly={readOnly} />

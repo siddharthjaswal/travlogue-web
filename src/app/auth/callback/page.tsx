@@ -16,9 +16,8 @@ function AuthCallbackContent() {
                 localStorage.setItem('token', accessToken);
                 localStorage.setItem('refreshToken', refreshToken);
 
-                // Force a page reload to ensure AuthProvider picks up the new token
-                // Or simply redirect, and AuthProvider initialization will check localStorage
-                window.location.href = '/';
+                // Redirect to dashboard after successful login
+                window.location.href = '/dashboard';
             }
         } else {
             // Handle error or missing tokens

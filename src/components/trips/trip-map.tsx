@@ -77,7 +77,7 @@ export function TripMap({ trip, height = 800, className }: TripMapProps) {
                 ? { lat: Number(activity.latitude), lng: Number(activity.longitude) }
                 : parseLatLng(activity.location);
             if (!coords || !Number.isFinite(coords.lat) || !Number.isFinite(coords.lng)) return null;
-            return { ...coords, kind: 'activity' as const, type: activity.activityType, title: activity.name, subtitle: activity.location || place };
+            return { ...coords, kind: 'activity' as const, type: activity.activityType, title: activity.name, subtitle: activity.location || place, cost: activity.cost ?? undefined, currency: activity.currency ?? undefined, notes: activity.notes ?? undefined };
         })
         .filter(Boolean) as { lat: number; lng: number; kind: 'activity'; type?: string; title?: string; subtitle?: string }[];
 

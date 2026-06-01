@@ -24,7 +24,11 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { useCreateTrip } from '@/hooks/use-trips';
 import { CreateTripData } from '@/services/trip-service';
 
-export function CreateTripDialog() {
+interface CreateTripDialogProps {
+    triggerContent?: React.ReactNode;
+}
+
+export function CreateTripDialog({ triggerContent }: CreateTripDialogProps = {}) {
     const [open, setOpen] = useState(false);
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
@@ -70,10 +74,14 @@ export function CreateTripDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="lg" className="shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
-                    <Plus className="mr-2 h-5 w-5" />
-                    Create New Trip
-                </Button>
+                {triggerContent ? (
+                    <span>{triggerContent}</span>
+                ) : (
+                    <Button size="lg" className="shadow-lg hover:shadow-xl transition-all w-full sm:w-auto">
+                        <Plus className="mr-2 h-5 w-5" />
+                        Create New Trip
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[540px] rounded-2xl">
                 <form onSubmit={handleSubmit} className="space-y-6">

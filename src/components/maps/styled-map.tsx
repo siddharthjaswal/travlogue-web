@@ -1,182 +1,240 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { loadGoogleMaps } from '@/lib/google-maps';
-import { TRAVEL_MAP_STYLE } from '@/lib/map-theme';
+
+interface MarkerData {
+    lat: number;
+    lng: number;
+    kind?: 'activity' | 'stay';
+    type?: string;
+    title?: string;
+    subtitle?: string;
+    cost?: number;
+    currency?: string;
+    notes?: string;
+}
 
 interface StyledMapProps {
-  center: { lat: number; lng: number };
-  marker?: { lat: number; lng: number } | null;
-  markers?: { lat: number; lng: number; kind?: 'activity' | 'stay'; type?: string; title?: string; subtitle?: string }[];
-  path?: { lat: number; lng: number }[];
-  paths?: { lat: number; lng: number }[][];
-  height?: number;
-  onClick?: (lat: number, lng: number) => void;
-  rounded?: string;
-  className?: string;
+    center: { lat: number; lng: number };
+    marker?: { lat: number; lng: number } | null;
+    markers?: MarkerData[];
+    path?: { lat: number; lng: number }[];
+    paths?: { lat: number; lng: number }[][];
+    height?: number;
+    onClick?: (lat: number, lng: number) => void;
+    rounded?: string;
+    className?: string;
+}
+
+// Dark premium map style
+const DARK_MAP_STYLE = [
+    { elementType: 'geometry', stylers: [{ color: '#0d1117' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#0d1117' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1e2433' }] },
+    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#131b2b' }] },
+    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#283148' }] },
+    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#8b949e' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a1628' }] },
+    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4c566a' }] },
+    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#0f1e14' }, { visibility: 'on' }] },
+    { featureType: 'transit', stylers: [{ visibility: 'simplified' }] },
+    { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#4c566a' }] },
+    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#8b949e' }] },
+    { featureType: 'administrative.neighborhood', stylers: [{ visibility: 'off' }] },
+];
+
+const MARKER_COLORS: Record<string, string> = {
+    sightseeing: '#7FD1C8',
+    dining: '#F2A477',
+    transportation: '#A8A4F2',
+    stay: '#8FB7FF',
+    other: '#C5B8A5',
+    default: '#9BB6D4',
+};
+
+function getMarkerColor(kind?: string, type?: string): string {
+    if (kind === 'stay') return MARKER_COLORS.stay;
+    const t = (type || '').toLowerCase();
+    for (const key of Object.keys(MARKER_COLORS)) {
+        if (t.includes(key)) return MARKER_COLORS[key];
+    }
+    return MARKER_COLORS.default;
+}
+
+function makeInfoWindowContent(m: MarkerData): string {
+    const typeLabel = m.type ? m.type.charAt(0).toUpperCase() + m.type.slice(1) : '';
+    const costStr = m.cost ? `${m.currency || '€'}${m.cost}` : '';
+    return `
+        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:8px 4px;max-width:220px">
+            ${typeLabel ? `<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8b949e;margin-bottom:4px">${typeLabel}</div>` : ''}
+            <div style="font-size:14px;font-weight:700;color:#e6edf3;line-height:1.3;margin-bottom:${m.subtitle || m.notes ? '4px' : '0'}">${m.title || ''}</div>
+            ${m.subtitle ? `<div style="font-size:12px;color:#8b949e;margin-bottom:4px">${m.subtitle}</div>` : ''}
+            ${m.notes ? `<div style="font-size:11px;color:#6e7681;line-height:1.4;border-top:1px solid #21262d;padding-top:6px;margin-top:4px">${m.notes}</div>` : ''}
+            ${costStr ? `<div style="font-size:12px;font-weight:600;color:#58a6ff;margin-top:6px">${costStr}</div>` : ''}
+        </div>
+    `;
 }
 
 export function StyledMap({ center, marker, markers, path, paths, height, onClick, rounded = 'rounded-xl', className }: StyledMapProps) {
-  const mapRef = useRef<HTMLDivElement | null>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const [mapReady, setMapReady] = useState(false);
-  const markerRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
-  const pathRef = useRef<any[]>([]);
+    const mapRef = useRef<HTMLDivElement>(null);
+    const mapInstanceRef = useRef<any>(null);
+    const [mapReady, setMapReady] = useState(false);
+    const markersRef = useRef<any[]>([]);
+    const pathsRef = useRef<any[]>([]);
+    const infoWindowRef = useRef<any>(null);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    loadGoogleMaps()
-      .then((google) => {
-        if (!mapRef.current || mapInstanceRef.current || !isMounted) return;
-
-        mapInstanceRef.current = new google.maps.Map(mapRef.current, {
-          center,
-          zoom: 12,
-          styles: TRAVEL_MAP_STYLE,
-          disableDefaultUI: true,
-          zoomControl: true,
-          gestureHandling: 'greedy',
+    // Trigger resize whenever container dimensions change (handles dialog open/close)
+    useEffect(() => {
+        const container = mapRef.current;
+        if (!container) return;
+        const observer = new ResizeObserver(() => {
+            const map = mapInstanceRef.current;
+            if (!map) return;
+            const google = (window as any).google;
+            if (google?.maps?.event) {
+                google.maps.event.trigger(map, 'resize');
+            }
         });
-        setMapReady(true);
+        observer.observe(container);
+        return () => observer.disconnect();
+    }, []);
 
-        if (onClick) {
-          mapInstanceRef.current.addListener('click', (e: any) => {
-            onClick(e.latLng.lat(), e.latLng.lng());
-          });
+    useEffect(() => {
+        let mounted = true;
+        loadGoogleMaps().then((google) => {
+            if (!mounted || !mapRef.current || mapInstanceRef.current) return;
+            const safeCenter = (Number.isFinite(center?.lat) && Number.isFinite(center?.lng))
+                ? center : { lat: 48.8566, lng: 2.3522 };
+
+            mapInstanceRef.current = new google.maps.Map(mapRef.current, {
+                center: safeCenter,
+                zoom: 13,
+                styles: DARK_MAP_STYLE,
+                disableDefaultUI: true,
+                zoomControl: true,
+                zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
+                gestureHandling: 'greedy',
+                backgroundColor: '#0d1117',
+            });
+
+            infoWindowRef.current = new google.maps.InfoWindow({
+                pixelOffset: new google.maps.Size(0, -6),
+            });
+
+            if (onClick) {
+                mapInstanceRef.current.addListener('click', (e: any) => {
+                    onClick(e.latLng.lat(), e.latLng.lng());
+                    infoWindowRef.current?.close();
+                });
+            }
+
+            setMapReady(true);
+        }).catch(() => {});
+        return () => { mounted = false; };
+    }, []);
+
+    // Update markers & paths when data changes
+    const updateMap = useCallback(() => {
+        const map = mapInstanceRef.current;
+        if (!map || !mapReady) return;
+        const google = (window as any).google;
+        if (!google?.maps) return;
+
+        // Clear old markers/paths
+        markersRef.current.forEach(m => m.setMap(null));
+        markersRef.current = [];
+        pathsRef.current.forEach(p => p.setMap(null));
+        pathsRef.current = [];
+
+        const allMarkers = [...(markers || []), ...(marker ? [{ lat: marker.lat, lng: marker.lng }] : [])];
+        const allPaths = [...(paths || []), ...(path?.length ? [path] : [])];
+        const bounds = new google.maps.LatLngBounds();
+        let hasPoints = false;
+
+        // Add markers
+        allMarkers.forEach(m => {
+            const color = getMarkerColor(m.kind, m.type);
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${color}" stroke="#0d1117" stroke-width="2.5"/></svg>`;
+            const icon = {
+                url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+                scaledSize: new google.maps.Size(18, 18),
+                anchor: new google.maps.Point(9, 9),
+            };
+            const gm = new google.maps.Marker({ position: { lat: m.lat, lng: m.lng }, map, icon, title: m.title });
+
+            if (m.title) {
+                gm.addListener('click', () => {
+                    infoWindowRef.current?.setContent(`
+                        <div style="background:#161b22;border-radius:12px;overflow:hidden">
+                            ${makeInfoWindowContent(m)}
+                        </div>
+                    `);
+                    infoWindowRef.current?.open({ anchor: gm, map });
+                });
+            }
+
+            markersRef.current.push(gm);
+            bounds.extend({ lat: m.lat, lng: m.lng });
+            hasPoints = true;
+        });
+
+        // Add paths
+        allPaths.forEach(pts => {
+            if (pts.length < 2) return;
+            const poly = new google.maps.Polyline({
+                path: pts,
+                geodesic: true,
+                strokeColor: '#A8A4F2',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 2 }, offset: '0', repeat: '8px' }],
+            });
+            poly.setMap(map);
+            pathsRef.current.push(poly);
+            pts.forEach(p => { bounds.extend(p); hasPoints = true; });
+        });
+
+        // Fit bounds, excluding outliers more than ~18km from centroid
+        if (hasPoints && !bounds.isEmpty()) {
+            const allPts = allMarkers.map(m => ({ lat: m.lat, lng: m.lng }));
+            if (allPts.length > 1) {
+                const avgLat = allPts.reduce((s, p) => s + p.lat, 0) / allPts.length;
+                const avgLng = allPts.reduce((s, p) => s + p.lng, 0) / allPts.length;
+                const toRad = (d: number) => d * Math.PI / 180;
+                const dist = (a: {lat:number,lng:number}, b: {lat:number,lng:number}) => {
+                    const R = 6371;
+                    const dLat = toRad(b.lat - a.lat);
+                    const dLng = toRad(b.lng - a.lng);
+                    const x = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+                    return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+                };
+                const core = allPts.filter(p => dist({ lat: avgLat, lng: avgLng }, p) < 18);
+                const fitPts = core.length >= 2 ? core : allPts;
+                const coreBounds = new google.maps.LatLngBounds();
+                fitPts.forEach(p => coreBounds.extend(p));
+                map.fitBounds(coreBounds, 48);
+            } else {
+                map.setCenter({ lat: allPts[0].lat, lng: allPts[0].lng });
+                map.setZoom(14);
+            }
+        } else {
+            const safeCenter = (Number.isFinite(center?.lat) && Number.isFinite(center?.lng))
+                ? center : { lat: 48.8566, lng: 2.3522 };
+            map.setCenter(safeCenter);
+            map.setZoom(13);
         }
-      })
-      .catch(() => {});
+    }, [markers, marker, path, paths, center, mapReady]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [center.lat, center.lng, onClick]);
+    useEffect(() => { updateMap(); }, [updateMap]);
 
-  useEffect(() => {
-    if (!mapInstanceRef.current || !marker) return;
-    const google = (window as any).google;
-    if (!google?.maps) return;
-
-    if (!markerRef.current) {
-      markerRef.current = new google.maps.Marker({
-        position: marker,
-        map: mapInstanceRef.current,
-      });
-    } else {
-      markerRef.current.setPosition(marker);
-    }
-
-    mapInstanceRef.current.setCenter(marker);
-    mapInstanceRef.current.setZoom(15);
-  }, [marker?.lat, marker?.lng]);
-
-  const getMarkerSvg = (kind?: 'activity' | 'stay', type?: string) => {
-    const t = (type || '').toLowerCase();
-    const isStay = kind === 'stay';
-
-    let fill = '#9BB6D4';
-    if (isStay) fill = '#8FB7FF';
-    else if (t.includes('sightseeing')) fill = '#7FD1C8';
-    else if (t.includes('dining')) fill = '#F2A477';
-    else if (t.includes('transport')) fill = '#A8A4F2';
-    else if (t.includes('other')) fill = '#8FB7FF';
-    else fill = '#C5B8A5';
-
-    const stroke = '#5F6E84';
-
-    const svg = `<?xml version="1.0" encoding="UTF-8"?>
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="9" fill="${fill}" stroke="${stroke}" stroke-width="2" />
-      </svg>`;
-    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-  };
-
-  useEffect(() => {
-    if (!mapInstanceRef.current || !mapReady) return;
-    const google = (window as any).google;
-    if (!google?.maps) return;
-
-    // Clear existing multi markers
-    markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current = [];
-
-    const bounds = new google.maps.LatLngBounds();
-    const infoWindow = new google.maps.InfoWindow();
-
-    if (markers && markers.length > 0) {
-      markers.forEach((m) => {
-        const iconUrl = getMarkerSvg(m.kind, m.type);
-        const marker = new google.maps.Marker({
-          position: { lat: m.lat, lng: m.lng },
-          map: mapInstanceRef.current,
-          icon: {
-            url: iconUrl,
-            scaledSize: new google.maps.Size(12, 12),
-            anchor: new google.maps.Point(6, 6),
-          },
-        });
-
-        if (m.title || m.subtitle) {
-          marker.addListener('click', () => {
-            const title = m.title ? `<div style="font-weight:600; margin-bottom:4px;">${m.title}</div>` : '';
-            const subtitle = m.subtitle ? `<div style="color:#6b7280; font-size:12px;">${m.subtitle}</div>` : '';
-            infoWindow.setContent(`<div style="font-family:Inter,system-ui; padding:4px 2px;">${title}${subtitle}</div>`);
-            infoWindow.open({ anchor: marker, map: mapInstanceRef.current });
-          });
-        }
-
-        markersRef.current.push(marker);
-        bounds.extend({ lat: m.lat, lng: m.lng });
-      });
-    }
-
-    if (pathRef.current.length) {
-      pathRef.current.forEach((p) => p.setMap(null));
-      pathRef.current = [];
-    }
-
-    const allPaths = paths && paths.length ? paths : (path && path.length ? [path] : []);
-    if (allPaths.length) {
-      allPaths.forEach((pathItem) => {
-        if (pathItem.length < 2) return;
-        const poly = new google.maps.Polyline({
-          path: pathItem,
-          geodesic: true,
-          strokeColor: '#A8A4F2',
-          strokeOpacity: 0.7,
-          strokeWeight: 2,
-          icons: [
-            {
-              icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 2 },
-              offset: '0',
-              repeat: '8px',
-            },
-          ],
-        });
-        poly.setMap(mapInstanceRef.current);
-        pathItem.forEach((p) => bounds.extend(p));
-        pathRef.current.push(poly);
-      });
-    }
-
-    if (!bounds.isEmpty()) {
-      const pathPointCount = allPaths.reduce((acc, p) => acc + p.length, 0);
-      if ((markers?.length || 0) + pathPointCount <= 1) {
-        mapInstanceRef.current.setCenter(bounds.getCenter());
-        mapInstanceRef.current.setZoom(15);
-      } else {
-        mapInstanceRef.current.fitBounds(bounds, 80);
-      }
-    }
-  }, [markers?.length, JSON.stringify(markers), JSON.stringify(path), JSON.stringify(paths), mapReady]);
-
-  return (
-    <div
-      ref={mapRef}
-      className={`${rounded} overflow-hidden border border-border/30 ${className || ''}`}
-      style={height ? { height } : { height: '100%', width: '100%' }}
-    />
-  );
+    return (
+        <div
+            ref={mapRef}
+            className={`${rounded} overflow-hidden border border-border/30 ${className || ''}`}
+            style={height ? { height } : { height: '100%', width: '100%' }}
+        />
+    );
 }

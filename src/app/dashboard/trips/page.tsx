@@ -6,7 +6,8 @@ import { useTrips } from '@/hooks/use-trips';
 import { TripCard } from '@/components/dashboard/trip-card';
 import { CreateTripDialog } from '@/components/dashboard/create-trip-dialog';
 import { Button } from '@/components/ui/button';
-import { Map, Sparkles, Globe } from 'lucide-react';
+import { Map, Sparkles, Globe, Search } from 'lucide-react';
+import { StatsBar } from '@/components/dashboard/stats-bar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import type { Trip } from '@/services/trip-service';
@@ -45,8 +46,25 @@ export default function TripsPage() {
     const nextTrip = upcomingTrips[0];
 
     return (
-        <div className="space-y-8 animate-fade-in">
-    
+        <div className="space-y-6 animate-fade-in">
+            {/* Stats bar */}
+            {trips && trips.length > 0 && <StatsBar trips={trips} />}
+
+            {/* Search + create row */}
+            <div className="flex items-center gap-3">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                        type="text"
+                        placeholder="Search trips..."
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 rounded-xl bg-card/60 border border-border/40 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/40 backdrop-blur-sm"
+                    />
+                </div>
+                <CreateTripDialog />
+            </div>
+
             {/* Content */}
             {isLoading ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -78,34 +96,36 @@ export default function TripsPage() {
                     </Button>
                 </div>
             ) : filteredTrips.length > 0 ? (
-                <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-                    <div className="space-y-5">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">Upcoming Trips</h3>
+                <div className="space-y-8">
+                    {/* Upcoming trips */}
+                    {upcomingTrips.length > 0 && (
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Upcoming</h3>
+                                <span className="text-xs text-muted-foreground">{upcomingTrips.length} trip{upcomingTrips.length > 1 ? 's' : ''}</span>
+                            </div>
+                            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                                {upcomingTrips.map((trip: Trip, index: number) => (
+                                    <TripCard key={trip.id} trip={trip} index={index} />
+                                ))}
+                            </div>
                         </div>
-                        <div className="grid gap-6 md:grid-cols-2">
-                            {(upcomingTrips.length > 0 ? upcomingTrips : filteredTrips).slice(0, 4).map((trip: Trip, index: number) => (
-                                <TripCard key={trip.id} trip={trip} index={index} />
-                            ))}
-                        </div>
-                    </div>
+                    )}
 
-                    <div className="rounded-3xl border border-border/40 bg-card/70 backdrop-blur-xl p-5 h-fit">
-                        <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-sm font-semibold">Calendar</h4>
+                    {/* Past trips */}
+                    {filteredTrips.filter((t: Trip) => (t.startDateTimestamp || 0) * 1000 < Date.now()).length > 0 && (
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">Past trips</h3>
+                            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                                {filteredTrips
+                                    .filter((t: Trip) => (t.startDateTimestamp || 0) * 1000 < Date.now())
+                                    .map((trip: Trip, index: number) => (
+                                        <TripCard key={trip.id} trip={trip} index={index} />
+                                    ))
+                                }
+                            </div>
                         </div>
-                        {nextTrip ? (
-                            <CalendarView
-                                mode="range"
-                                selected={{
-                                    from: new Date((nextTrip.startDateTimestamp || 0) * 1000),
-                                    to: new Date((nextTrip.endDateTimestamp || nextTrip.startDateTimestamp || 0) * 1000),
-                                }}
-                            />
-                        ) : (
-                            <CalendarView mode="single" selected={new Date()} />
-                        )}
-                    </div>
+                    )}
                 </div>
             ) : (
                 // Beautiful empty state
