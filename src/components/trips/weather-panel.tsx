@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import { CloudSun, Wind, Droplets, Loader2, CalendarDays, Info } from 'lucide-react';
 import { getWeatherLabel, type WeatherData } from '@/lib/weather';
-import { guessCenter } from '@/lib/geo';
+import { resolveDestinationCoords } from '@/lib/geo';
+import { formatTemp, formatSpeed } from '@/lib/format';
+import { useAuth } from '@/contexts/auth-context';
 import { format, differenceInDays, isWithinInterval, parseISO } from 'date-fns';
 
 interface WeatherPanelProps {
@@ -23,6 +25,10 @@ export function WeatherPanel({ city, country, tripStartTimestamp, tripEndTimesta
     const [weather, setWeather] = useState<WeatherData | null>(null);
     const [loading, setLoading] = useState(true);
     const [locationName, setLocationName] = useState('');
+    const { user } = useAuth();
+    const unit = user?.unitSystem ?? 'metric';
+    // Compact temperature (number only, no unit letter) for the forecast rows.
+    const t = (c: number) => (unit === 'imperial' ? Math.round((c * 9) / 5 + 32) : Math.round(c));
 
     const tripStart = tripStartTimestamp ? new Date(tripStartTimestamp * 1000) : null;
     const tripEnd = tripEndTimestamp ? new Date(tripEndTimestamp * 1000) : null;
@@ -36,43 +42,8 @@ export function WeatherPanel({ city, country, tripStartTimestamp, tripEndTimesta
         setLoading(true);
 
         const resolve = async () => {
-            // Stage 1: fast hardcoded lookup
-            let coords = guessCenter(city ?? undefined, country ?? undefined);
-
-            // Stage 2: fall back to country-state-city (covers all 250 countries + 153K cities)
-            if (!coords) {
-                const { Country, City } = await import('country-state-city');
-
-                // Find the country ISO code first
-                let isoCode: string | null = null;
-                if (country) {
-                    const match = Country.getAllCountries().find(
-                        (c) => c.name.toLowerCase() === country.toLowerCase()
-                    );
-                    if (match) {
-                        isoCode = match.isoCode;
-                        // Use country centre as baseline
-                        const cLat = parseFloat(match.latitude);
-                        const cLng = parseFloat(match.longitude);
-                        if (!isNaN(cLat) && !isNaN(cLng)) coords = { lat: cLat, lng: cLng };
-                    }
-                }
-
-                // Refine to city if we have one
-                if (city && isoCode) {
-                    const cities = City.getCitiesOfCountry(isoCode) ?? [];
-                    // Accent-insensitive comparison so "Reykjavik" matches "Reykjavík" etc.
-                    const normalize = (s: string) =>
-                        s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-                    const cityNorm = normalize(city);
-                    const match = cities.find((c) => normalize(c.name) === cityNorm);
-                    if (match?.latitude && match?.longitude) {
-                        const cLat = parseFloat(match.latitude);
-                        const cLng = parseFloat(match.longitude);
-                        if (!isNaN(cLat) && !isNaN(cLng)) coords = { lat: cLat, lng: cLng };
-                    }
-                }
-            }
+            // Two-stage lookup (hardcoded table, then country-state-city) — shared with the map.
+            const coords = await resolveDestinationCoords(city, country);
 
             if (!coords || cancelled) { setLoading(false); return; }
 
@@ -147,7 +118,7 @@ export function WeatherPanel({ city, country, tripStartTimestamp, tripEndTimesta
                         <div className="flex items-end gap-3">
                             <span className="text-4xl">{currentInfo.emoji}</span>
                             <div>
-                                <div className="text-3xl font-bold text-foreground leading-none">{current.temperature}°C</div>
+                                <div className="text-3xl font-bold text-foreground leading-none">{formatTemp(current.temperature, unit)}</div>
                                 <div className="text-xs text-muted-foreground mt-0.5">{currentInfo.label}</div>
                             </div>
                         </div>
@@ -158,7 +129,7 @@ export function WeatherPanel({ city, country, tripStartTimestamp, tripEndTimesta
                             </div>
                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <Wind className="h-3.5 w-3.5 text-teal-400 flex-shrink-0" />
-                                {current.windSpeed} km/h
+                                {formatSpeed(current.windSpeed, unit)}
                             </div>
                         </div>
                     </div>
@@ -185,8 +156,8 @@ export function WeatherPanel({ city, country, tripStartTimestamp, tripEndTimesta
                                         <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
                                             {pct > 0 && <div className="h-full rounded-full bg-blue-400/60" style={{ width: `${pct}%` }} />}
                                         </div>
-                                        <span className="w-8 text-right font-semibold text-foreground">{day.maxTemp}°</span>
-                                        <span className="w-6 text-right text-muted-foreground">{day.minTemp}°</span>
+                                        <span className="w-8 text-right font-semibold text-foreground">{t(day.maxTemp)}°</span>
+                                        <span className="w-6 text-right text-muted-foreground">{t(day.minTemp)}°</span>
                                     </div>
                                 );
                             })}
@@ -222,8 +193,8 @@ export function WeatherPanel({ city, country, tripStartTimestamp, tripEndTimesta
                                         <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
                                             {pct > 0 && <div className="h-full rounded-full bg-blue-400/60" style={{ width: `${pct}%` }} />}
                                         </div>
-                                        <span className="w-8 text-right font-medium text-foreground">{day.maxTemp}°</span>
-                                        <span className="w-6 text-right text-muted-foreground">{day.minTemp}°</span>
+                                        <span className="w-8 text-right font-medium text-foreground">{t(day.maxTemp)}°</span>
+                                        <span className="w-6 text-right text-muted-foreground">{t(day.minTemp)}°</span>
                                     </div>
                                 );
                             })}

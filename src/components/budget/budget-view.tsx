@@ -3,16 +3,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Plus, DollarSign, Wallet, TrendingUp, CreditCard } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, CreditCard, Pencil } from "lucide-react";
 import { Trip } from "@/services/trip-service";
 import { AddExpenseDialog } from "./add-expense-dialog";
+import { EditBudgetDialog } from "./edit-budget-dialog";
 import { useState, useMemo } from "react";
 import { useExpenses } from "@/hooks/use-expenses";
 import { useTripTimeline } from '@/hooks/use-trips';
+import { useAuth } from '@/contexts/auth-context';
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { collectDayPlaces, cleanPlaceTokens } from '@/lib/places';
+import { formatMoney } from '@/lib/format';
 
 interface BudgetViewProps {
     tripId: number;
@@ -22,7 +25,9 @@ interface BudgetViewProps {
 export function BudgetView({ tripId, trip }: BudgetViewProps) {
     const { data: expenses, isLoading } = useExpenses(tripId);
     const { data: timeline } = useTripTimeline(tripId);
-    
+    const { user } = useAuth();
+    const [editOpen, setEditOpen] = useState(false);
+
         const derivedPlaces = useMemo(() => {
         if (!timeline?.days) return [] as string[];
         const tokens = timeline.days.flatMap((day) => collectDayPlaces({
@@ -32,12 +37,14 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
         return cleanPlaceTokens(tokens).slice(0, 4);
     }, [timeline]);
 
-// Mock budget for now (will be added to trip model later)
-    const totalBudget = 5000; 
-    
+    // Currency: trip's own currency, falling back to the user's default.
+    const currency = trip?.currency || user?.defaultCurrency || 'USD';
+    const totalBudget = trip?.budgetTotal ?? 0;
+    const hasBudget = totalBudget > 0;
+
     // Calculate total spent
     const totalSpent = expenses?.reduce((sum, expense) => sum + expense.amount, 0) || 0;
-    const progress = Math.min((totalSpent / totalBudget) * 100, 100);
+    const progress = hasBudget ? Math.min((totalSpent / totalBudget) * 100, 100) : 0;
     const remaining = totalBudget - totalSpent;
 
     if (isLoading) {
@@ -72,14 +79,34 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
                 <Card className="bg-gradient-to-br from-card to-card/50 border-primary/10 shadow-md">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Total Budget</CardTitle>
-                        <Wallet className="h-4 w-4 text-primary" />
+                        <button
+                            type="button"
+                            onClick={() => setEditOpen(true)}
+                            className="text-muted-foreground hover:text-primary transition-colors"
+                            aria-label="Edit budget"
+                        >
+                            <Pencil className="h-4 w-4" />
+                        </button>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">${totalBudget.toLocaleString()}</div>
-                        <p className="text-xs text-muted-foreground mt-1">Planned allocation</p>
+                        {hasBudget ? (
+                            <>
+                                <div className="text-2xl font-bold">{formatMoney(totalBudget, currency)}</div>
+                                <p className="text-xs text-muted-foreground mt-1">Planned allocation · {currency}</p>
+                            </>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={() => setEditOpen(true)}
+                                className="text-left"
+                            >
+                                <div className="text-2xl font-bold text-muted-foreground/50">—</div>
+                                <p className="text-xs text-primary mt-1 font-medium">Set a budget →</p>
+                            </button>
+                        )}
                     </CardContent>
                 </Card>
-                
+
                 <Card className="bg-gradient-to-br from-card to-card/50 border-primary/10 shadow-md">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground">Total Spent</CardTitle>
@@ -87,10 +114,14 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                            ${totalSpent.toLocaleString()}
+                            {formatMoney(totalSpent, currency)}
                         </div>
-                        <Progress value={progress} className="h-2 mt-3" indicatorClassName="bg-orange-500" />
-                        <p className="text-xs text-muted-foreground mt-2 text-right">{progress.toFixed(1)}% used</p>
+                        {hasBudget && (
+                            <>
+                                <Progress value={progress} className="h-2 mt-3" indicatorClassName="bg-orange-500" />
+                                <p className="text-xs text-muted-foreground mt-2 text-right">{progress.toFixed(1)}% used</p>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -100,10 +131,21 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
                         <TrendingUp className="h-4 w-4 text-green-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                            ${remaining.toLocaleString()}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">Available to spend</p>
+                        {hasBudget ? (
+                            <>
+                                <div className={`text-2xl font-bold ${remaining < 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400'}`}>
+                                    {formatMoney(remaining, currency)}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                    {remaining < 0 ? 'Over budget' : 'Available to spend'}
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <div className="text-2xl font-bold text-muted-foreground/50">—</div>
+                                <p className="text-xs text-muted-foreground mt-1">Set a budget to track</p>
+                            </>
+                        )}
                     </CardContent>
                 </Card>
             </div>
@@ -139,7 +181,7 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
                                     </div>
                                     <div className="text-right">
                                         <span className="font-bold text-foreground block">
-                                            -${expense.amount.toFixed(2)}
+                                            -{formatMoney(expense.amount, currency)}
                                         </span>
                                     </div>
                                 </div>
@@ -159,6 +201,14 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
                     </div>
                 </CardContent>
             </Card>
+
+            <EditBudgetDialog
+                tripId={tripId}
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                currentBudget={trip?.budgetTotal}
+                currentCurrency={currency}
+            />
         </div>
     );
 }

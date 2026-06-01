@@ -10,6 +10,7 @@ interface AuthContextType {
     login: () => void;
     logout: () => Promise<void>;
     isAuthenticated: boolean;
+    setUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -63,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 login,
                 logout,
                 isAuthenticated: !!user,
+                setUser,
             }}
         >
             {children}

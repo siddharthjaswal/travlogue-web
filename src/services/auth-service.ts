@@ -5,6 +5,14 @@ export interface User {
     email: string;
     name?: string;
     picture?: string;
+    // Preferences
+    defaultCurrency: string;
+    unitSystem: 'metric' | 'imperial';
+}
+
+export interface UpdatePreferencesData {
+    defaultCurrency?: string;
+    unitSystem?: 'metric' | 'imperial';
 }
 
 export interface AuthResponse {
@@ -49,15 +57,27 @@ export const authService = {
     // Get current user
     getCurrentUser: async () => {
         const response = await api.get<any>('/users/me');
-        const data = response.data;
+        return mapUser(response.data);
+    },
 
-        // Map backend response to frontend User interface
-        const user: User = {
-            id: data.id,
-            email: data.email,
-            name: data.first_name ? `${data.first_name} ${data.last_name || ''}`.trim() : data.username,
-            picture: data.profile_photo_url,
-        };
-        return user;
-    }
+    // Update preferences (currency / units)
+    updatePreferences: async (data: UpdatePreferencesData) => {
+        const payload: Record<string, string> = {};
+        if (data.defaultCurrency !== undefined) payload.default_currency = data.defaultCurrency;
+        if (data.unitSystem !== undefined) payload.unit_system = data.unitSystem;
+        const response = await api.put<any>('/users/me', payload);
+        return mapUser(response.data);
+    },
 };
+
+// Map backend (snake_case) user → frontend User
+function mapUser(data: any): User {
+    return {
+        id: data.id,
+        email: data.email,
+        name: data.first_name ? `${data.first_name} ${data.last_name || ''}`.trim() : data.username,
+        picture: data.profile_photo_url,
+        defaultCurrency: (data.default_currency || 'USD').toUpperCase(),
+        unitSystem: data.unit_system === 'imperial' ? 'imperial' : 'metric',
+    };
+}

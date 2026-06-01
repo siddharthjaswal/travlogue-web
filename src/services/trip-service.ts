@@ -15,6 +15,10 @@ export interface Trip {
     primaryDestinationCountry?: string;
     primaryDestinationCity?: string;
 
+    // Budget
+    budgetTotal?: number;
+    currency?: string;
+
     // Status
     status: 'planning' | 'active' | 'completed' | 'cancelled';
     visibility: 'private' | 'public' | 'unlisted';
@@ -43,6 +47,8 @@ const mapTripResponse = (data: any): Trip => ({
     endDateTimestamp: data.end_date_timestamp,
     primaryDestinationCountry: data.primary_destination_country,
     primaryDestinationCity: data.primary_destination_city,
+    budgetTotal: data.budget_total != null ? Number(data.budget_total) : undefined,
+    currency: data.currency,
     status: data.status.toLowerCase(), // Ensure lowercase for UI consistency
     visibility: data.visibility.toLowerCase(),
 });
@@ -92,7 +98,10 @@ export const tripService = {
         await api.delete(`/trips/${id}`);
     },
 
-    update: async (id: number, data: Partial<CreateTripData> & { visibility?: string }) => {
+    update: async (
+        id: number,
+        data: Partial<CreateTripData> & { visibility?: string; budgetTotal?: number; currency?: string }
+    ) => {
         const payload: any = {};
         if (data.name !== undefined) payload.name = data.name;
         if (data.description !== undefined) payload.description = data.description;
@@ -101,6 +110,8 @@ export const tripService = {
         if (data.primaryDestinationCountry !== undefined) payload.primary_destination_country = data.primaryDestinationCountry;
         if (data.primaryDestinationCity !== undefined) payload.primary_destination_city = data.primaryDestinationCity;
         if (data.visibility !== undefined) payload.visibility = data.visibility;
+        if (data.budgetTotal !== undefined) payload.budget_total = data.budgetTotal;
+        if (data.currency !== undefined) payload.currency = data.currency;
         const response = await api.put(`/trips/${id}`, payload);
         return mapTripResponse(response.data);
     },
