@@ -55,15 +55,16 @@ export function ActivityItem({ activity, tripId, date, readOnly }: ActivityItemP
         const ampm = h >= 12 ? 'PM' : 'AM';
         return `${hour12}:${m.toString().padStart(2, '0')} ${ampm}`;
     };
+    const [timeClock, timeMeridiem] = (activity.time ? formatTimeLabel(activity.time) : '').split(' ');
     return (
         <div className="group relative flex flex-col sm:flex-row gap-3 sm:gap-4 mb-3">
             {/* 1. Time Column */}
             <div className="flex w-[44px] sm:w-[48px] pt-1 flex-col items-end justify-start">
                 <span className="text-sm font-bold text-foreground tabular-nums">
-                    {activity.time || 'Any'}
+                    {timeClock || 'Any'}
                 </span>
                 <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
-                    {activity.time ? (parseInt(activity.time) >= 12 ? 'PM' : 'AM') : 'TIME'}
+                    {timeMeridiem || 'TIME'}
                 </span>
             </div>
 
@@ -109,11 +110,11 @@ export function ActivityItem({ activity, tripId, date, readOnly }: ActivityItemP
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                {activity.cost && (
+                                {activity.cost ? (
                                     <div className="rounded-full border border-border/40 bg-background/70 px-4 py-1.5 leading-[1] text-xl font-semibold text-foreground flex items-center justify-center translate-y-[-1px] mt-[14px]">
                                         {currencySymbol(activity.currency)} {activity.cost}
                                     </div>
-                                )}
+                                ) : null}
                                 {!readOnly && (
                                     <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                         <AddActivityDialog

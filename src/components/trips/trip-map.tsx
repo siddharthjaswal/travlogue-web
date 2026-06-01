@@ -15,9 +15,11 @@ interface TripMapProps {
     trip: Trip;
     height?: number;
     className?: string;
+    /** When set, only markers/paths belonging to this day are shown. Omit for the full trip overview. */
+    activeDayId?: number | null;
 }
 
-export function TripMap({ trip, height = 800, className }: TripMapProps) {
+export function TripMap({ trip, height = 800, className, activeDayId }: TripMapProps) {
     const useHeight = height && height > 0 ? height : undefined;
     const { data: timeline } = useTripTimeline(trip.id);
     const queryClient = useQueryClient();
@@ -70,7 +72,11 @@ export function TripMap({ trip, height = 800, className }: TripMapProps) {
     }, [timeline?.days?.length]);
 
 
+    // Only filter when a specific day is requested; otherwise show the whole trip.
+    const dayFilter = activeDayId != null ? activeDayId : null;
+
     const activityMarkers = (timeline?.days || [])
+        .filter((day) => dayFilter == null || day.id === dayFilter)
         .flatMap((day) => day.activities.map((a) => ({ activity: a, place: day.place })))
         .map(({ activity, place }) => {
             const coords = (activity.latitude != null && activity.longitude != null)
@@ -82,12 +88,14 @@ export function TripMap({ trip, height = 800, className }: TripMapProps) {
         .filter(Boolean) as { lat: number; lng: number; kind: 'activity'; type?: string; title?: string; subtitle?: string }[];
 
     const stayMarkers = (accommodations || [])
+        .filter((a) => dayFilter == null || a.tripDayId === dayFilter)
         .map((a) => (a.latitude != null && a.longitude != null
             ? { lat: Number(a.latitude), lng: Number(a.longitude), kind: 'stay' as const, type: 'stay', title: a.name, subtitle: a.address || '' }
             : null))
         .filter(Boolean) as { lat: number; lng: number; kind: 'stay'; type?: string; title?: string; subtitle?: string }[];
 
     const transportMarkers = (timeline?.days || [])
+        .filter((day) => dayFilter == null || day.id === dayFilter)
         .flatMap((day) => day.activities)
         .flatMap((activity) => {
             const points = [] as { lat: number; lng: number; kind: 'activity'; type?: string; title?: string; subtitle?: string }[];
@@ -115,6 +123,7 @@ export function TripMap({ trip, height = 800, className }: TripMapProps) {
         });
 
     const transportPaths = (timeline?.days || [])
+        .filter((day) => dayFilter == null || day.id === dayFilter)
         .flatMap((day) => day.activities)
         .map((activity) => {
             if (activity.startLatitude == null || activity.startLongitude == null || activity.endLatitude == null || activity.endLongitude == null) return null;

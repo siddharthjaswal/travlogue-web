@@ -27,23 +27,29 @@ interface StyledMapProps {
     className?: string;
 }
 
-// Dark premium map style
+// Dark, minimal map style — geometry only, so activity markers stay the focus.
+// All clutter (road names, transit, POIs, icons) is hidden; only city names remain
+// for light orientation.
 const DARK_MAP_STYLE = [
     { elementType: 'geometry', stylers: [{ color: '#0d1117' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#0d1117' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1e2433' }] },
-    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#131b2b' }] },
-    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#283148' }] },
-    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#8b949e' }] },
+    // Hide every label by default, then selectively re-enable city names below.
+    { elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+    // Roads as subtle shapes, no names.
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#171d29' }] },
+    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ visibility: 'off' }] },
+    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#222a3a' }] },
+    { featureType: 'road', elementType: 'labels', stylers: [{ visibility: 'off' }] },
     { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a1628' }] },
-    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4c566a' }] },
     { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#0f1e14' }, { visibility: 'on' }] },
-    { featureType: 'transit', stylers: [{ visibility: 'simplified' }] },
-    { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#4c566a' }] },
-    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#8b949e' }] },
+    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#0f1e14' }] },
+    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+    { featureType: 'administrative', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
     { featureType: 'administrative.neighborhood', stylers: [{ visibility: 'off' }] },
+    // Only city / town names, kept dim.
+    { featureType: 'administrative.locality', elementType: 'labels.text', stylers: [{ visibility: 'on' }] },
+    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
+    { featureType: 'administrative.locality', elementType: 'labels.text.stroke', stylers: [{ color: '#0d1117' }] },
 ];
 
 const MARKER_COLORS: Record<string, string> = {
@@ -229,6 +235,38 @@ export function StyledMap({ center, marker, markers, path, paths, height, onClic
     }, [markers, marker, path, paths, center, mapReady]);
 
     useEffect(() => { updateMap(); }, [updateMap]);
+
+    // Inject glass-morph styles for Google Maps zoom controls once per page
+    useEffect(() => {
+        if (!mapReady) return;
+        if (document.getElementById('gm-zoom-glass')) return;
+        const style = document.createElement('style');
+        style.id = 'gm-zoom-glass';
+        style.textContent = `
+            .gm-bundled-control > div {
+                background: rgba(13, 17, 23, 0.55) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                border-radius: 10px !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45) !important;
+                overflow: hidden !important;
+            }
+            .gm-bundled-control button.gm-control-active {
+                background: transparent !important;
+            }
+            .gm-bundled-control button.gm-control-active:hover {
+                background: rgba(255, 255, 255, 0.07) !important;
+            }
+            .gm-bundled-control button.gm-control-active img {
+                filter: invert(0.75) brightness(1.3) !important;
+            }
+            .gm-bundled-control > div > div {
+                background: rgba(255, 255, 255, 0.08) !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }, [mapReady]);
 
     return (
         <div
