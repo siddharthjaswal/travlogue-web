@@ -3,42 +3,39 @@
 /**
  * DayMap — per-day overview map at the top of each TimelineDay.
  *
- * IntersectionObserver defers each map until it's near the viewport so
- * all 8 Iceland roadtrip maps don't boot simultaneously and kill the tab.
- * The outer container always has the full 220px height so layout never
- * shifts when the map boots.
+ * Uses the shared StyledMap (Google Maps, dark theme) so markers, info
+ * windows and route lines match the rest of the app. Lazy-initialised via
+ * IntersectionObserver so all 8 Iceland roadtrip maps don't boot at once.
  */
 
-import dynamic from 'next/dynamic';
 import { useRef, useState, useEffect } from 'react';
 import { Activity } from '@/services/activity-service';
-import { type DayMarker } from '@/components/maps/day-map-inner';
-
-// Dynamic import with ssr:false — Leaflet must not run on the server.
-// No loading spinner needed; the outer placeholder div handles that.
-const DayMapInner = dynamic(() => import('@/components/maps/day-map-inner'), { ssr: false });
+import { StyledMap } from '@/components/maps/styled-map';
 
 const MAP_HEIGHT = 220;
+
+function formatTime(time?: string): string {
+    if (!time) return '';
+    const [h, m] = time.split(':').map(Number);
+    if (Number.isNaN(h)) return '';
+    const h12 = ((h + 11) % 12) + 1;
+    return `${h12}:${String(m || 0).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+}
 
 interface DayMapProps {
     activities: Activity[];
 }
 
 export function DayMap({ activities }: DayMapProps) {
-    const holderRef            = useRef<HTMLDivElement>(null);
-    const [ready, setReady]    = useState(false);
+    const holderRef         = useRef<HTMLDivElement>(null);
+    const [ready, setReady] = useState(false);
 
-    // Only boot when the placeholder scrolls within 400 px of the viewport
+    // Boot when the placeholder scrolls within 400 px of the viewport
     useEffect(() => {
         const el = holderRef.current;
         if (!el) return;
-
-        // Already visible on first paint (e.g., first day)
         const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight + 400) {
-            setReady(true);
-            return;
-        }
+        if (rect.top < window.innerHeight + 400) { setReady(true); return; }
 
         const obs = new IntersectionObserver(
             ([entry]) => { if (entry.isIntersecting) { setReady(true); obs.disconnect(); } },
@@ -54,22 +51,38 @@ export function DayMap({ activities }: DayMapProps) {
 
     if (mappable.length === 0) return null;
 
-    const markers: DayMarker[] = mappable.map((a, i) => ({
-        lat:   Number(a.latitude),
-        lng:   Number(a.longitude),
-        type:  a.activityType ?? 'other',
-        name:  a.name,
-        time:  a.time ?? undefined,
-        index: i,
+    const markers = mappable.map(a => ({
+        lat:      Number(a.latitude),
+        lng:      Number(a.longitude),
+        type:     a.activityType ?? 'other',
+        title:    a.name,
+        subtitle: formatTime(a.time ?? undefined),
+        cost:     a.cost ?? undefined,
+        currency: a.currency,
+        notes:    a.notes ?? undefined,
     }));
+
+    // Connect stops in time order
+    const path = markers.map(m => ({ lat: m.lat, lng: m.lng }));
+    const center = { lat: markers[0].lat, lng: markers[0].lng };
 
     return (
         <div
             ref={holderRef}
-            className="mb-5 rounded-xl overflow-hidden border border-border/20 shadow-sm bg-muted/10"
-            style={{ height: MAP_HEIGHT }}
+            className="mb-5 rounded-xl overflow-hidden"
+            style={{ minHeight: MAP_HEIGHT }}
         >
-            {ready && <DayMapInner markers={markers} height={MAP_HEIGHT} />}
+            {ready ? (
+                <StyledMap
+                    center={center}
+                    markers={markers}
+                    path={path}
+                    height={MAP_HEIGHT}
+                    className="w-full"
+                />
+            ) : (
+                <div style={{ height: MAP_HEIGHT }} className="rounded-xl bg-muted/10 border border-border/20" />
+            )}
         </div>
     );
 }

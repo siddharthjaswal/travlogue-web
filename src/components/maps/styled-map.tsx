@@ -70,9 +70,17 @@ function getMarkerColor(kind?: string, type?: string): string {
     return MARKER_COLORS.default;
 }
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+    USD: '$', EUR: '€', GBP: '£', INR: '₹', JPY: '¥', AUD: 'A$', CAD: 'C$',
+};
+function currencySymbol(code?: string): string {
+    if (!code) return '€';
+    return CURRENCY_SYMBOLS[code.toUpperCase()] ?? code.toUpperCase() + ' ';
+}
+
 function makeInfoWindowContent(m: MarkerData): string {
     const typeLabel = m.type ? m.type.charAt(0).toUpperCase() + m.type.slice(1) : '';
-    const costStr = m.cost ? `${m.currency || '€'}${m.cost}` : '';
+    const costStr = m.cost ? `${currencySymbol(m.currency)}${m.cost}` : '';
     return `
         <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:8px 4px;max-width:220px">
             ${typeLabel ? `<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8b949e;margin-bottom:4px">${typeLabel}</div>` : ''}
@@ -263,6 +271,28 @@ export function StyledMap({ center, marker, markers, path, paths, height, onClic
             }
             .gm-bundled-control > div > div {
                 background: rgba(255, 255, 255, 0.08) !important;
+            }
+            /* Dark info window chrome */
+            .gm-style-iw.gm-style-iw-c {
+                background: #161b22 !important;
+                border: 1px solid rgba(255,255,255,0.08) !important;
+                border-radius: 12px !important;
+                box-shadow: 0 8px 28px rgba(0,0,0,0.55) !important;
+                padding: 0 !important;
+            }
+            .gm-style-iw-d {
+                overflow: hidden !important;
+                background: #161b22 !important;
+            }
+            .gm-style-iw-tc::after {
+                background: #161b22 !important;
+            }
+            .gm-style-iw button.gm-ui-hover-effect {
+                top: 2px !important;
+                right: 2px !important;
+            }
+            .gm-style-iw button.gm-ui-hover-effect > span {
+                background-color: #6e7681 !important;
             }
         `;
         document.head.appendChild(style);
