@@ -27,29 +27,39 @@ interface StyledMapProps {
     className?: string;
 }
 
-// Dark, minimal map style — geometry only, so activity markers stay the focus.
-// All clutter (road names, transit, POIs, icons) is hidden; only city names remain
-// for light orientation.
+// Dark slate-blue map style — legible but on-brand. Land sits a few steps
+// above black so geography reads clearly; the road network is visible in
+// soft greys, water is a distinct blue, parks a muted green. Labels (city +
+// neighbourhood + key natural features) are kept for orientation, POI icons
+// hidden to avoid clutter so activity markers stay the focus.
 const DARK_MAP_STYLE = [
-    { elementType: 'geometry', stylers: [{ color: '#0d1117' }] },
-    // Hide every label by default, then selectively re-enable city names below.
-    { elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    { elementType: 'geometry', stylers: [{ color: '#212a3a' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#9aa6b8' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#161d29' }, { weight: 2 }] },
     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-    // Roads as subtle shapes, no names.
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#171d29' }] },
+
+    // Roads — visible network, brighter for bigger roads.
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2f3a4d' }] },
     { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ visibility: 'off' }] },
-    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#222a3a' }] },
+    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#3a4659' }] },
+    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#4a576c' }] },
     { featureType: 'road', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0a1628' }] },
-    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#0f1e14' }] },
+
+    // Water — clear blue so coastlines and rivers stand out.
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#16314f' }] },
+    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#5f7da3' }] },
+
+    // Parks / natural — muted green.
+    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#1d3322' }] },
+    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#243042' }] },
+    { featureType: 'poi', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+    { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
     { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+
+    // Administrative boundaries — subtle.
     { featureType: 'administrative', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
-    { featureType: 'administrative.neighborhood', stylers: [{ visibility: 'off' }] },
-    // Only city / town names, kept dim.
-    { featureType: 'administrative.locality', elementType: 'labels.text', stylers: [{ visibility: 'on' }] },
-    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
-    { featureType: 'administrative.locality', elementType: 'labels.text.stroke', stylers: [{ color: '#0d1117' }] },
+    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#c2cbd9' }] },
+    { featureType: 'administrative.neighborhood', elementType: 'labels.text.fill', stylers: [{ color: '#7f8b9f' }] },
 ];
 
 const MARKER_COLORS: Record<string, string> = {
