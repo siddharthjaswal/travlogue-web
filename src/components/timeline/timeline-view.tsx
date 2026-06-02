@@ -255,7 +255,7 @@ export function TimelineView({ tripId, readOnly }: TimelineViewProps) {
             })()}
 
             {/* ── Timeline stream ──────────────────────────────────────────── */}
-            <div className="rounded-2xl border border-border/30 bg-card/30 backdrop-blur-sm p-4 shadow-sm">
+            <div className="surface-1 rounded-2xl p-4">
                 {timeline.days.map((day) => (
                     <div
                         key={day.id}
