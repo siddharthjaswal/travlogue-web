@@ -238,14 +238,29 @@ export default function DesignPage() {
                         </div>
                     </div>
 
+                    {/* Liquid glass */}
+                    <div className="liquid-glass rounded-3xl p-5">
+                        <p className="text-sm font-medium">Liquid glass · <span className="font-mono text-xs text-muted-foreground">.liquid-glass</span></p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Frosted, translucent panel with a specular top edge + diagonal sheen.
+                            Used for the itinerary calendar. Reads as glass even on flat dark bg.
+                        </p>
+                    </div>
+
                     {/* Glass card over imagery */}
-                    <div className="relative h-32 rounded-2xl overflow-hidden border border-border/40 sm:col-span-2">
+                    <div className="relative h-32 rounded-2xl overflow-hidden border border-border/40">
                         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200')] bg-cover bg-center" />
                         <div className="absolute inset-x-0 bottom-0 glass-dark p-4">
                             <p className="text-[10px] uppercase tracking-widest text-white/70">Glass over imagery</p>
-                            <p className="text-white font-semibold">.glass-dark — for trip covers & hero overlays</p>
+                            <p className="text-white font-semibold">.glass-dark — covers & hero overlays</p>
                         </div>
                     </div>
+                </div>
+
+                <div className="surface-1 rounded-2xl p-4 text-xs text-muted-foreground">
+                    <span className="font-semibold text-foreground">Date range:</span> solid accent
+                    endpoints (caps) + translucent <span className="font-mono">bg-primary/15</span> track
+                    between — never two solid shades. Today = accent number, not a filled circle.
                 </div>
             </Section>
 

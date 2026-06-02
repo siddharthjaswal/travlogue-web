@@ -228,11 +228,11 @@ export function TimelineView({ tripId, readOnly }: TimelineViewProps) {
             <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 items-start">
                 {/* Left Sidebar: Calendar + Map */}
                 <div className="hidden lg:block sticky top-20 space-y-4">
-                    <div className="rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm p-3">
+                    <div className="liquid-glass rounded-3xl p-3.5">
                         <Calendar
                             mode="range"
                             selected={{ from: startDate, to: endDate }}
-                            className="w-full"
+                            className="w-full bg-transparent border-0 p-0 backdrop-blur-none shadow-none"
                             defaultMonth={startDate}
                         />
                     </div>
