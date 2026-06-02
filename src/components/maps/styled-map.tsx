@@ -212,28 +212,22 @@ export function StyledMap({ center, marker, markers, path, paths, height, onClic
             pts.forEach(p => { bounds.extend(p); hasPoints = true; });
         });
 
-        // Fit bounds, excluding outliers more than ~18km from centroid
+        // Fit the initial view to the places actually visited (activities +
+        // stays), NOT transport endpoints like airports. Long flight legs
+        // (e.g. London → Barcelona) would otherwise crush the city cluster
+        // into a corner. The flight paths are still drawn — just pan/zoom out.
         if (hasPoints && !bounds.isEmpty()) {
-            const allPts = allMarkers.map(m => ({ lat: m.lat, lng: m.lng }));
-            if (allPts.length > 1) {
-                const avgLat = allPts.reduce((s, p) => s + p.lat, 0) / allPts.length;
-                const avgLng = allPts.reduce((s, p) => s + p.lng, 0) / allPts.length;
-                const toRad = (d: number) => d * Math.PI / 180;
-                const dist = (a: {lat:number,lng:number}, b: {lat:number,lng:number}) => {
-                    const R = 6371;
-                    const dLat = toRad(b.lat - a.lat);
-                    const dLng = toRad(b.lng - a.lng);
-                    const x = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
-                    return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
-                };
-                const core = allPts.filter(p => dist({ lat: avgLat, lng: avgLng }, p) < 18);
-                const fitPts = core.length >= 2 ? core : allPts;
-                const coreBounds = new google.maps.LatLngBounds();
-                fitPts.forEach(p => coreBounds.extend(p));
-                map.fitBounds(coreBounds, 48);
-            } else {
-                map.setCenter({ lat: allPts[0].lat, lng: allPts[0].lng });
+            const fitMarkers = allMarkers.filter(m => (m.type || '').toLowerCase() !== 'transportation');
+            const fitPts = (fitMarkers.length > 0 ? fitMarkers : allMarkers).map(m => ({ lat: m.lat, lng: m.lng }));
+            if (fitPts.length > 1) {
+                const fitBounds = new google.maps.LatLngBounds();
+                fitPts.forEach(p => fitBounds.extend(p));
+                map.fitBounds(fitBounds, 56);
+            } else if (fitPts.length === 1) {
+                map.setCenter(fitPts[0]);
                 map.setZoom(14);
+            } else {
+                map.fitBounds(bounds, 56);
             }
         } else {
             const safeCenter = (Number.isFinite(center?.lat) && Number.isFinite(center?.lng))
