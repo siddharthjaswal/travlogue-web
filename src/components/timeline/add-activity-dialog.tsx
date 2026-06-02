@@ -7,7 +7,7 @@ import { format, addDays, differenceInMinutes } from 'date-fns';
 import {
     CalendarIcon, Loader2, Trash2,
     Camera, Utensils, Plane, Landmark, ShoppingBag, Mountain, Hotel,
-    Train, Bus, Car, Ship, MapPin,
+    Train, Bus, Car, Ship, MapPin, Navigation,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Activity } from '@/services/activity-service';
 import { showError } from '@/lib/toast-helper';
 import { StyledMap } from '@/components/maps/styled-map';
+import { googleDirectionsUrl } from '@/lib/maps-deep-link';
 import { guessCenter, resolveDestinationCoords, parseLatLng, parseGoogleMapsLink } from '@/lib/geo';
 import api from '@/lib/api';
 
@@ -1085,18 +1086,31 @@ export function AddActivityDialog({
                         </div>
                         {isTransport && (
                             <div className="rounded-xl border border-border/40 bg-muted/20 p-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Paste a Google Maps link or click to set coordinates</p>
+                                <div className="flex items-center justify-between mb-3 gap-3">
+                                    <p className="text-xs text-muted-foreground">Paste a Google Maps link or click to set coordinates</p>
+                                    <div className="flex items-center gap-2">
+                                        {startCoords && endCoords && (() => {
+                                            const url = googleDirectionsUrl(startCoords, endCoords, form.watch('transportMode'));
+                                            return url ? (
+                                                <a
+                                                    href={url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 whitespace-nowrap"
+                                                >
+                                                    <Navigation className="h-3.5 w-3.5" /> Open route in Maps
+                                                </a>
+                                            ) : null;
+                                        })()}
+                                        <Button
+                                            type="button"
+                                            variant={showMap ? 'secondary' : 'outline'}
+                                            size="sm"
+                                            onClick={() => setShowMap(!showMap)}
+                                        >
+                                            {showMap ? 'Hide Map' : 'Show Map'}
+                                        </Button>
                                     </div>
-                                    <Button
-                                        type="button"
-                                        variant={showMap ? 'secondary' : 'outline'}
-                                        size="sm"
-                                        onClick={() => setShowMap(!showMap)}
-                                    >
-                                        {showMap ? 'Hide Map' : 'Show Map'}
-                                    </Button>
                                 </div>
                                 {showMap && (
                                     <StyledMap

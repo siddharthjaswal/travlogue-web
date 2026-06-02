@@ -1,9 +1,10 @@
 'use client';
 
 import { Activity } from '@/services/activity-service';
-import { Plane, Hotel, Utensils, Camera, MapPin, Pencil, ExternalLink, Train, Bus, Car } from 'lucide-react';
+import { Plane, Hotel, Utensils, Camera, MapPin, Pencil, ExternalLink, Train, Bus, Car, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AddActivityDialog } from './add-activity-dialog';
+import { googleDirectionsUrl, googlePlaceUrl } from '@/lib/maps-deep-link';
 
 interface ActivityItemProps {
     activity: Activity;
@@ -34,6 +35,26 @@ export function ActivityItem({ activity, tripId, date, readOnly }: ActivityItemP
 
     const Icon = getActivityIcon(activity.activityType, activity.location);
     const isMapLink = activity.location?.startsWith('http');
+
+    // ── "Open in Maps" deep links ──────────────────────────────────────
+    const isTransport = activity.activityType?.toLowerCase() === 'transportation';
+    const baseLoc = (activity.location || '').split('•')[0];
+    const transportMode = (activity.location || '').split('•')[1]?.trim();
+    const [fromLabel, toLabel] = baseLoc.split('→').map((s) => s.trim());
+
+    // Transport segment → directions (navigate the route for real).
+    const directionsHref = isTransport
+        ? googleDirectionsUrl(
+              { lat: activity.startLatitude, lng: activity.startLongitude, label: fromLabel },
+              { lat: activity.endLatitude, lng: activity.endLongitude, label: toLabel },
+              transportMode
+          )
+        : null;
+
+    // Non-transport with a location → open the place.
+    const placeHref = !isTransport && !isMapLink
+        ? googlePlaceUrl({ lat: activity.latitude, lng: activity.longitude, label: baseLoc || undefined })
+        : null;
     const currencySymbol = (code?: string) => {
         if (!code) return '$';
         const c = code.toUpperCase();
@@ -139,7 +160,16 @@ export function ActivityItem({ activity, tripId, date, readOnly }: ActivityItemP
                                     <span className="text-xs font-medium">{activity.duration}h</span>
                                 </div>
                             )}
-                            {isMapLink && (
+                            {directionsHref ? (
+                                <a
+                                    href={directionsHref}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary/90 hover:text-primary"
+                                >
+                                    <Navigation className="h-3 w-3" /> Open route in Maps
+                                </a>
+                            ) : isMapLink ? (
                                 <a
                                     href={activity.location}
                                     target="_blank"
@@ -148,7 +178,16 @@ export function ActivityItem({ activity, tripId, date, readOnly }: ActivityItemP
                                 >
                                     <ExternalLink className="h-3 w-3" /> Open in Maps
                                 </a>
-                            )}
+                            ) : placeHref ? (
+                                <a
+                                    href={placeHref}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                                >
+                                    <ExternalLink className="h-3 w-3" /> Open in Maps
+                                </a>
+                            ) : null}
                         </div>
 
                         {activity.notes && (
