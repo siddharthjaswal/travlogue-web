@@ -37,6 +37,7 @@ interface TimelineDayProps {
     day: TripDay;
     stayInfo?: StayInfo;
     readOnly?: boolean;
+    onExpandMap?: () => void;
 }
 
 function getNextDefaultTime(activities: TripDay['activities']): string {
@@ -52,7 +53,7 @@ function getNextDefaultTime(activities: TripDay['activities']): string {
     return `${String(nextH).padStart(2, '0')}:${String(m || 0).padStart(2, '0')}`;
 }
 
-export function TimelineDay({ day, stayInfo, readOnly }: TimelineDayProps) {
+export function TimelineDay({ day, stayInfo, readOnly, onExpandMap }: TimelineDayProps) {
     const dateObj = new Date(day.date);
     const updateAccommodation = useUpdateAccommodation();
     const [editStayOpen, setEditStayOpen] = useState(false);
@@ -178,7 +179,7 @@ export function TimelineDay({ day, stayInfo, readOnly }: TimelineDayProps) {
                         )}
 
                         {/* Per-day map — shows all activity locations for this day */}
-                        <DayMap activities={day.activities} />
+                        <DayMap activities={day.activities} onExpand={onExpandMap} />
 
                         {/* Transits */}
                         {transits && transits.length > 0 && (

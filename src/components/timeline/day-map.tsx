@@ -9,6 +9,7 @@
  */
 
 import { useRef, useState, useEffect } from 'react';
+import { Maximize2 } from 'lucide-react';
 import { Activity } from '@/services/activity-service';
 import { StyledMap } from '@/components/maps/styled-map';
 
@@ -24,9 +25,11 @@ function formatTime(time?: string): string {
 
 interface DayMapProps {
     activities: Activity[];
+    /** When provided, an "Expand" button opens this day's full-screen map. */
+    onExpand?: () => void;
 }
 
-export function DayMap({ activities }: DayMapProps) {
+export function DayMap({ activities, onExpand }: DayMapProps) {
     const holderRef         = useRef<HTMLDivElement>(null);
     const [ready, setReady] = useState(false);
 
@@ -69,7 +72,7 @@ export function DayMap({ activities }: DayMapProps) {
     return (
         <div
             ref={holderRef}
-            className="mb-5 rounded-xl overflow-hidden"
+            className="relative mb-5 rounded-xl overflow-hidden"
             style={{ minHeight: MAP_HEIGHT }}
         >
             {ready ? (
@@ -82,6 +85,16 @@ export function DayMap({ activities }: DayMapProps) {
                 />
             ) : (
                 <div style={{ height: MAP_HEIGHT }} className="rounded-xl bg-muted/10 border border-border/20" />
+            )}
+            {ready && onExpand && (
+                <button
+                    onClick={onExpand}
+                    aria-label="Expand map"
+                    className="absolute top-2 right-2 z-20 inline-flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 text-[11px] font-medium text-white/85 hover:text-white hover:bg-black/55 transition-colors shadow-lg"
+                >
+                    <Maximize2 className="h-3 w-3" />
+                    Expand
+                </button>
             )}
         </div>
     );

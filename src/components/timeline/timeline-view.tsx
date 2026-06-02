@@ -9,7 +9,6 @@ import { Accommodation } from '@/services/accommodation-service';
 import { TimelineDay } from './timeline-day';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Plus, Maximize2 } from 'lucide-react';
 import { AddActivityDialog } from './add-activity-dialog';
 import { toast } from 'sonner';
 import { TripMap } from '@/components/trips/trip-map';
@@ -21,20 +20,21 @@ interface TimelineViewProps {
 
 export function TimelineView({ tripId, readOnly }: TimelineViewProps) {
     const { data: timeline, isLoading, isError } = useTripTimeline(tripId);
-    const [mapOpen,    setMapOpen]    = useState(false);
-    const [mapMounted, setMapMounted] = useState(false);
-    const [activeDayId, setActiveDayId] = useState<number | null>(null);
+    // Full-screen map is opened per day; holds the day id being shown (or null).
+    const [fullMapDayId, setFullMapDayId] = useState<number | null>(null);
+    const [mapMounted,   setMapMounted]   = useState(false);
+    const [activeDayId,  setActiveDayId]  = useState<number | null>(null);
     const dayRefs = useRef<Map<number, HTMLElement>>(new Map());
 
     // Delay mounting the full-screen map until overlay animation completes
     useEffect(() => {
-        if (mapOpen) {
+        if (fullMapDayId != null) {
             const t = setTimeout(() => setMapMounted(true), 350);
             return () => clearTimeout(t);
         } else {
             setMapMounted(false);
         }
-    }, [mapOpen]);
+    }, [fullMapDayId]);
 
     const { data: trip }           = useTrip(tripId);
     const { data: accommodations } = useAccommodationsByTrip(tripId);
@@ -216,48 +216,46 @@ export function TimelineView({ tripId, readOnly }: TimelineViewProps) {
                 </div>
             </div>
 
-            {/* ── Full-screen map overlay ──────────────────────────────────── */}
-            {mapOpen && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#0d1117' }} className="flex flex-col">
-                    <div className="flex items-center justify-between px-5 py-3 border-b border-border/30 bg-card/80 backdrop-blur flex-shrink-0">
-                        <span className="text-sm font-semibold text-foreground">{trip?.name} — Map</span>
-                        <div className="flex items-center gap-4">
-                            <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground">
-                                {[['#7FD1C8','Sightseeing'],['#F2A477','Dining'],['#A8A4F2','Transport'],['#8FB7FF','Stay']].map(([c,l]) => (
-                                    <span key={l} className="flex items-center gap-1.5">
-                                        <span className="h-2 w-2 rounded-full" style={{ background: c }} />
-                                        {l}
-                                    </span>
-                                ))}
+            {/* ── Per-day full-screen map overlay ──────────────────────────── */}
+            {fullMapDayId != null && trip && (() => {
+                const fmDay = timeline.days.find((d) => d.id === fullMapDayId);
+                const fmLabel = fmDay ? format(new Date(fmDay.date), 'EEE, MMM d') : '';
+                return (
+                    <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#0d1117' }} className="flex flex-col">
+                        <div className="flex items-center justify-between px-5 py-3 border-b border-border/30 bg-card/80 backdrop-blur flex-shrink-0">
+                            <span className="text-sm font-semibold text-foreground">
+                                {trip.name}{fmLabel ? ` · ${fmLabel}` : ''}
+                            </span>
+                            <div className="flex items-center gap-4">
+                                <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground">
+                                    {[['#7FD1C8','Sightseeing'],['#F2A477','Dining'],['#A8A4F2','Transport'],['#8FB7FF','Stay']].map(([c,l]) => (
+                                        <span key={l} className="flex items-center gap-1.5">
+                                            <span className="h-2 w-2 rounded-full" style={{ background: c }} />
+                                            {l}
+                                        </span>
+                                    ))}
+                                </div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground" onClick={() => setFullMapDayId(null)}>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                </Button>
                             </div>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground" onClick={() => setMapOpen(false)}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                            </Button>
+                        </div>
+                        <div style={{ flex: 1 }} ref={(el) => { if (el && !mapMounted) setTimeout(() => setMapMounted(true), 50); }}>
+                            {mapMounted && (
+                                <TripMap
+                                    trip={trip}
+                                    activeDayId={fullMapDayId}
+                                    height={typeof window !== 'undefined' ? window.innerHeight - 52 : 700}
+                                    className="w-full"
+                                />
+                            )}
                         </div>
                     </div>
-                    <div style={{ flex: 1 }} ref={(el) => { if (el && !mapMounted) setTimeout(() => setMapMounted(true), 50); }}>
-                        {mapMounted && trip && (
-                            <TripMap trip={trip} height={typeof window !== 'undefined' ? window.innerHeight - 52 : 700} className="w-full" />
-                        )}
-                    </div>
-                </div>
-            )}
+                );
+            })()}
 
             {/* ── Timeline stream ──────────────────────────────────────────── */}
             <div className="rounded-2xl border border-border/30 bg-card/30 backdrop-blur-sm p-4 shadow-sm">
-                {/* Expand-map button — top-right corner */}
-                <div className="flex justify-end mb-2">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="gap-1.5 rounded-full text-muted-foreground hover:text-foreground border border-border/30 h-7 px-3 text-xs"
-                        onClick={() => setMapOpen(true)}
-                    >
-                        <Maximize2 className="h-3 w-3" />
-                        Full map
-                    </Button>
-                </div>
-
                 {timeline.days.map((day) => (
                     <div
                         key={day.id}
@@ -268,7 +266,12 @@ export function TimelineView({ tripId, readOnly }: TimelineViewProps) {
                         }}
                         className="relative pb-12 sm:pb-16 scroll-mt-28"
                     >
-                        <TimelineDay day={day} stayInfo={stayMap.get(day.id)} readOnly={readOnly} />
+                        <TimelineDay
+                            day={day}
+                            stayInfo={stayMap.get(day.id)}
+                            readOnly={readOnly}
+                            onExpandMap={() => setFullMapDayId(day.id)}
+                        />
                     </div>
                 ))}
             </div>
