@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Travlogue Web
+
+The web frontend for **Travlogue**, a travel-planning app — plan trips, build day-by-day itineraries, track budgets and expenses, check weather, search flights, and collaborate with fellow travellers.
+
+Built with **Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4 · Radix / shadcn · TanStack Query · Framer Motion · Google Maps & Leaflet**. Dark-first design system.
+
+It pairs with the [Logbook](https://github.com/siddharthjaswal/logbook) backend API.
 
 ## Getting Started
 
-First, run the development server:
+Requires Node.js 20+.
 
 ```bash
+npm install
+cp .env.example .env.local   # then fill in the values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env.local` and provide the required values (API base URL, Google Maps key, etc.). The app expects the Logbook backend running (default `http://localhost:8000`).
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm start` | Serve the production build |
+| `npm test` | Unit tests (Vitest) |
+| `npm run e2e` | End-to-end tests (Playwright — needs both servers running) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `src/app` — Next.js App Router routes
+- `src/components` — UI components (timeline, budget, maps, settings, …)
+- `src/services` — API client layer
+- `src/hooks` — TanStack Query hooks
+- `src/lib` — utilities (formatting, geo, maps deep-links, …)
+- `/design` — living style guide
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Licensed under the [Apache License, Version 2.0](./LICENSE). You may use, modify, and distribute this software (including commercially) under the terms of that license. See [NOTICE](./NOTICE) for attribution.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Travlogue is open source. The hosted commercial version (with additional features such as real-time collaboration and AI assistance) is maintained separately.
