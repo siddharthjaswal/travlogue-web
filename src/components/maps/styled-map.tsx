@@ -202,10 +202,19 @@ export function StyledMap({ center, marker, markers, path, paths, height, onClic
             const poly = new google.maps.Polyline({
                 path: pts,
                 geodesic: true,
-                strokeColor: '#A8A4F2',
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-                icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 2 }, offset: '0', repeat: '8px' }],
+                // Light, airy dotted line — base stroke hidden, dots spaced wide.
+                strokeOpacity: 0,
+                icons: [{
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        fillColor: '#A8A4F2',
+                        fillOpacity: 0.45,
+                        strokeOpacity: 0,
+                        scale: 1.7,
+                    },
+                    offset: '0',
+                    repeat: '15px',
+                }],
             });
             poly.setMap(map);
             pathsRef.current.push(poly);
