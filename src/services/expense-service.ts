@@ -55,4 +55,20 @@ export const expenseService = {
     const res = await api.post('/expenses', payload);
     return mapExpense(res.data);
   },
+
+  update: async (id: number, data: Partial<CreateExpenseData>): Promise<Expense> => {
+    const payload: Record<string, unknown> = {};
+    if (data.description !== undefined) payload.description = data.description;
+    if (data.amount !== undefined) payload.amount = data.amount;
+    if (data.category !== undefined) payload.category = data.category;
+    if (data.date !== undefined) payload.expense_date = data.date;
+    if (data.notes !== undefined) payload.notes = data.notes;
+    if (data.currency !== undefined) payload.currency = data.currency;
+    const res = await api.put(`/expenses/${id}`, payload);
+    return mapExpense(res.data);
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/expenses/${id}`);
+  },
 };

@@ -97,8 +97,8 @@ export async function searchFlights(params: FlightSearchParams): Promise<FlightO
     },
     passengerCount: params.passengers ?? 1,
     slices: offer.slices.map(slice => ({
-      origin: slice.origin.iata_code,
-      destination: slice.destination.iata_code,
+      origin: slice.origin.iata_code ?? '',
+      destination: slice.destination.iata_code ?? '',
       departureAt: slice.segments[0].departing_at,
       arrivalAt: slice.segments[slice.segments.length - 1].arriving_at,
       duration: parseDuration(slice.duration ?? ''),
@@ -110,8 +110,8 @@ export async function searchFlights(params: FlightSearchParams): Promise<FlightO
         departureAt: seg.departing_at,
         arrivalAt: seg.arriving_at,
         duration: parseDuration(seg.duration ?? ''),
-        origin: seg.origin.iata_code,
-        destination: seg.destination.iata_code,
+        origin: seg.origin.iata_code ?? '',
+        destination: seg.destination.iata_code ?? '',
       })),
     })),
   }));

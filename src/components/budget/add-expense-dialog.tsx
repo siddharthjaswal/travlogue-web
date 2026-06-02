@@ -29,10 +29,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { useCreateExpense } from '@/hooks/use-expenses';
-import { CreateExpenseData } from '@/services/expense-service';
+import { useCreateExpense, useUpdateExpense } from '@/hooks/use-expenses';
+import { Expense } from '@/services/expense-service';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { showError } from '@/lib/toast-helper';
 import { CalendarIcon, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -53,11 +53,16 @@ const formSchema = z.object({
 interface AddExpenseDialogProps {
     tripId: number;
     trigger?: React.ReactNode;
+    /** When provided, the dialog edits this expense instead of creating one. */
+    expense?: Expense;
 }
 
-export function AddExpenseDialog({ tripId, trigger }: AddExpenseDialogProps) {
+export function AddExpenseDialog({ tripId, trigger, expense }: AddExpenseDialogProps) {
     const [open, setOpen] = useState(false);
-    const { mutate: createExpense, isPending } = useCreateExpense();
+    const isEdit = !!expense;
+    const { mutate: createExpense, isPending: isCreating } = useCreateExpense();
+    const { mutate: updateExpense, isPending: isUpdating } = useUpdateExpense();
+    const isPending = isCreating || isUpdating;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -70,24 +75,50 @@ export function AddExpenseDialog({ tripId, trigger }: AddExpenseDialogProps) {
         },
     });
 
+    // Prefill (edit) or clear (add) the form whenever the dialog opens.
+    useEffect(() => {
+        if (!open) return;
+        if (expense) {
+            form.reset({
+                description: expense.description,
+                amount: String(expense.amount),
+                category: expense.category,
+                date: expense.date ? new Date(expense.date) : new Date(),
+                notes: expense.notes ?? '',
+            });
+        } else {
+            form.reset({ description: '', amount: '', category: 'food', date: new Date(), notes: '' });
+        }
+    }, [open, expense, form]);
+
     function onSubmit(values: z.infer<typeof formSchema>) {
-        createExpense({
+        const payload = {
             tripId,
             description: values.description,
             amount: Number(values.amount),
             category: values.category,
             date: format(values.date, 'yyyy-MM-dd'),
             notes: values.notes,
-        }, {
-            onSuccess: () => {
-                toast.success('Expense added successfully');
-                setOpen(false);
-                form.reset();
-            },
-            onError: (error: any) => {
-                showError('Failed to add expense', error);
-            }
-        });
+        };
+
+        if (isEdit && expense) {
+            updateExpense({ id: expense.id, data: payload }, {
+                onSuccess: () => {
+                    toast.success('Expense updated');
+                    setOpen(false);
+                },
+                onError: (error: any) => showError('Failed to update expense', error),
+            });
+        } else {
+            createExpense(payload, {
+                onSuccess: () => {
+                    toast.success('Expense added successfully');
+                    setOpen(false);
+                    form.reset();
+                },
+                onError: (error: any) => showError('Failed to add expense', error),
+            });
+        }
     }
 
     return (
@@ -95,9 +126,9 @@ export function AddExpenseDialog({ tripId, trigger }: AddExpenseDialogProps) {
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Add Expense</DialogTitle>
+                    <DialogTitle>{isEdit ? 'Edit Expense' : 'Add Expense'}</DialogTitle>
                     <DialogDescription>
-                        Track a new expense for your trip.
+                        {isEdit ? 'Update the details of this expense.' : 'Track a new expense for your trip.'}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -205,7 +236,7 @@ export function AddExpenseDialog({ tripId, trigger }: AddExpenseDialogProps) {
                             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
                             <Button type="submit" disabled={isPending}>
                                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Add Expense
+                                {isEdit ? 'Save Changes' : 'Add Expense'}
                             </Button>
                         </DialogFooter>
                     </form>

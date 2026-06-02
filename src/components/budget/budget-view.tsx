@@ -3,12 +3,24 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Plus, DollarSign, TrendingUp, CreditCard, Pencil } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, CreditCard, Pencil, Trash2 } from "lucide-react";
 import { Trip } from "@/services/trip-service";
 import { AddExpenseDialog } from "./add-expense-dialog";
 import { EditBudgetDialog } from "./edit-budget-dialog";
 import { useState, useMemo } from "react";
-import { useExpenses } from "@/hooks/use-expenses";
+import { useExpenses, useDeleteExpense } from "@/hooks/use-expenses";
+import { toast } from "sonner";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useTripTimeline } from '@/hooks/use-trips';
 import { useAuth } from '@/contexts/auth-context';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,6 +39,7 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
     const { data: timeline } = useTripTimeline(tripId);
     const { user } = useAuth();
     const [editOpen, setEditOpen] = useState(false);
+    const deleteExpense = useDeleteExpense(tripId);
 
         const derivedPlaces = useMemo(() => {
         if (!timeline?.days) return [] as string[];
@@ -179,10 +192,48 @@ export function BudgetView({ tripId, trip }: BudgetViewProps) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <span className="font-bold text-foreground block">
+                                    <div className="flex items-center gap-3">
+                                        <span className="font-bold text-foreground block whitespace-nowrap">
                                             -{formatMoney(expense.amount, currency)}
                                         </span>
+                                        <div className="flex items-center gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                            <AddExpenseDialog
+                                                tripId={tripId}
+                                                expense={expense}
+                                                trigger={
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary rounded-lg" aria-label="Edit expense">
+                                                        <Pencil className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                }
+                                            />
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive rounded-lg" aria-label="Delete expense">
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete this expense?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            “{expense.description}” ({formatMoney(expense.amount, currency)}) will be permanently removed. This cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                            onClick={() => deleteExpense.mutate(expense.id, {
+                                                                onSuccess: () => toast.success('Expense deleted'),
+                                                                onError: () => toast.error('Failed to delete expense'),
+                                                            })}
+                                                        >
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
                                     </div>
                                 </div>
                             ))

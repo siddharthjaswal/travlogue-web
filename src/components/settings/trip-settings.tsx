@@ -10,7 +10,19 @@ import { InviteMemberDialog } from "./invite-member-dialog";
 import { useState, useEffect } from "react";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { useTripMembers, useTripInvitations, useInviteTripMember, useUpdateTripMemberRole, useRemoveTripMember, useCancelInvitation, useResendInvitation } from "@/hooks/use-collaboration";
-import { useUpdateTrip } from "@/hooks/use-trips";
+import { useUpdateTrip, useDeleteTrip } from "@/hooks/use-trips";
+import { useRouter } from "next/navigation";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -40,6 +52,41 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
     const cancelInvitationMutation = useCancelInvitation();
     const resendInvitationMutation = useResendInvitation();
     const updateTripMutation = useUpdateTrip();
+    const deleteTripMutation = useDeleteTrip();
+    const router = useRouter();
+
+    // Controlled fields for the General Information form
+    const [name, setName] = useState(trip?.name ?? '');
+    const [description, setDescription] = useState(trip?.description ?? '');
+    useEffect(() => {
+        setName(trip?.name ?? '');
+        setDescription(trip?.description ?? '');
+    }, [trip?.id, trip?.name, trip?.description]);
+
+    const handleSaveGeneral = () => {
+        const trimmed = name.trim();
+        if (!trimmed) {
+            toast.error('Trip name cannot be empty');
+            return;
+        }
+        updateTripMutation.mutate(
+            { id: tripId, data: { name: trimmed, description } },
+            {
+                onSuccess: () => toast.success('Changes saved'),
+                onError: () => toast.error('Failed to save changes'),
+            }
+        );
+    };
+
+    const handleDeleteTrip = () => {
+        deleteTripMutation.mutate(tripId, {
+            onSuccess: () => {
+                toast.success('Trip deleted');
+                router.push('/dashboard/trips');
+            },
+            onError: () => toast.error('Failed to delete trip'),
+        });
+    };
 
     // Explicitly type the arguments
     const handleInvite = (email: string, role: string, message?: string) => {
@@ -82,11 +129,11 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                 <CardContent className="space-y-4">
                     <div className="grid gap-2">
                         <Label htmlFor="tripName">Trip Name</Label>
-                        <Input id="tripName" defaultValue={trip?.name || "My Trip"} />
+                        <Input id="tripName" value={name} onChange={(e) => setName(e.target.value)} />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="description">Description</Label>
-                        <Textarea id="description" placeholder="Add a description..." defaultValue={trip?.description || ""} />
+                        <Textarea id="description" placeholder="Add a description..." value={description} onChange={(e) => setDescription(e.target.value)} />
                     </div>
                     <div className="grid gap-2">
                         <Label>Visibility</Label>
@@ -115,7 +162,9 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                         <p className="text-xs text-muted-foreground">Public trips are visible in discovery and can be viewed by anyone with the link.</p>
                     </div>
                     <div className="flex justify-end">
-                        <Button onClick={() => toast.success("Changes saved")}>Save Changes</Button>
+                        <Button onClick={handleSaveGeneral} disabled={updateTripMutation.isPending}>
+                            {updateTripMutation.isPending ? 'Saving…' : 'Save Changes'}
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
@@ -243,7 +292,30 @@ export function TripSettings({ tripId, trip }: TripSettingsProps) {
                             <p className="font-medium">Delete Trip</p>
                             <p className="text-sm text-muted-foreground">Permanently delete this trip and all its data.</p>
                         </div>
-                        <Button variant="destructive" className="w-full sm:w-auto">Delete Trip</Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" className="w-full sm:w-auto" disabled={deleteTripMutation.isPending}>
+                                    {deleteTripMutation.isPending ? 'Deleting…' : 'Delete Trip'}
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete this trip?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        This permanently deletes <span className="font-semibold text-foreground">{trip?.name || 'this trip'}</span> and all its days, activities, accommodations, and expenses. This action cannot be undone.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={handleDeleteTrip}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                        Delete Trip
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                 </CardContent>
             </Card>
