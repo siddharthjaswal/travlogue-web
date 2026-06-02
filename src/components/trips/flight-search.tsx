@@ -206,7 +206,7 @@ export function FlightSearch({ defaultOrigin = '', defaultDestination = '', defa
   return (
     <div className="space-y-4">
       {/* Search form */}
-      <div className={`rounded-2xl border border-border/50 bg-card/60 p-4 space-y-3`}>
+      <div className={`surface-1 rounded-2xl p-4 space-y-3`}>
         <div className="flex items-center gap-2 mb-1">
           <Plane className="h-4 w-4 text-primary" />
           <span className="text-sm font-semibold text-foreground">Flight search</span>

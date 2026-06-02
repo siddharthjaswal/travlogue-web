@@ -88,7 +88,7 @@ export function WeatherPanel({ city, country, tripStartTimestamp, tripEndTimesta
     });
 
     return (
-        <div className="rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm p-5 space-y-4">
+        <div className="surface-1 rounded-2xl p-5 space-y-4">
             {/* Header */}
             <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-teal-400/10 flex items-center justify-center">
