@@ -7,7 +7,7 @@ import { useTrips } from '@/hooks/use-trips';
 import { LayoutDashboard, Map, CalendarDays, Wallet, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 function getGreeting() {
     const h = new Date().getHours();
@@ -43,6 +43,12 @@ export default function DashboardLayout({
     const { data: trips, isLoading } = useTrips();
     const pathname = usePathname();
 
+    // The dashboard is a fully client-side, auth-gated app (token from
+    // localStorage, no SSR data). Rendering it only after mount avoids
+    // server/client useId mismatches from the Radix + framer-motion subtree.
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
+
     const firstName = user?.name?.split(' ')[0] || 'there';
     const pageTitle = getPageTitle(pathname);
     const isTripDetail = pathname?.match(/\/dashboard\/trips\/\d+/);
@@ -52,6 +58,12 @@ export default function DashboardLayout({
         const now = Date.now() / 1000;
         return trips.filter((t: any) => (t.startDateTimestamp || 0) >= now).length;
     }, [trips]);
+
+    // Render a matching shell on the server / first paint, then the full UI
+    // after mount. Keeps hydration trees identical (no Radix useId mismatch).
+    if (!mounted) {
+        return <div className="h-screen bg-background" />;
+    }
 
     return (
         <div className="flex h-screen bg-background overflow-hidden">
