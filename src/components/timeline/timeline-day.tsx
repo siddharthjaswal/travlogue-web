@@ -21,6 +21,7 @@ import { useUpdateAccommodation } from '@/hooks/use-accommodations';
 import { toast } from 'sonner';
 import { showError } from '@/lib/toast-helper';
 import { useEffect, useState } from 'react';
+import { DayMap } from './day-map';
 
 interface StayInfo {
     name: string;
@@ -150,8 +151,8 @@ export function TimelineDay({ day, stayInfo, readOnly }: TimelineDayProps) {
                     </div>
                 </div>
 
-                {/* Content Column */}
-                <div className="relative">
+                {/* Content Column — min-w-0 keeps it within the 1fr grid cell */}
+                <div className="relative min-w-0">
                     <div className="space-y-4">
                         {stayInfo && stayInfo.isStart && (
                             <div className="group mb-4 flex items-center justify-between rounded-md border border-border/30 bg-[#8FB7FF]/18 px-3 py-2 text-xs text-muted-foreground">
@@ -176,7 +177,8 @@ export function TimelineDay({ day, stayInfo, readOnly }: TimelineDayProps) {
                             </div>
                         )}
 
-                        {/* Add button moved to bottom */}
+                        {/* Per-day map — shows all activity locations for this day */}
+                        <DayMap activities={day.activities} />
 
                         {/* Transits */}
                         {transits && transits.length > 0 && (

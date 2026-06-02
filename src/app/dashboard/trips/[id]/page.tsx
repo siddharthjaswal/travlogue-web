@@ -8,9 +8,10 @@ import { TripSettings } from '@/components/settings/trip-settings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Map, Wallet, Settings, CloudSun, Plane } from 'lucide-react';
+import { ChevronLeft, Map, Wallet, Settings, CloudSun, Plane, CalendarDays } from 'lucide-react';
 import { WeatherPanel } from '@/components/trips/weather-panel';
 import { FlightSearch } from '@/components/trips/flight-search';
+import { Calendar } from '@/components/ui/calendar';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -19,7 +20,10 @@ export default function TripDetailsPage() {
     const params = useParams();
     const id = Number(params.id);
     const { data: trip, isLoading, isError } = useTrip(id);
-    const [sidePanel, setSidePanel] = useState<'weather' | 'flights' | null>('weather');
+    const [sidePanel, setSidePanel] = useState<'weather' | 'flights' | 'calendar'>('weather');
+
+    const tripStartDate = trip?.startDateTimestamp ? new Date(trip.startDateTimestamp * 1000) : new Date();
+    const tripEndDate   = trip?.endDateTimestamp   ? new Date(trip.endDateTimestamp   * 1000) : tripStartDate;
 
     if (isLoading) {
         return <TripDetailsSkeleton />;
@@ -52,8 +56,8 @@ export default function TripDetailsPage() {
 
             {/* Main layout: tabs + side panel */}
             <div className="grid lg:grid-cols-[1fr_320px] gap-6 mt-4">
-                {/* Left: tabs */}
-                <div>
+                {/* Left: tabs — min-w-0 prevents the 1fr cell expanding to fit Leaflet tiles */}
+                <div className="min-w-0">
                     <Tabs defaultValue="itinerary">
                         <div className="md:hidden fixed bottom-4 left-0 right-0 z-20 px-4">
                             <div className="mx-auto max-w-md rounded-full border border-border/30 glass-dark shadow-lg">
@@ -112,6 +116,12 @@ export default function TripDetailsPage() {
                         >
                             <Plane className="h-3.5 w-3.5" />Flights
                         </button>
+                        <button
+                            onClick={() => setSidePanel('calendar')}
+                            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${sidePanel === 'calendar' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                        >
+                            <CalendarDays className="h-3.5 w-3.5" />Calendar
+                        </button>
                     </div>
 
                     {sidePanel === 'weather' && (
@@ -127,6 +137,16 @@ export default function TripDetailsPage() {
                             defaultDestination=""
                             compact
                         />
+                    )}
+                    {sidePanel === 'calendar' && (
+                        <div className="liquid-glass rounded-3xl p-3.5">
+                            <Calendar
+                                mode="range"
+                                selected={{ from: tripStartDate, to: tripEndDate }}
+                                defaultMonth={tripStartDate}
+                                className="w-full bg-transparent border-0 p-0 backdrop-blur-none shadow-none"
+                            />
+                        </div>
                     )}
                 </div>
             </div>
