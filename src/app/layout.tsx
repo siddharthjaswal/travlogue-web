@@ -29,6 +29,7 @@ import QueryProvider from "@/providers/query-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { BackgroundFX } from "@/components/background-fx";
 
 export default function RootLayout({
   children,
@@ -40,6 +41,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <BackgroundFX />
         <QueryProvider>
           <AuthProvider>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} forcedTheme="dark">

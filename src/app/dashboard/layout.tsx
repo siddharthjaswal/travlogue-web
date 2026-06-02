@@ -62,11 +62,11 @@ export default function DashboardLayout({
     // Render a matching shell on the server / first paint, then the full UI
     // after mount. Keeps hydration trees identical (no Radix useId mismatch).
     if (!mounted) {
-        return <div className="h-screen bg-background" />;
+        return <div className="h-screen" />;
     }
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden">
+        <div className="flex h-screen overflow-hidden">
             <Sidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Mobile bottom nav */}
