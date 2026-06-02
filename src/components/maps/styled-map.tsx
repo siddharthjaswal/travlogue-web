@@ -80,14 +80,19 @@ function currencySymbol(code?: string): string {
 
 function makeInfoWindowContent(m: MarkerData): string {
     const typeLabel = m.type ? m.type.charAt(0).toUpperCase() + m.type.slice(1) : '';
+    const color = getMarkerColor(m.kind, m.type);
     const costStr = m.cost ? `${currencySymbol(m.currency)}${m.cost}` : '';
+    const font = `-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
     return `
-        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:8px 4px;max-width:220px">
-            ${typeLabel ? `<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8b949e;margin-bottom:4px">${typeLabel}</div>` : ''}
-            <div style="font-size:14px;font-weight:700;color:#e6edf3;line-height:1.3;margin-bottom:${m.subtitle || m.notes ? '4px' : '0'}">${m.title || ''}</div>
-            ${m.subtitle ? `<div style="font-size:12px;color:#8b949e;margin-bottom:4px">${m.subtitle}</div>` : ''}
-            ${m.notes ? `<div style="font-size:11px;color:#6e7681;line-height:1.4;border-top:1px solid #21262d;padding-top:6px;margin-top:4px">${m.notes}</div>` : ''}
-            ${costStr ? `<div style="font-size:12px;font-weight:600;color:#58a6ff;margin-top:6px">${costStr}</div>` : ''}
+        <div style="font-family:${font};padding:13px 15px;min-width:170px;max-width:230px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:7px">
+                <span style="width:7px;height:7px;border-radius:50%;background:${color};box-shadow:0 0 8px ${color}99"></span>
+                <span style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:${color}">${typeLabel}</span>
+            </div>
+            <div style="font-size:14.5px;font-weight:650;color:#f0f3f6;line-height:1.3">${m.title || ''}</div>
+            ${m.subtitle ? `<div style="font-size:12px;color:#9aa4b2;line-height:1.4;margin-top:3px">${m.subtitle}</div>` : ''}
+            ${m.notes ? `<div style="font-size:11px;color:#7d8694;line-height:1.45;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.08)">${m.notes}</div>` : ''}
+            ${costStr ? `<div style="margin-top:10px"><span style="display:inline-block;font-size:12px;font-weight:700;color:${color};background:${color}1f;padding:3px 10px;border-radius:999px">${costStr}</span></div>` : ''}
         </div>
     `;
 }
@@ -181,11 +186,7 @@ export function StyledMap({ center, marker, markers, path, paths, height, onClic
 
             if (m.title) {
                 gm.addListener('click', () => {
-                    infoWindowRef.current?.setContent(`
-                        <div style="background:#161b22;border-radius:12px;overflow:hidden">
-                            ${makeInfoWindowContent(m)}
-                        </div>
-                    `);
+                    infoWindowRef.current?.setContent(makeInfoWindowContent(m));
                     infoWindowRef.current?.open({ anchor: gm, map });
                 });
             }
@@ -272,27 +273,36 @@ export function StyledMap({ center, marker, markers, path, paths, height, onClic
             .gm-bundled-control > div > div {
                 background: rgba(255, 255, 255, 0.08) !important;
             }
-            /* Dark info window chrome */
+            /* Liquid-glass info window */
             .gm-style-iw.gm-style-iw-c {
-                background: #161b22 !important;
-                border: 1px solid rgba(255,255,255,0.08) !important;
-                border-radius: 12px !important;
-                box-shadow: 0 8px 28px rgba(0,0,0,0.55) !important;
+                background:
+                  linear-gradient(157deg, rgba(255,255,255,0.07), rgba(255,255,255,0.012) 42%),
+                  rgba(18, 24, 35, 0.62) !important;
+                backdrop-filter: blur(24px) saturate(150%) !important;
+                -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+                border: 1px solid rgba(255,255,255,0.09) !important;
+                border-radius: 16px !important;
+                box-shadow:
+                  inset 0 1px 0 0 rgba(255,255,255,0.12),
+                  0 18px 44px -14px rgba(0,0,0,0.6),
+                  0 2px 10px -6px rgba(0,0,0,0.5) !important;
                 padding: 0 !important;
             }
             .gm-style-iw-d {
                 overflow: hidden !important;
-                background: #161b22 !important;
+                background: transparent !important;
             }
-            .gm-style-iw-tc::after {
-                background: #161b22 !important;
+            /* Glass tail */
+            .gm-style .gm-style-iw-tc::after {
+                background:
+                  linear-gradient(157deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
+                  rgba(18, 24, 35, 0.62) !important;
+                backdrop-filter: blur(24px) saturate(150%) !important;
+                -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
             }
+            /* Hide default close button — click map / another marker to dismiss */
             .gm-style-iw button.gm-ui-hover-effect {
-                top: 2px !important;
-                right: 2px !important;
-            }
-            .gm-style-iw button.gm-ui-hover-effect > span {
-                background-color: #6e7681 !important;
+                display: none !important;
             }
         `;
         document.head.appendChild(style);
