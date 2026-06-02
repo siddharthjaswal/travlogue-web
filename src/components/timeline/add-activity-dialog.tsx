@@ -29,6 +29,7 @@ import {
     FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
     Popover,
@@ -241,7 +242,37 @@ export function AddActivityDialog({
     const [resolvedCoords, setResolvedCoords] = useState<{ lat: number; lng: number } | null>(null);
     const [startCoords, setStartCoords] = useState<{ lat: number; lng: number } | null>(null);
     const [endCoords, setEndCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const [routeLink, setRouteLink] = useState('');
+    const [importingRoute, setImportingRoute] = useState(false);
+    const routeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const didAutoResolveRef = useRef<Record<number, boolean>>({});
+
+    // Paste a Google Maps directions link → prefill start/end + mode.
+    async function importRouteLink(url: string) {
+        if (!url || importingRoute) return;
+        if (!(url.includes('maps.app.goo.gl') || url.includes('google.com/maps'))) return;
+        setImportingRoute(true);
+        try {
+            const res = await api.get('/utils/resolve-directions-link', { params: { url } });
+            const d = res?.data;
+            if (!d || d.error || !d.origin || !d.destination) {
+                toast.message(d?.error || 'Could not read that route link');
+                return;
+            }
+            const o = d.origin;
+            const dest = d.destination;
+            form.setValue('startLocation', o.name || (o.lat != null ? `${o.lat}, ${o.lng}` : ''));
+            form.setValue('endLocation', dest.name || (dest.lat != null ? `${dest.lat}, ${dest.lng}` : ''));
+            if (o.lat != null && o.lng != null) setStartCoords({ lat: Number(o.lat), lng: Number(o.lng) });
+            if (dest.lat != null && dest.lng != null) setEndCoords({ lat: Number(dest.lat), lng: Number(dest.lng) });
+            if (d.mode) form.setValue('transportMode', d.mode);
+            toast.success('Route imported');
+        } catch {
+            toast.error('Failed to import route');
+        } finally {
+            setImportingRoute(false);
+        }
+    }
 
     // Resolve the trip's destination (e.g. Iceland) to coordinates so the map
     // opens centered on the right country, not the StyledMap default fallback.
@@ -386,6 +417,8 @@ export function AddActivityDialog({
                 setStartCoords(null);
                 setEndCoords(null);
                 setResolvedCoords(null);
+                setRouteLink('');
+                setImportingRoute(false);
             }
         }
     }, [show, mode, activity, initialDate, form]);
@@ -618,6 +651,40 @@ export function AddActivityDialog({
                                     </FormItem>
                                 )}
                             />
+                        )}
+
+                        {isTransport && (
+                            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+                                <Label className="text-xs font-medium text-foreground flex items-center gap-1.5">
+                                    <Navigation className="h-3.5 w-3.5 text-primary" />
+                                    Import from a Google Maps route link
+                                </Label>
+                                <div className="relative mt-1.5">
+                                    <Input
+                                        value={routeLink}
+                                        placeholder="Paste a Google Maps directions link…"
+                                        className="rounded-lg pr-24 h-9 text-sm"
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+                                            setRouteLink(v);
+                                            if (routeTimer.current) clearTimeout(routeTimer.current);
+                                            const t = v.trim();
+                                            if (t.includes('maps.app.goo.gl') || t.includes('google.com/maps')) {
+                                                // Debounce so we import the full link, not partial keystrokes.
+                                                routeTimer.current = setTimeout(() => importRouteLink(t), 600);
+                                            }
+                                        }}
+                                    />
+                                    {importingRoute && (
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                                            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading…
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-[11px] text-muted-foreground mt-1.5">
+                                    Auto-fills start, destination, and mode. (The path &amp; ETA come next.)
+                                </p>
+                            </div>
                         )}
 
                         {isStay ? (
