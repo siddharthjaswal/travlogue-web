@@ -67,3 +67,21 @@ export function formatSpeed(kmh: number, unit: UnitSystem = 'metric'): string {
     }
     return `${Math.round(kmh)} km/h`;
 }
+
+/** Format a distance in meters to the user's unit system. */
+export function formatDistance(meters: number, unit: UnitSystem = 'metric'): string {
+    if (unit === 'imperial') {
+        const mi = meters / 1609.344;
+        return mi < 0.2 ? `${Math.round(meters * 3.28084)} ft` : `${mi.toFixed(1)} mi`;
+    }
+    return meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toFixed(1)} km`;
+}
+
+/** Format a duration in seconds as "21 min" / "1h 5m". */
+export function formatDuration(seconds: number): string {
+    const mins = Math.round(seconds / 60);
+    if (mins < 60) return `${mins} min`;
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return m ? `${h}h ${m}m` : `${h}h`;
+}
