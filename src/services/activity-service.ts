@@ -134,6 +134,10 @@ export const activityService = {
         if (data.location !== undefined) payload.location = data.location;
         if (data.latitude !== undefined) payload.latitude = data.latitude;
         if (data.longitude !== undefined) payload.longitude = data.longitude;
+        if (data.startLatitude !== undefined) payload.start_latitude = data.startLatitude;
+        if (data.startLongitude !== undefined) payload.start_longitude = data.startLongitude;
+        if (data.endLatitude !== undefined) payload.end_latitude = data.endLatitude;
+        if (data.endLongitude !== undefined) payload.end_longitude = data.endLongitude;
         if (data.notes !== undefined) payload.notes = data.notes;
         // Date is usually not editable easily as it changes the day, but if we want to allow it we need backend support for moving days. 
         // For now let's assume date doesn't change or if it does we handle it.

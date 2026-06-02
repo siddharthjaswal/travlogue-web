@@ -5,16 +5,6 @@ import { Plane, Hotel, Utensils, Camera, MapPin, Pencil, ExternalLink, Train, Bu
 import { Button } from '@/components/ui/button';
 import { AddActivityDialog } from './add-activity-dialog';
 import { googleDirectionsUrl, googlePlaceUrl } from '@/lib/maps-deep-link';
-import { RoutePreview } from '@/components/maps/route-preview';
-import { useRoute } from '@/hooks/use-route';
-import { useAuth } from '@/contexts/auth-context';
-import { formatDistance, formatDuration } from '@/lib/format';
-
-const MODE_COLORS: Record<string, string> = {
-    car: '#A8A4F2', bus: '#A8A4F2', train: '#A8A4F2', ferry: '#8FB7FF',
-    flight: '#7FD1C8', walk: '#9DD49A',
-};
-const ROAD_MODES = ['car', 'bus', 'walk', 'taxi'];
 
 interface ActivityItemProps {
     activity: Activity;
@@ -66,31 +56,6 @@ export function ActivityItem({ activity, tripId, date, readOnly }: ActivityItemP
         ? googlePlaceUrl({ lat: activity.latitude, lng: activity.longitude, label: baseLoc || undefined })
         : null;
 
-    // ── Route preview (map path + ETA on the card) ─────────────────────
-    const { user } = useAuth();
-    const unit = user?.unitSystem ?? 'metric';
-    const fromPt = isTransport && activity.startLatitude != null && activity.startLongitude != null
-        ? { lat: Number(activity.startLatitude), lng: Number(activity.startLongitude) }
-        : null;
-    const toPt = isTransport && activity.endLatitude != null && activity.endLongitude != null
-        ? { lat: Number(activity.endLatitude), lng: Number(activity.endLongitude) }
-        : null;
-    const isRoadMode = ROAD_MODES.includes((transportMode || '').toLowerCase());
-    // Fetch the real road route only for road modes (others draw a straight line).
-    const { data: route } = useRoute(fromPt, toPt, isRoadMode && !!fromPt && !!toPt);
-
-    const routeGeometry: [number, number][] | null =
-        route?.geometry && route.geometry.length >= 2
-            ? route.geometry
-            : fromPt && toPt
-                ? [[fromPt.lat, fromPt.lng], [toPt.lat, toPt.lng]]
-                : null;
-    const routeColor = MODE_COLORS[(transportMode || '').toLowerCase()] || '#A8A4F2';
-    const etaLabel = route?.duration_s
-        ? `${formatDuration(route.duration_s)}${route.distance_m ? ' · ' + formatDistance(route.distance_m, unit) : ''}`
-        : activity.duration
-            ? `${activity.duration}h`
-            : null;
     const currencySymbol = (code?: string) => {
         if (!code) return '$';
         const c = code.toUpperCase();
@@ -189,17 +154,6 @@ export function ActivityItem({ activity, tripId, date, readOnly }: ActivityItemP
                                 )}
                             </div>
                         </div>
-
-                        {isTransport && routeGeometry && (
-                            <div className="relative mt-2 overflow-hidden rounded-xl border border-border/40 bg-muted/15">
-                                <RoutePreview geometry={routeGeometry} color={routeColor} height={72} />
-                                {etaLabel && (
-                                    <span className="absolute bottom-1.5 right-2 rounded-full border border-border/50 bg-background/85 px-2 py-0.5 text-[11px] font-semibold text-foreground backdrop-blur">
-                                        {etaLabel}
-                                    </span>
-                                )}
-                            </div>
-                        )}
 
                         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground/80">
                             {activity.duration && (
